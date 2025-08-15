@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- WatchMates App Theme - Simple base theme for Compose -->
+    <!-- WatchMates App Theme for API 27+ (Android 8.1+) -->
     <style name="Theme.Watchmates" parent="android:Theme.Material.Light.NoActionBar">
         <!-- Use basic Material theme since we're using Compose for all UI -->
         <!-- The actual Material3 theming is handled in Compose via WatchmatesTheme -->
@@ -11,6 +11,6 @@
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:navigationBarColor">@android:color/transparent</item>
         <item name="android:windowLightStatusBar">true</item>
-        <!-- windowLightNavigationBar requires API 27+ so it's defined in values-v27/themes.xml -->
+        <item name="android:windowLightNavigationBar">true</item>
     </style>
 </resources>

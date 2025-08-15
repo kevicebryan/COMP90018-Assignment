@@ -1,3 +1,4 @@
 <resources>
-    <string name="app_name">Mobile Computing Assignment</string>
+    <string name="app_name">WatchMates</string>
+    <string name="default_web_client_id">462123055270-63esilpce4n3a440jqocflvrp81l74sh.apps.googleusercontent.com</string>
 </resources>

@@ -1,0 +1,251 @@
+package com.example.mobilecomputingassignment.ui.theme
+
+/**
+ * WatchMates Theme Usage Guide
+ *
+ * Quick reference for using colors and typography in your components
+ */
+
+// COLORS - Use MaterialTheme.colorScheme for automatic light/dark adaptation
+
+@Composable
+fun ColorExamples() {
+    Column {
+        // Primary Actions (Orange)
+        Button(
+            onClick = {},
+            colors = ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.colorScheme.primary  // Orange
+            )
+        ) {
+            Text("Watch Movie")  // White text automatically
+        }
+
+        // Secondary Actions (Yellow)
+        Button(
+            onClick = {},
+            colors = ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.colorScheme.secondary  // Yellow
+            )
+        ) {
+            Text(
+                "Add to Watchlist",
+                color = MaterialTheme.colorScheme.onSecondary  // Black text on yellow
+            )
+        }
+
+        // Surface Colors (Cards, Dialogs)
+        Card(
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surface  // Adapts to theme
+            )
+        ) {
+            Text(
+                "Movie Details",
+                color = MaterialTheme.colorScheme.onSurface  // Contrasting text
+            )
+        }
+
+        // Background Text
+        Text(
+            "Welcome to WatchMates",
+            color = MaterialTheme.colorScheme.onBackground  // Adapts to theme
+        )
+
+        // Error States
+        Text(
+            "Connection failed",
+            color = MaterialTheme.colorScheme.error  // Red
+        )
+    }
+}
+
+// TYPOGRAPHY - Use MaterialTheme.typography for font consistency
+
+@Composable
+fun TypographyExamples() {
+    Column {
+        // App Headers (Racing Sans One)
+        Text(
+            "🎬 WatchMates",
+            style = MaterialTheme.typography.headlineLarge  // Racing font, 32sp
+        )
+
+        // Screen Titles (Racing Sans One)
+        Text(
+            "Now Playing",
+            style = MaterialTheme.typography.headlineMedium  // Racing font, 28sp
+        )
+
+        // Section Headers (Racing Sans One)
+        Text(
+            "Popular Movies",
+            style = MaterialTheme.typography.titleLarge  // Racing font, 22sp
+        )
+
+        // Card Titles (Racing Sans One)
+        Text(
+            "The Dark Knight",
+            style = MaterialTheme.typography.titleMedium  // Racing font, 18sp
+        )
+
+        // Small Headers (Racing Sans One)
+        Text(
+            "Genre",
+            style = MaterialTheme.typography.titleSmall  // Racing font, 14sp
+        )
+
+        // Body Text (Noto Sans)
+        Text(
+            "Batman raises the stakes in his war on crime...",
+            style = MaterialTheme.typography.bodyLarge  // Noto Sans, 16sp
+        )
+
+        // Secondary Text (Noto Sans)
+        Text(
+            "Director: Christopher Nolan",
+            style = MaterialTheme.typography.bodyMedium  // Noto Sans, 14sp
+        )
+
+        // Captions (Noto Sans)
+        Text(
+            "Released: 2008",
+            style = MaterialTheme.typography.bodySmall  // Noto Sans, 12sp
+        )
+
+        // Button Text (Noto Sans)
+        Button(onClick = {}) {
+            Text(
+                "Watch Trailer",
+                style = MaterialTheme.typography.labelLarge  // Noto Sans, 14sp
+            )
+        }
+
+        // Tab Labels (Noto Sans)
+        Text(
+            "Favorites",
+            style = MaterialTheme.typography.labelMedium  // Noto Sans, 12sp
+        )
+    }
+}
+
+// COMPLETE COMPONENT EXAMPLES
+
+@Composable
+fun MovieCard(
+    title: String,
+    description: String,
+    rating: Float,
+    onWatchClick: () -> Unit,
+    onAddToListClick: () -> Unit
+) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp)
+        ) {
+            // Movie Title - Racing Sans One
+            Text(
+                text = title,
+                style = MaterialTheme.typography.titleLarge,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // Rating Row
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "★".repeat(rating.toInt()),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.secondary  // Yellow stars
+                )
+                Text(
+                    text = " $rating/5",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            // Description - Noto Sans
+            Text(
+                text = description,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurface,
+                maxLines = 3
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Action Buttons
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Button(
+                    onClick = onWatchClick,
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.primary  // Orange
+                    )
+                ) {
+                    Text(
+                        "Watch Now",
+                        style = MaterialTheme.typography.labelLarge
+                    )
+                }
+
+                OutlinedButton(
+                    onClick = onAddToListClick,
+                    colors = OutlinedButtonDefaults.buttonColors(
+                        contentColor = MaterialTheme.colorScheme.secondary  // Yellow text
+                    ),
+                    border = BorderStroke(
+                        1.dp,
+                        MaterialTheme.colorScheme.secondary  // Yellow border
+                    )
+                ) {
+                    Text(
+                        "Add to List",
+                        style = MaterialTheme.typography.labelLarge
+                    )
+                }
+            }
+        }
+    }
+}
+
+// QUICK REFERENCE
+/*
+COLORS:
+- Primary actions: MaterialTheme.colorScheme.primary (Orange)
+- Secondary actions: MaterialTheme.colorScheme.secondary (Yellow)
+- Error states: MaterialTheme.colorScheme.error (Red)
+- Backgrounds: MaterialTheme.colorScheme.background
+- Surfaces: MaterialTheme.colorScheme.surface
+- Text: MaterialTheme.colorScheme.onBackground, onSurface, onPrimary
+
+TYPOGRAPHY:
+Headers (Racing Sans One):
+- headlineLarge (32sp) - App title
+- headlineMedium (28sp) - Screen titles
+- titleLarge (22sp) - Section headers
+- titleMedium (18sp) - Card titles
+- titleSmall (14sp) - Small headers
+
+Body (Noto Sans):
+- bodyLarge (16sp) - Main content
+- bodyMedium (14sp) - Secondary text
+- bodySmall (12sp) - Captions
+- labelLarge (14sp) - Button text
+- labelMedium (12sp) - Form labels
+*/

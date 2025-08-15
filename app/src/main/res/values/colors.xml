@@ -1,10 +1,49 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- WatchMates Brand Colors (matches Color.kt) -->
+
+    <!-- Orange Family (Primary) -->
+    <color name="watch_orange">#FFFF6B35</color>              <!-- Main brand orange -->
+    <color name="watch_orange_dark">#FFE5400A</color>         <!-- Darker orange -->
+    <color name="watch_orange_light">#FFFF8A65</color>        <!-- Light orange -->
+
+    <!-- Yellow Family (Secondary) -->
+    <color name="watch_yellow">#FFFFC107</color>              <!-- Main brand yellow -->
+    <color name="watch_yellow_dark">#FFFF8F00</color>         <!-- Darker yellow -->
+    <color name="watch_yellow_light">#FFFFF176</color>        <!-- Light yellow -->
+
+    <!-- Neutral Greys -->
+    <color name="watch_grey_50">#FFFAFAFA</color>
+    <color name="watch_grey_100">#FFF5F5F5</color>
+    <color name="watch_grey_200">#FFEEEEEE</color>
+    <color name="watch_grey_300">#FFE0E0E0</color>
+    <color name="watch_grey_400">#FFBDBDBD</color>
+    <color name="watch_grey_500">#FF9E9E9E</color>
+    <color name="watch_grey_600">#FF757575</color>
+    <color name="watch_grey_700">#FF616161</color>
+    <color name="watch_grey_800">#FF424242</color>
+    <color name="watch_grey_900">#FF212121</color>
+
+    <!-- System Colors -->
+    <color name="watch_error">#FFFF5722</color>               <!-- Error red -->
+    <color name="watch_success">#FF4CAF50</color>             <!-- Success green -->
+    <color name="watch_warning">#FFFF9800</color>             <!-- Warning amber -->
+    <color name="watch_info">#FF2196F3</color>                <!-- Info blue -->
+
+    <!-- Background Colors -->
+    <color name="background_light">#FFFFFBFE</color>
+    <color name="background_dark">#FF121212</color>
+    <color name="surface_light">#FFFFFFFF</color>
+    <color name="surface_dark">#FF1E1E1E</color>
+
+    <!-- Standard Colors -->
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+
+    <!-- Legacy Colors (keep for compatibility) -->
     <color name="purple_200">#FFBB86FC</color>
     <color name="purple_500">#FF6200EE</color>
     <color name="purple_700">#FF3700B3</color>
     <color name="teal_200">#FF03DAC5</color>
     <color name="teal_700">#FF018786</color>
-    <color name="black">#FF000000</color>
-    <color name="white">#FFFFFFFF</color>
 </resources>
