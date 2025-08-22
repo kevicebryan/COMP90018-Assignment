@@ -1,4 +1,4 @@
-package com.example.mobilecomputingassignment.ui.theme
+package com.example.mobilecomputingassignment.presentation.ui.theme
 
 import android.app.Activity
 import android.os.Build

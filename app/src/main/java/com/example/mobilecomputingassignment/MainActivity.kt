@@ -21,7 +21,8 @@ import com.google.android.gms.common.api.ApiException
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.firestore.FirebaseFirestore
-import com.example.mobilecomputingassignment.ui.theme.WatchmatesTheme
+// Updated import path for your theme
+import com.example.mobilecomputingassignment.presentation.ui.theme.WatchmatesTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
