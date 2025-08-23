@@ -1,14 +1,22 @@
-# WatchAlong - AFL Watch Party App
+# WatchMates - Mobile Computing Assignment
 
-A Kotlin-based Android application that allows users to host and join AFL watch parties with real-time location tracking, QR code check-ins, and social features.
+A modern Android application for AFL watch parties built with Kotlin, Jetpack Compose, and Clean Architecture. Currently implements user authentication and onboarding with plans for location-based watch party features.
 
-## 📱 Features
+## 🚧 Current Implementation Status
 
+### ✅ Completed Features
+- **Firebase Authentication**: Google Sign-In and email/password registration
+- **User Onboarding**: Multi-step registration flow with validation
+- **Modern UI**: Jetpack Compose with custom WatchMates theme
+- **Clean Architecture**: MVVM pattern with dependency injection (Hilt)
+- **Custom Theme**: Racing Sans One typography with orange/yellow color scheme
+
+### 🔄 In Development / Planned Features
 - **AFL Integration**: Real-time match data and team information via AFL REST API
 - **Location-Based Discovery**: Find nearby watch parties using Google Maps integration
 - **Host & Join Events**: Create and participate in watch-along events
 - **QR Code Check-in**: Secure event check-in system with barcode scanning
-- **Firebase Integration**: User authentication, real-time data storage, and file storage
+- **Local Database**: Room database for offline data storage
 - **Social Features**: Like events, view participants, and manage your hosted events
 
 ## 🏗️ Architecture
@@ -27,57 +35,58 @@ This project follows **MVVM (Model-View-ViewModel)** architecture pattern with *
 └─────────────────┘
 ```
 
-### Project Structure
+### Current Project Structure
 
 ```
 app/src/main/java/com/example/mobilecomputingassignment/
 ├── data/                           # Data Layer
-│   ├── local/                      # Room Database
-│   │   ├── dao/                    # Database Access Objects
-│   │   ├── database/               # Database setup and modules
-│   │   └── entities/               # Database entities
-│   ├── remote/                     # External data sources
-│   │   ├── api/                    # AFL REST API services
-│   │   ├── dto/                    # Data transfer objects
-│   │   └── firebase/               # Firebase services
-│   ├── repository/                 # Repository implementations
-│   └── models/                     # Raw data models
+│   ├── local/                      # 🔲 Room Database (planned)
+│   ├── models/                     # ✅ Data transfer objects
+│   │   └── UserDto.kt              # User data model
+│   ├── remote/                     # ✅ External data sources
+│   │   └── firebase/               # Firebase integration
+│   │       └── FirestoreService.kt # Firestore database service
+│   └── repository/                 # ✅ Repository implementations
+│       └── UserRepository.kt       # User data repository
 │
-├── domain/                         # Business Logic Layer
+├── domain/                         # ✅ Business Logic Layer
 │   ├── models/                     # Business/Domain models
-│   ├── usecases/                   # Business logic operations
-│   │   ├── auth/                   # Authentication use cases
-│   │   ├── watchalong/             # Watch party operations
-│   │   ├── afl/                    # AFL data operations
-│   │   └── location/               # Location/mapping operations
-│   └── repository/                 # Repository interfaces
+│   │   └── User.kt                 # Domain user model
+│   ├── repository/                 # Repository interfaces
+│   │   └── IUserRepository.kt      # User repository contract
+│   └── usecases/                   # Authentication use cases
+│       └── auth/                   # ✅ Authentication operations
+│           ├── CheckEmailExistUseCase.kt
+│           ├── CheckUsernameExistUseCase.kt
+│           ├── GoogleSignInUseCase.kt
+│           ├── LoginUseCase.kt
+│           └── RegisterUseCase.kt
 │
-├── presentation/                   # UI Layer
-│   ├── viewmodels/                 # ViewModels for screens
+├── presentation/                   # ✅ UI Layer
 │   ├── ui/                         # Jetpack Compose UI
-│   │   ├── screens/                # Individual screen composables
-│   │   │   ├── auth/               # Login/Register screens
-│   │   │   ├── home/               # Home screen
-│   │   │   ├── map/                # Map view with events
-│   │   │   ├── create/             # Create watch party
-│   │   │   ├── watchalong/         # Event details/management
-│   │   │   ├── profile/            # User profile screens
-│   │   │   └── qr/                 # QR scanner/generator
-│   │   ├── components/             # Reusable UI components
-│   │   ├── navigation/             # Compose Navigation
-│   │   └── theme/                  # App theming
-│   ├── state/                      # UI state classes
-│   └── utils/                      # UI utilities
+│   │   ├── component/              # 🔲 Reusable components (planned)
+│   │   ├── screen/                 # ✅ Authentication screens
+│   │   │   ├── LoginStep.kt        # Login screen
+│   │   │   ├── OnboardingScreen.kt # Onboarding flow
+│   │   │   └── SignupSteps.kt      # Registration steps
+│   │   └── theme/                  # ✅ Custom WatchMates theme
+│   │       ├── Color.kt            # Color scheme
+│   │       ├── Theme.kt            # Theme definition
+│   │       ├── Type.kt             # Typography (Racing Sans One)
+│   │       └── ThemeUsageGuide.txt # Theme usage examples
+│   └── viewmodel/                  # ✅ State management
+│       └── AuthViewModel.kt        # Authentication view model
 │
-├── core/                           # Infrastructure
-│   ├── di/                         # Dependency injection (Hilt)
-│   ├── network/                    # Network utilities
-│   ├── location/                   # Location services
-│   ├── permissions/                # Permission handling
-│   ├── storage/                    # Local storage
-│   └── utils/                      # General utilities
+├── core/                           # ✅ Infrastructure
+│   └── di/                         # Dependency injection (Hilt)
+│       ├── AppModule.kt            # Application module
+│       └── RepositoryModule.kt     # Repository bindings
 │
-└── MainActivity.kt                 # Main entry point
+├── ui/                            # 🔲 Legacy UI (empty)
+├── MainActivity.kt                 # ✅ Main entry point
+└── WatchMatesApplication.kt        # ✅ Application class with Hilt
+
+Legend: ✅ Implemented | 🔲 Planned | 🔄 In Progress
 ```
 
 ## 🛠️ Tech Stack
@@ -95,23 +104,24 @@ app/src/main/java/com/example/mobilecomputingassignment/
 - **ViewModel** - UI state management
 - **LiveData/StateFlow** - Reactive data streams
 
-### Backend & APIs
-- **Firebase Authentication** - User authentication
-- **Cloud Firestore** - Real-time database
-- **Firebase Storage** - File storage
+### Backend & APIs (Current)
+- **Firebase Authentication** - User authentication with Google Sign-In
+- **Cloud Firestore** - Real-time database for user data
+- **Firebase Storage** - File storage (configured)
+
+### Backend & APIs (Planned)
 - **AFL REST API** - Match and team data
 - **Retrofit** - HTTP client for API calls
 
-### Location & Maps
+### Location & Maps (Planned)
 - **Google Maps SDK** - Map display and interaction
 - **Location Services** - GPS and location tracking
-- **Geofencing** (Optional) - Location-based notifications
+- **Room Database** - Local data storage
 
-### Other Libraries
+### Other Libraries (Planned)
 - **CameraX** - QR code scanning
 - **ZXing** - QR code generation
-- **Coil** - Image loading
-- **Gson** - JSON serialization
+- **Coil** - Image loading for user avatars and match images
 
 ## 🚀 Getting Started
 
@@ -147,20 +157,29 @@ app/src/main/java/com/example/mobilecomputingassignment/
    ./gradlew assembles
    ```
 
-## 📱 App Flow
+## 📱 Current App Flow
 
-### User Journey
-1. **Authentication** → Login/Register with Firebase Auth
-2. **Home Screen** → View nearby watch parties and AFL matches
-3. **Map View** → Discover events by location
-4. **Create Event** → Host a new watch party
-5. **Event Details** → View/manage event information
-6. **QR Check-in** → Scan QR code to join event
-7. **Profile** → Manage hosted events and settings
+### Current User Journey
+1. **Onboarding** → Welcome screen with app introduction
+2. **Authentication Choice** → Login or Register options
+3. **Registration Flow** → Multi-step signup with validation
+   - Personal Information (Name, Username)
+   - Email and Password setup
+   - Profile completion
+4. **Google Sign-In** → Quick authentication option
+5. **Login** → Email/password authentication
 
-### Data Flow (MVVM)
+### Planned User Journey
+1. **Home Screen** → View nearby watch parties and AFL matches
+2. **Map View** → Discover events by location
+3. **Create Event** → Host a new watch party
+4. **Event Details** → View/manage event information
+5. **QR Check-in** → Scan QR code to join event
+6. **Profile** → Manage hosted events and settings
+
+### Current Data Flow (MVVM)
 ```
-UI (Compose) ←→ ViewModel ←→ UseCase ←→ Repository ←→ Data Source
+UI (Compose) ←→ AuthViewModel ←→ Auth UseCases ←→ UserRepository ←→ FirestoreService
 ```
 
 ## 🧪 Testing
@@ -228,11 +247,27 @@ src/androidTest/                   # Integration Tests
 
 This project is licensed under the MIT License - see the LICENSE file for details.
 
-## 🐛 Known Issues
+## 🚧 Development Notes & Areas for Attention
 
-- Location permission handling needs improvement
-- QR code scanning in low light conditions
-- Network connectivity edge cases
+### Current Issues & TODOs
+- **Navigation**: No navigation component implemented yet - currently only auth screens
+- **Error Handling**: Basic error handling in place, could be enhanced with proper error states
+- **Input Validation**: Email/username validation implemented, could add more robust password requirements
+- **Loading States**: Basic loading states in AuthViewModel, consistent loading UI needed
+- **Testing**: Test files exist but no actual tests implemented yet
+
+### Architecture Improvements Needed
+- **Repository Pattern**: Currently only UserRepository exists, need repositories for other domains
+- **Use Cases**: Only auth use cases implemented, need use cases for main app features
+- **Database**: Room database structure planned but not implemented
+- **Navigation**: Compose Navigation setup needed for multi-screen flow
+
+### Future Considerations
+- **Offline Support**: Room database for offline data storage
+- **State Management**: Consider using more sophisticated state management if app grows
+- **Security**: Implement proper API key management and security rules
+- **Performance**: Image loading optimization for user profiles and AFL content
+- **Accessibility**: Ensure proper accessibility support for all UI components
 
 ## 📞 Support
 

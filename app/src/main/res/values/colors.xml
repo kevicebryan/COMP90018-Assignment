@@ -35,6 +35,9 @@
     <color name="background_dark">#FF121212</color>
     <color name="surface_light">#FFFFFFFF</color>
     <color name="surface_dark">#FF1E1E1E</color>
+    
+    <!-- Splash Screen -->
+    <color name="splash_background">#FFFFFFFF</color>
 
     <!-- Standard Colors -->
     <color name="black">#FF000000</color>
