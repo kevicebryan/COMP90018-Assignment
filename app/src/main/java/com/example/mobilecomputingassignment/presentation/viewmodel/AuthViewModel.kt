@@ -38,7 +38,7 @@ class AuthViewModel @Inject constructor(
     private val registerUseCase: RegisterUseCase,
     private val googleSignInUseCase: GoogleSignInUseCase,
     private val checkEmailExistsUseCase: CheckEmailExistsUseCase,
-    private val checkUsernameExistUseCase: CheckUsernameExistUseCase
+    private val checkUsernameExistsUseCase: CheckUsernameExistsUseCase
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(AuthUiState())
@@ -152,7 +152,7 @@ class AuthViewModel @Inject constructor(
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null)
             
-            val usernameExists = checkUsernameExistUseCase.execute(username)
+            val usernameExists = checkUsernameExistsUseCase.execute(username)
             if (usernameExists) {
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,

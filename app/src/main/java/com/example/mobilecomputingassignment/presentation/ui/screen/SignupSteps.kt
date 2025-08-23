@@ -99,7 +99,7 @@ fun SignupPasswordStep(
             trailingIcon = {
                 IconButton(onClick = { passwordVisible = !passwordVisible }) {
                     Icon(
-                        if (passwordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
+                        Icons.Default.Lock,
                         contentDescription = if (passwordVisible) "Hide password" else "Show password"
                     )
                 }
@@ -119,7 +119,7 @@ fun SignupPasswordStep(
             trailingIcon = {
                 IconButton(onClick = { confirmPasswordVisible = !confirmPasswordVisible }) {
                     Icon(
-                        if (confirmPasswordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
+                        Icons.Default.Lock,
                         contentDescription = if (confirmPasswordVisible) "Hide password" else "Show password"
                     )
                 }
