@@ -7,10 +7,10 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
-import com.google.firebase.auth.FirebaseAuth
+import com.example.mobilecomputingassignment.presentation.ui.screen.MainAppScreen
 import com.example.mobilecomputingassignment.presentation.ui.screen.OnboardingScreen
 import com.example.mobilecomputingassignment.presentation.ui.theme.WatchmatesTheme
+import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -20,11 +20,9 @@ class MainActivity : ComponentActivity() {
         setContent {
             WatchmatesTheme {
                 Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
-                ) {
-                    WatchMatesApp()
-                }
+                        modifier = Modifier.fillMaxSize(),
+                        color = MaterialTheme.colorScheme.background
+                ) { WatchMatesApp() }
             }
         }
     }
@@ -37,56 +35,23 @@ fun WatchMatesApp() {
 
     // Listen to auth state changes
     LaunchedEffect(Unit) {
-        auth.addAuthStateListener { firebaseAuth ->
-            currentUser = firebaseAuth.currentUser
-        }
+        auth.addAuthStateListener { firebaseAuth -> currentUser = firebaseAuth.currentUser }
     }
 
     if (currentUser == null) {
         OnboardingScreen(
-            onNavigateToMain = {
-                // User successfully authenticated, update state
-                currentUser = auth.currentUser
-            }
+                onNavigateToMain = {
+                    // User successfully authenticated, update state
+                    currentUser = auth.currentUser
+                }
         )
     } else {
         // User is authenticated, show main app
-        MainScreen(
-            onSignOut = {
-                auth.signOut()
-                currentUser = null
-            }
+        MainAppScreen(
+                onLogout = {
+                    auth.signOut()
+                    currentUser = null
+                }
         )
-    }
-}
-
-@Composable
-fun MainScreen(onSignOut: () -> Unit) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(24.dp),
-        verticalArrangement = Arrangement.Center
-    ) {
-        Text(
-            text = "Welcome to WatchMates!",
-            style = MaterialTheme.typography.headlineLarge
-        )
-        
-        Spacer(modifier = Modifier.height(16.dp))
-        
-        Text(
-            text = "You're now logged in and ready to connect with fellow sports fans.",
-            style = MaterialTheme.typography.bodyLarge
-        )
-        
-        Spacer(modifier = Modifier.height(32.dp))
-        
-        Button(
-            onClick = onSignOut,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text("Sign Out")
-        }
     }
 }

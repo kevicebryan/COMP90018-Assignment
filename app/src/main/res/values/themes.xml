@@ -13,4 +13,12 @@
         <item name="android:windowLightStatusBar">true</item>
         <!-- windowLightNavigationBar requires API 27+ so it's defined in values-v27/themes.xml -->
     </style>
+    
+    <!-- Splash Screen Theme -->
+    <style name="Theme.Watchmates.Splash" parent="Theme.Watchmates">
+        <item name="android:windowBackground">@drawable/splash_background</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowFullscreen">false</item>
+        <item name="android:windowContentOverlay">@null</item>
+    </style>
 </resources>

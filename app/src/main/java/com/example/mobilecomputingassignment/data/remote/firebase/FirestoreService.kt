@@ -1,5 +1,6 @@
 package com.example.mobilecomputingassignment.data.remote.firebase
 
+import android.util.Log
 import com.example.mobilecomputingassignment.data.models.UserDto
 import com.example.mobilecomputingassignment.domain.models.User
 import com.google.firebase.Timestamp
@@ -85,40 +86,57 @@ constructor(private val firestore: FirebaseFirestore, private val auth: Firebase
 
     suspend fun checkUsernameExists(username: String): Boolean {
         return try {
+            Log.d("FirestoreService", "Checking if username exists: $username")
             val document = firestore.collection("usernames").document(username).get().await()
-            document.exists()
+            val exists = document.exists()
+            Log.d("FirestoreService", "Username '$username' exists: $exists")
+            exists
         } catch (e: Exception) {
+            Log.e("FirestoreService", "Error checking username existence", e)
             false
         }
     }
 
     suspend fun checkEmailExists(email: String): Boolean {
         return try {
+            Log.d("FirestoreService", "=== EMAIL CHECK START ===")
+            Log.d("FirestoreService", "Checking if email exists: '$email'")
+            Log.d("FirestoreService", "Email length: ${email.length}")
+            Log.d("FirestoreService", "Querying collection: emails, document: '$email'")
+
             val document = firestore.collection("emails").document(email).get().await()
-            document.exists()
+            val exists = document.exists()
+
+            Log.d("FirestoreService", "Document exists: $exists")
+            if (exists) {
+                Log.d("FirestoreService", "Document data: ${document.data}")
+            }
+            Log.d("FirestoreService", "=== EMAIL CHECK END ===")
+
+            exists
         } catch (e: Exception) {
+            Log.e("FirestoreService", "=== EMAIL CHECK ERROR ===", e)
+            Log.e("FirestoreService", "Error details: ${e.message}")
+            Log.e("FirestoreService", "Error cause: ${e.cause}")
             false
         }
     }
 
     suspend fun updateUser(user: User): Result<Unit> {
         return try {
-            val userDto = UserDto(
-                username = user.username,
-                email = user.email,
-                birthdate = user.birthdate?.let { Timestamp(it) },
-                leagues = user.leagues,
-                teams = user.teams,
-                points = user.points,
-                createdAt = user.createdAt?.let { Timestamp(it) },
-                updatedAt = Timestamp.now()
-            )
+            val userDto =
+                    UserDto(
+                            username = user.username,
+                            email = user.email,
+                            birthdate = user.birthdate?.let { Timestamp(it) },
+                            leagues = user.leagues,
+                            teams = user.teams,
+                            points = user.points,
+                            createdAt = user.createdAt?.let { Timestamp(it) },
+                            updatedAt = Timestamp.now()
+                    )
 
-            firestore
-                .collection("users")
-                .document(user.id)
-                .set(userDto)
-                .await()
+            firestore.collection("users").document(user.id).set(userDto).await()
 
             Result.success(Unit)
         } catch (e: Exception) {
@@ -129,13 +147,10 @@ constructor(private val firestore: FirebaseFirestore, private val auth: Firebase
     suspend fun updateUserPoints(userId: String, newPoints: Long): Result<Unit> {
         return try {
             firestore
-                .collection("users")
-                .document(userId)
-                .update(mapOf(
-                    "points" to newPoints,
-                    "updatedAt" to Timestamp.now()
-                ))
-                .await()
+                    .collection("users")
+                    .document(userId)
+                    .update(mapOf("points" to newPoints, "updatedAt" to Timestamp.now()))
+                    .await()
 
             Result.success(Unit)
         } catch (e: Exception) {
@@ -151,10 +166,10 @@ constructor(private val firestore: FirebaseFirestore, private val auth: Firebase
                 userData?.let {
                     // Delete from users collection
                     firestore.collection("users").document(userId).delete().await()
-                    
+
                     // Delete from usernames collection
                     firestore.collection("usernames").document(it.username).delete().await()
-                    
+
                     // Delete from emails collection
                     firestore.collection("emails").document(it.email).delete().await()
                 }

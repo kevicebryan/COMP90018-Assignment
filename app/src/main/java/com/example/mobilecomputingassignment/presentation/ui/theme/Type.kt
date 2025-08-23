@@ -20,19 +20,23 @@ import com.example.mobilecomputingassignment.R
  */
 
 // Google Fonts Provider
-private val provider = GoogleFont.Provider(
+val provider = GoogleFont.Provider(
     providerAuthority = "com.google.android.gms.fonts",
     providerPackage = "com.google.android.gms",
     certificates = R.array.com_google_android_gms_fonts_certs
 )
 
 // Google Font Definitions
-private val racingSansOneFont = GoogleFont("Racing Sans One")
-private val notoSansFont = GoogleFont("Noto Sans")
+val racingSansOneFont = GoogleFont("Racing Sans One")
+val notoSansFont = GoogleFont("Noto Sans")
 
 // Custom Font Families using Google Fonts
 val RacingFontFamily = FontFamily(
-    Font(googleFont = racingSansOneFont, fontProvider = provider, weight = FontWeight.Normal)
+    Font(
+        googleFont = racingSansOneFont, 
+        fontProvider = provider,
+        weight = FontWeight.Normal
+    )
 )
 
 val NotoSansFontFamily = FontFamily(
