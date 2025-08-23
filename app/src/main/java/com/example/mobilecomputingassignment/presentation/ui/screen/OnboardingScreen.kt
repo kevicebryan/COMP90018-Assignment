@@ -9,15 +9,11 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.googlefonts.Font
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.example.mobilecomputingassignment.presentation.ui.theme.provider
-import com.example.mobilecomputingassignment.presentation.ui.theme.racingSansOneFont
 import com.example.mobilecomputingassignment.presentation.viewmodel.AuthViewModel
 import com.example.mobilecomputingassignment.presentation.viewmodel.OnboardingStep
 
@@ -129,21 +125,10 @@ fun WelcomeStep(onLoginClick: () -> Unit, onSignupClick: () -> Unit) {
                     modifier = Modifier.size(280.dp).padding(bottom = 48.dp)
             )
 
-            // App Title with Racing Sans One font
-            val racingFontFamily =
-                    FontFamily(
-                            Font(
-                                    googleFont = racingSansOneFont,
-                                    fontProvider = provider,
-                                    weight = FontWeight.Normal
-                            )
-                    )
-
+            // App Title with Racing Sans One font from typography theme
             Text(
                     text = "WatchMates",
-                    fontFamily = racingFontFamily,
-                    fontSize = 42.sp,
-                    fontWeight = FontWeight.Bold,
+                    style = MaterialTheme.typography.displayMedium,
                     textAlign = TextAlign.Center,
                     color = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.padding(bottom = 16.dp)

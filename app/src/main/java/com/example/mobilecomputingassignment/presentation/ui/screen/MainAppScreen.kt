@@ -66,11 +66,10 @@ fun ProfileScreen(onLogout: () -> Unit, profileViewModel: ProfileViewModel = hil
           horizontalAlignment = Alignment.CenterHorizontally,
           verticalArrangement = Arrangement.spacedBy(16.dp)
   ) {
-    Text(
+            Text(
             text = "Profile",
-            style = MaterialTheme.typography.headlineMedium,
-            fontWeight = FontWeight.Bold
-    )
+            style = MaterialTheme.typography.headlineMedium
+        )
 
     Card(
             modifier = Modifier.fillMaxWidth(),

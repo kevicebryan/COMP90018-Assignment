@@ -55,19 +55,19 @@ fun SignupEmailStep(
             errorMessage = errorMessage
     ) {
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            OutlinedTextField(
-                    value = email,
+        OutlinedTextField(
+                value = email,
                     onValueChange = {
                         email = it
                         onEmailChange?.invoke(it)
                     },
-                    label = { Text("Email Address") },
-                    leadingIcon = { Icon(Icons.Default.Email, contentDescription = null) },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-                    modifier = Modifier.fillMaxWidth(),
-                    singleLine = true,
-                    isError = errorMessage != null
-            )
+                label = { Text("Email Address") },
+                leadingIcon = { Icon(Icons.Default.Email, contentDescription = null) },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true,
+                isError = errorMessage != null
+        )
 
             // Show error message below the input field
             if (errorMessage != null) {
@@ -124,22 +124,22 @@ fun SignupPasswordStep(
         Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
             // Password field with strength indicator
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                OutlinedTextField(
-                        value = password,
-                        onValueChange = { password = it },
-                        label = { Text("Password") },
-                        leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null) },
-                        trailingIcon = {
-                            IconButton(onClick = { passwordVisible = !passwordVisible }) {
-                                Text(text = if (passwordVisible) "👁️" else "🙈", fontSize = 16.sp)
-                            }
-                        },
-                        visualTransformation =
-                                if (passwordVisible) VisualTransformation.None
-                                else PasswordVisualTransformation(),
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                        modifier = Modifier.fillMaxWidth(),
-                        singleLine = true,
+            OutlinedTextField(
+                    value = password,
+                    onValueChange = { password = it },
+                    label = { Text("Password") },
+                    leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null) },
+                    trailingIcon = {
+                        IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                            Text(text = if (passwordVisible) "👁️" else "🙈", fontSize = 16.sp)
+                        }
+                    },
+                    visualTransformation =
+                            if (passwordVisible) VisualTransformation.None
+                            else PasswordVisualTransformation(),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true,
                         isError =
                                 errorMessage != null ||
                                         (password.isNotEmpty() &&
@@ -167,27 +167,27 @@ fun SignupPasswordStep(
 
             // Confirm password field
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                OutlinedTextField(
-                        value = confirmPassword,
-                        onValueChange = { confirmPassword = it },
-                        label = { Text("Confirm Password") },
-                        leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null) },
-                        trailingIcon = {
+            OutlinedTextField(
+                    value = confirmPassword,
+                    onValueChange = { confirmPassword = it },
+                    label = { Text("Confirm Password") },
+                    leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null) },
+                    trailingIcon = {
                             IconButton(
                                     onClick = { confirmPasswordVisible = !confirmPasswordVisible }
                             ) {
-                                Text(
-                                        text = if (confirmPasswordVisible) "👁️" else "🙈",
-                                        fontSize = 16.sp
-                                )
-                            }
-                        },
-                        visualTransformation =
-                                if (confirmPasswordVisible) VisualTransformation.None
-                                else PasswordVisualTransformation(),
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                        modifier = Modifier.fillMaxWidth(),
-                        singleLine = true,
+                            Text(
+                                    text = if (confirmPasswordVisible) "👁️" else "🙈",
+                                    fontSize = 16.sp
+                            )
+                        }
+                    },
+                    visualTransformation =
+                            if (confirmPasswordVisible) VisualTransformation.None
+                            else PasswordVisualTransformation(),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true,
                         isError =
                                 errorMessage != null ||
                                         (confirmPassword.isNotEmpty() &&
@@ -284,29 +284,29 @@ fun SignupUsernameAndAgeStep(
     ) {
         Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
             // Username field
-            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                OutlinedTextField(
-                        value = username,
+        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            OutlinedTextField(
+                    value = username,
                         onValueChange = {
                             username = it
                             onUsernameChange?.invoke(it)
                         },
-                        label = { Text("Username") },
-                        leadingIcon = { Icon(Icons.Default.Person, contentDescription = null) },
-                        modifier = Modifier.fillMaxWidth(),
-                        singleLine = true,
+                    label = { Text("Username") },
+                    leadingIcon = { Icon(Icons.Default.Person, contentDescription = null) },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true,
                         isError =
                                 errorMessage != null ||
                                         (username.isNotEmpty() && username.length < 3)
-                )
+            )
 
-                if (username.isNotEmpty() && username.length < 3) {
-                    Text(
-                            text = "Username must be at least 3 characters",
-                            color = MaterialTheme.colorScheme.error,
-                            style = MaterialTheme.typography.bodySmall
-                    )
-                }
+            if (username.isNotEmpty() && username.length < 3) {
+                Text(
+                        text = "Username must be at least 3 characters",
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.bodySmall
+                )
+            }
 
                 // Show validation error from Firebase check
                 if (errorMessage != null && errorMessage.contains("username", ignoreCase = true)) {
@@ -319,22 +319,22 @@ fun SignupUsernameAndAgeStep(
             }
 
             // Birthdate field
-            OutlinedTextField(
-                    value = birthdate,
-                    onValueChange = { birthdate = it },
-                    label = { Text("Enter your birthdate") },
-                    leadingIcon = { Icon(Icons.Default.DateRange, contentDescription = null) },
-                    placeholder = { Text("25/12/1990") },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                    modifier = Modifier.fillMaxWidth(),
-                    singleLine = true,
-                    isError = errorMessage != null,
-                    trailingIcon = {
-                        IconButton(onClick = { showDatePicker = true }) {
-                            Icon(Icons.Default.DateRange, contentDescription = "Select date")
-                        }
+        OutlinedTextField(
+                value = birthdate,
+                onValueChange = { birthdate = it },
+                label = { Text("Enter your birthdate") },
+                leadingIcon = { Icon(Icons.Default.DateRange, contentDescription = null) },
+                placeholder = { Text("25/12/1990") },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true,
+                isError = errorMessage != null,
+                trailingIcon = {
+                    IconButton(onClick = { showDatePicker = true }) {
+                        Icon(Icons.Default.DateRange, contentDescription = "Select date")
                     }
-            )
+                }
+        )
 
             // Age confirmation checkbox
             Row(
@@ -350,11 +350,11 @@ fun SignupUsernameAndAgeStep(
                 )
             }
 
-            // Note: For a full implementation, you would add a DatePickerDialog here
-            // This is a simplified version to match the design structure
-            if (showDatePicker) {
-                // DatePickerDialog would go here in a real implementation
-                showDatePicker = false
+        // Note: For a full implementation, you would add a DatePickerDialog here
+        // This is a simplified version to match the design structure
+        if (showDatePicker) {
+            // DatePickerDialog would go here in a real implementation
+            showDatePicker = false
             }
         }
     }
@@ -420,11 +420,11 @@ fun SignupLeagueStep(
                         Card(
                                 onClick = {
                                     if (isEnabled) {
-                                        selectedLeagues =
-                                                if (selectedLeagues.contains(league)) {
-                                                    selectedLeagues - league
-                                                } else {
-                                                    selectedLeagues + league
+                                    selectedLeagues =
+                                            if (selectedLeagues.contains(league)) {
+                                                selectedLeagues - league
+                                            } else {
+                                                selectedLeagues + league
                                                 }
                                     }
                                 },
@@ -554,24 +554,24 @@ fun SignupTeamStep(
                     contentAlignment = Alignment.Center
             ) { CircularProgressIndicator() }
         } else {
-            LazyColumn(
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
+        LazyColumn(
+                verticalArrangement = Arrangement.spacedBy(8.dp),
                     modifier = Modifier.height(320.dp)
-            ) {
+        ) {
                 items(availableTeams.chunked(3)) { teamRow ->
-                    Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        teamRow.forEach { team ->
+                Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    teamRow.forEach { team ->
                             val isSelected = selectedTeams.contains(team.name)
                             Card(
-                                    onClick = {
+                                onClick = {
                                         val teamName = team.name
-                                        selectedTeams =
+                                    selectedTeams =
                                                 if (selectedTeams.contains(teamName)) {
                                                     selectedTeams.minus(teamName)
-                                                } else {
+                                            } else {
                                                     selectedTeams.plus(teamName)
                                                 }
                                     },
@@ -690,8 +690,7 @@ private fun SignupLayout(
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text(
                         text = title,
-                        style = MaterialTheme.typography.headlineMedium,
-                        fontWeight = FontWeight.Bold
+                        style = MaterialTheme.typography.headlineMedium
                 )
 
                 Text(

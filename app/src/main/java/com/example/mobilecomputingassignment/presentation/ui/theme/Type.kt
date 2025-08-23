@@ -30,7 +30,7 @@ val provider = GoogleFont.Provider(
 val racingSansOneFont = GoogleFont("Racing Sans One")
 val notoSansFont = GoogleFont("Noto Sans")
 
-// Custom Font Families using Google Fonts
+// Custom Font Families using Google Fonts 
 val RacingFontFamily = FontFamily(
     Font(
         googleFont = racingSansOneFont, 

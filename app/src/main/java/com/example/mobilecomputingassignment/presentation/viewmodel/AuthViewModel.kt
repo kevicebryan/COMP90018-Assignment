@@ -140,18 +140,7 @@ constructor(
                         _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null)
                         Log.d("AuthViewModel", "Set loading state to true")
 
-                        // TEMPORARY TEST: Force error for specific emails to test UI blocking
-                        val emailExists =
-                                if (email.contains("kevinbryanreligion") || email.contains("test@")
-                                ) {
-                                        Log.d(
-                                                "AuthViewModel",
-                                                "FORCED TEST: Simulating email exists for testing"
-                                        )
-                                        true
-                                } else {
-                                        checkEmailExistsUseCase.execute(email)
-                                }
+                        val emailExists = checkEmailExistsUseCase.execute(email)
 
                         Log.d("AuthViewModel", "=== FINAL RESULT ===")
                         Log.d("AuthViewModel", "Email exists check result: $emailExists")
@@ -329,17 +318,7 @@ constructor(
 
                         Log.d("AuthViewModel", "Checking username availability: $username")
 
-                        // TEMPORARY TEST: Force error for specific usernames to test UI blocking
-                        val usernameExists =
-                                if (username.contains("kevin") || username.contains("test")) {
-                                        Log.d(
-                                                "AuthViewModel",
-                                                "FORCED TEST: Simulating username exists for testing"
-                                        )
-                                        true
-                                } else {
-                                        checkUsernameExistsUseCase.execute(username)
-                                }
+                        val usernameExists = checkUsernameExistsUseCase.execute(username)
 
                         Log.d("AuthViewModel", "Username exists check result: $usernameExists")
                         if (usernameExists) {
