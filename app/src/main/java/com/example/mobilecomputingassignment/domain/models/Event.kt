@@ -6,8 +6,6 @@ data class Event(
         val id: String = "",
         val hostUserId: String = "",
         val hostUsername: String = "",
-        val title: String = "",
-        val description: String = "",
         val date: Date = Date(),
         val checkInTime: Date = Date(),
         val matchId: String = "",
@@ -22,7 +20,19 @@ data class Event(
         val createdAt: Date = Date(),
         val updatedAt: Date = Date(),
         val isActive: Boolean = true
-)
+) {
+  // Computed property for event title based on match details
+  val title: String
+    get() =
+            matchDetails?.let { match -> "${match.homeTeam} vs ${match.awayTeam} - ${match.venue}" }
+                    ?: location.name.ifEmpty { "Watch Along Event" }
+
+  // Computed property for event description
+  val description: String
+    get() =
+            matchDetails?.let { match -> "${match.competition} ${match.round} at ${match.venue}" }
+                    ?: "Join us for a sports watch along!"
+}
 
 data class EventLocation(
         val name: String = "",

@@ -28,294 +28,526 @@ fun EventFormDialog(
         onSave: () -> Unit,
         eventViewModel: EventViewModel
 ) {
-  val formData by eventViewModel.formData.collectAsState()
-  val uiState by eventViewModel.uiState.collectAsState()
+        val formData by eventViewModel.formData.collectAsState()
+        val uiState by eventViewModel.uiState.collectAsState()
 
-  Dialog(
-          onDismissRequest = onDismiss,
-          properties =
-                  DialogProperties(
-                          dismissOnBackPress = true,
-                          dismissOnClickOutside = false,
-                          usePlatformDefaultWidth = false
-                  )
-  ) {
-    Card(
-            modifier = Modifier.fillMaxWidth(0.95f).fillMaxHeight(0.9f),
-            shape = RoundedCornerShape(16.dp),
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
-    ) {
-      Column(modifier = Modifier.fillMaxSize()) {
-        // Header
-        Row(
-                modifier = Modifier.fillMaxWidth().padding(16.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+        Dialog(
+                onDismissRequest = onDismiss,
+                properties =
+                        DialogProperties(
+                                dismissOnBackPress = true,
+                                dismissOnClickOutside = false,
+                                usePlatformDefaultWidth = false
+                        )
         ) {
-          Text(
-                  text = if (isEditing) "Edit Event" else "Create Event",
-                  style = MaterialTheme.typography.headlineSmall,
-                  fontWeight = FontWeight.Bold
-          )
+                Card(
+                        modifier = Modifier.fillMaxWidth(0.95f).fillMaxHeight(0.9f),
+                        shape = RoundedCornerShape(16.dp),
+                        colors =
+                                CardDefaults.cardColors(
+                                        containerColor = MaterialTheme.colorScheme.surface
+                                )
+                ) {
+                        Column(modifier = Modifier.fillMaxSize()) {
+                                // Header
+                                Row(
+                                        modifier = Modifier.fillMaxWidth().padding(16.dp),
+                                        horizontalArrangement = Arrangement.SpaceBetween,
+                                        verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                        Text(
+                                                text =
+                                                        if (isEditing) "Edit Event"
+                                                        else "Create Event",
+                                                style = MaterialTheme.typography.headlineSmall,
+                                                fontWeight = FontWeight.Bold
+                                        )
 
-          IconButton(onClick = onDismiss) {
-            Icon(imageVector = Icons.Default.Close, contentDescription = "Close")
-          }
-        }
+                                        IconButton(onClick = onDismiss) {
+                                                Icon(
+                                                        imageVector = Icons.Default.Close,
+                                                        contentDescription = "Close"
+                                                )
+                                        }
+                                }
 
-        Divider()
+                                Divider()
 
-        // Form content
-        Column(
-                modifier = Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-          // Basic Information
-          EventFormSection(title = "Basic Information") {
-            OutlinedTextField(
-                    value = formData.title,
-                    onValueChange = { eventViewModel.updateFormData(formData.copy(title = it)) },
-                    label = { Text("Event Title *") },
-                    modifier = Modifier.fillMaxWidth(),
-                    singleLine = true
-            )
+                                // Form content
+                                Column(
+                                        modifier =
+                                                Modifier.weight(1f)
+                                                        .verticalScroll(rememberScrollState())
+                                                        .padding(16.dp),
+                                        verticalArrangement = Arrangement.spacedBy(16.dp)
+                                ) {
+                                        // Load matches when date changes
+                                        LaunchedEffect(formData.date) {
+                                                eventViewModel.loadMatchesForDate(formData.date)
+                                        }
+                                        
+                                        // Match Selection
+                                        EventFormSection(title = "Match Selection") {
+                                                // Match dropdown
+                                                if (uiState.isLoadingMatches) {
+                                                        Row(
+                                                                modifier = Modifier.fillMaxWidth(),
+                                                                horizontalArrangement =
+                                                                        Arrangement.Center,
+                                                                verticalAlignment =
+                                                                        Alignment.CenterVertically
+                                                        ) {
+                                                                CircularProgressIndicator(
+                                                                        modifier =
+                                                                                Modifier.size(
+                                                                                        20.dp
+                                                                                ),
+                                                                        color =
+                                                                                MaterialTheme
+                                                                                        .colorScheme
+                                                                                        .primary
+                                                                )
+                                                                Spacer(
+                                                                        modifier =
+                                                                                Modifier.width(8.dp)
+                                                                )
+                                                                Text("Loading matches...")
+                                                        }
+                                                } else if (uiState.availableMatches.isEmpty()) {
+                                                        Text(
+                                                                text =
+                                                                        "No matches available for selected date",
+                                                                style =
+                                                                        MaterialTheme.typography
+                                                                                .bodyMedium,
+                                                                color =
+                                                                        MaterialTheme.colorScheme
+                                                                                .onSurfaceVariant
+                                                        )
+                                                } else {
+                                                        // Match selection dropdown
+                                                        var expanded by remember {
+                                                                mutableStateOf(false)
+                                                        }
 
-            OutlinedTextField(
-                    value = formData.description,
-                    onValueChange = {
-                      eventViewModel.updateFormData(formData.copy(description = it))
-                    },
-                    label = { Text("Description") },
-                    modifier = Modifier.fillMaxWidth(),
-                    maxLines = 3
-            )
-          }
+                                                        ExposedDropdownMenuBox(
+                                                                expanded = expanded,
+                                                                onExpandedChange = {
+                                                                        expanded = !expanded
+                                                                }
+                                                        ) {
+                                                                OutlinedTextField(
+                                                                        value =
+                                                                                formData.selectedMatch
+                                                                                        ?.let {
+                                                                                                match
+                                                                                                ->
+                                                                                                "${match.homeTeam} vs ${match.awayTeam} - ${match.venue}"
+                                                                                        }
+                                                                                        ?: "Select a match *",
+                                                                        onValueChange = {},
+                                                                        readOnly = true,
+                                                                        label = { Text("Match *") },
+                                                                        trailingIcon = {
+                                                                                ExposedDropdownMenuDefaults
+                                                                                        .TrailingIcon(
+                                                                                                expanded =
+                                                                                                        expanded
+                                                                                        )
+                                                                        },
+                                                                        modifier =
+                                                                                Modifier.fillMaxWidth()
+                                                                                        .menuAnchor()
+                                                                )
 
-          // Date and Time
-          EventFormSection(title = "Date & Time") {
-            // For now, using text fields - we'll add date/time pickers later
-            OutlinedTextField(
-                    value =
-                            SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-                                    .format(formData.date),
-                    onValueChange = { /* TODO: Implement date picker */},
-                    label = { Text("Event Date *") },
-                    modifier = Modifier.fillMaxWidth(),
-                    readOnly = true
-            )
+                                                                ExposedDropdownMenu(
+                                                                        expanded = expanded,
+                                                                        onDismissRequest = {
+                                                                                expanded = false
+                                                                        }
+                                                                ) {
+                                                                        uiState.availableMatches
+                                                                                .forEach { match ->
+                                                                                        DropdownMenuItem(
+                                                                                                text = {
+                                                                                                        Column {
+                                                                                                                Text(
+                                                                                                                        text =
+                                                                                                                                "${match.homeTeam} vs ${match.awayTeam}",
+                                                                                                                        style =
+                                                                                                                                MaterialTheme
+                                                                                                                                        .typography
+                                                                                                                                        .bodyMedium,
+                                                                                                                        fontWeight =
+                                                                                                                                FontWeight
+                                                                                                                                        .SemiBold
+                                                                                                                )
+                                                                                                                Text(
+                                                                                                                        text =
+                                                                                                                                "${match.venue} • ${match.round}",
+                                                                                                                        style =
+                                                                                                                                MaterialTheme
+                                                                                                                                        .typography
+                                                                                                                                        .bodySmall,
+                                                                                                                        color =
+                                                                                                                                MaterialTheme
+                                                                                                                                        .colorScheme
+                                                                                                                                        .onSurfaceVariant
+                                                                                                                )
+                                                                                                        }
+                                                                                                },
+                                                                                                onClick = {
+                                                                                                        eventViewModel
+                                                                                                                .selectMatch(
+                                                                                                                        match
+                                                                                                                )
+                                                                                                        expanded =
+                                                                                                                false
+                                                                                                }
+                                                                                        )
+                                                                                }
+                                                                }
+                                                        }
+                                                }
+                                        }
 
-            OutlinedTextField(
-                    value =
-                            SimpleDateFormat("HH:mm", Locale.getDefault())
-                                    .format(formData.checkInTime),
-                    onValueChange = { /* TODO: Implement time picker */},
-                    label = { Text("Check-in Time *") },
-                    modifier = Modifier.fillMaxWidth(),
-                    readOnly = true
-            )
-          }
+                                        // Date and Time
+                                        EventFormSection(title = "Date & Time") {
+                                                // For now, using text fields - we'll add date/time
+                                                // pickers later
+                                                OutlinedTextField(
+                                                        value =
+                                                                SimpleDateFormat(
+                                                                                "yyyy-MM-dd",
+                                                                                Locale.getDefault()
+                                                                        )
+                                                                        .format(formData.date),
+                                                        onValueChange = { /* TODO: Implement date picker */
+                                                        },
+                                                        label = { Text("Event Date *") },
+                                                        modifier = Modifier.fillMaxWidth(),
+                                                        readOnly = true
+                                                )
 
-          // Location
-          EventFormSection(title = "Location") {
-            OutlinedTextField(
-                    value = formData.locationName,
-                    onValueChange = {
-                      eventViewModel.updateFormData(formData.copy(locationName = it))
-                    },
-                    label = { Text("Location Name *") },
-                    modifier = Modifier.fillMaxWidth(),
-                    singleLine = true
-            )
+                                                OutlinedTextField(
+                                                        value =
+                                                                SimpleDateFormat(
+                                                                                "HH:mm",
+                                                                                Locale.getDefault()
+                                                                        )
+                                                                        .format(
+                                                                                formData.checkInTime
+                                                                        ),
+                                                        onValueChange = { /* TODO: Implement time picker */
+                                                        },
+                                                        label = { Text("Check-in Time *") },
+                                                        modifier = Modifier.fillMaxWidth(),
+                                                        readOnly = true
+                                                )
+                                        }
 
-            OutlinedTextField(
-                    value = formData.locationAddress,
-                    onValueChange = {
-                      eventViewModel.updateFormData(formData.copy(locationAddress = it))
-                    },
-                    label = { Text("Address *") },
-                    modifier = Modifier.fillMaxWidth(),
-                    maxLines = 2
-            )
+                                        // Location
+                                        EventFormSection(title = "Location") {
+                                                OutlinedTextField(
+                                                        value = formData.locationName,
+                                                        onValueChange = {
+                                                                eventViewModel.updateFormData(
+                                                                        formData.copy(
+                                                                                locationName = it
+                                                                        )
+                                                                )
+                                                        },
+                                                        label = { Text("Location Name *") },
+                                                        modifier = Modifier.fillMaxWidth(),
+                                                        singleLine = true
+                                                )
 
-            // TODO: Add map picker for lat/lng
-            Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-              OutlinedTextField(
-                      value = formData.latitude.toString(),
-                      onValueChange = {
-                        it.toDoubleOrNull()?.let { lat ->
-                          eventViewModel.updateFormData(formData.copy(latitude = lat))
+                                                OutlinedTextField(
+                                                        value = formData.locationAddress,
+                                                        onValueChange = {
+                                                                eventViewModel.updateFormData(
+                                                                        formData.copy(
+                                                                                locationAddress = it
+                                                                        )
+                                                                )
+                                                        },
+                                                        label = { Text("Address *") },
+                                                        modifier = Modifier.fillMaxWidth(),
+                                                        maxLines = 2
+                                                )
+
+                                                // TODO: Add map picker for lat/lng
+                                                Row(
+                                                        modifier = Modifier.fillMaxWidth(),
+                                                        horizontalArrangement =
+                                                                Arrangement.spacedBy(8.dp)
+                                                ) {
+                                                        OutlinedTextField(
+                                                                value =
+                                                                        formData.latitude
+                                                                                .toString(),
+                                                                onValueChange = {
+                                                                        it.toDoubleOrNull()?.let {
+                                                                                lat ->
+                                                                                eventViewModel
+                                                                                        .updateFormData(
+                                                                                                formData.copy(
+                                                                                                        latitude =
+                                                                                                                lat
+                                                                                                )
+                                                                                        )
+                                                                        }
+                                                                },
+                                                                label = { Text("Latitude") },
+                                                                modifier = Modifier.weight(1f),
+                                                                keyboardOptions =
+                                                                        KeyboardOptions(
+                                                                                keyboardType =
+                                                                                        KeyboardType
+                                                                                                .Decimal
+                                                                        )
+                                                        )
+
+                                                        OutlinedTextField(
+                                                                value =
+                                                                        formData.longitude
+                                                                                .toString(),
+                                                                onValueChange = {
+                                                                        it.toDoubleOrNull()?.let {
+                                                                                lng ->
+                                                                                eventViewModel
+                                                                                        .updateFormData(
+                                                                                                formData.copy(
+                                                                                                        longitude =
+                                                                                                                lng
+                                                                                                )
+                                                                                        )
+                                                                        }
+                                                                },
+                                                                label = { Text("Longitude") },
+                                                                modifier = Modifier.weight(1f),
+                                                                keyboardOptions =
+                                                                        KeyboardOptions(
+                                                                                keyboardType =
+                                                                                        KeyboardType
+                                                                                                .Decimal
+                                                                        )
+                                                        )
+                                                }
+                                        }
+
+                                        // Capacity and Contact
+                                        EventFormSection(title = "Details") {
+                                                OutlinedTextField(
+                                                        value = formData.capacity.toString(),
+                                                        onValueChange = {
+                                                                it.toIntOrNull()?.let { capacity ->
+                                                                        eventViewModel
+                                                                                .updateFormData(
+                                                                                        formData.copy(
+                                                                                                capacity =
+                                                                                                        capacity
+                                                                                        )
+                                                                                )
+                                                                }
+                                                        },
+                                                        label = { Text("Capacity *") },
+                                                        modifier = Modifier.fillMaxWidth(),
+                                                        keyboardOptions =
+                                                                KeyboardOptions(
+                                                                        keyboardType =
+                                                                                KeyboardType.Number
+                                                                )
+                                                )
+
+                                                OutlinedTextField(
+                                                        value = formData.contactNumber,
+                                                        onValueChange = {
+                                                                eventViewModel.updateFormData(
+                                                                        formData.copy(
+                                                                                contactNumber = it
+                                                                        )
+                                                                )
+                                                        },
+                                                        label = {
+                                                                Text("Contact Number (Optional)")
+                                                        },
+                                                        modifier = Modifier.fillMaxWidth(),
+                                                        keyboardOptions =
+                                                                KeyboardOptions(
+                                                                        keyboardType =
+                                                                                KeyboardType.Phone
+                                                                )
+                                                )
+                                        }
+
+                                        // Amenities
+                                        EventFormSection(title = "Amenities") {
+                                                CheckboxRow(
+                                                        checked = formData.amenities.isIndoor,
+                                                        onCheckedChange = {
+                                                                eventViewModel.updateFormData(
+                                                                        formData.copy(
+                                                                                amenities =
+                                                                                        formData.amenities
+                                                                                                .copy(
+                                                                                                        isIndoor =
+                                                                                                                it
+                                                                                                )
+                                                                        )
+                                                                )
+                                                        },
+                                                        text = "Indoor"
+                                                )
+
+                                                CheckboxRow(
+                                                        checked = formData.amenities.isOutdoor,
+                                                        onCheckedChange = {
+                                                                eventViewModel.updateFormData(
+                                                                        formData.copy(
+                                                                                amenities =
+                                                                                        formData.amenities
+                                                                                                .copy(
+                                                                                                        isOutdoor =
+                                                                                                                it
+                                                                                                )
+                                                                        )
+                                                                )
+                                                        },
+                                                        text = "Outdoor"
+                                                )
+
+                                                CheckboxRow(
+                                                        checked =
+                                                                formData.amenities.isChildFriendly,
+                                                        onCheckedChange = {
+                                                                eventViewModel.updateFormData(
+                                                                        formData.copy(
+                                                                                amenities =
+                                                                                        formData.amenities
+                                                                                                .copy(
+                                                                                                        isChildFriendly =
+                                                                                                                it
+                                                                                                )
+                                                                        )
+                                                                )
+                                                        },
+                                                        text = "Child Friendly"
+                                                )
+
+                                                CheckboxRow(
+                                                        checked = formData.amenities.isPetFriendly,
+                                                        onCheckedChange = {
+                                                                eventViewModel.updateFormData(
+                                                                        formData.copy(
+                                                                                amenities =
+                                                                                        formData.amenities
+                                                                                                .copy(
+                                                                                                        isPetFriendly =
+                                                                                                                it
+                                                                                                )
+                                                                        )
+                                                                )
+                                                        },
+                                                        text = "Pet Friendly"
+                                                )
+                                        }
+
+                                        // Accessibility
+                                        EventFormSection(title = "Accessibility") {
+                                                CheckboxRow(
+                                                        checked =
+                                                                formData.accessibility
+                                                                        .isWheelchairAccessible,
+                                                        onCheckedChange = {
+                                                                eventViewModel.updateFormData(
+                                                                        formData.copy(
+                                                                                accessibility =
+                                                                                        formData.accessibility
+                                                                                                .copy(
+                                                                                                        isWheelchairAccessible =
+                                                                                                                it
+                                                                                                )
+                                                                        )
+                                                                )
+                                                        },
+                                                        text = "Wheelchair Accessible"
+                                                )
+
+                                                CheckboxRow(
+                                                        checked =
+                                                                formData.accessibility
+                                                                        .hasAccessibleToilets,
+                                                        onCheckedChange = {
+                                                                eventViewModel.updateFormData(
+                                                                        formData.copy(
+                                                                                accessibility =
+                                                                                        formData.accessibility
+                                                                                                .copy(
+                                                                                                        hasAccessibleToilets =
+                                                                                                                it
+                                                                                                )
+                                                                        )
+                                                                )
+                                                        },
+                                                        text = "Accessible Toilets"
+                                                )
+                                        }
+                                }
+
+                                // Footer buttons
+                                Divider()
+
+                                Row(
+                                        modifier = Modifier.fillMaxWidth().padding(16.dp),
+                                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                ) {
+                                        OutlinedButton(
+                                                onClick = onDismiss,
+                                                modifier = Modifier.weight(1f)
+                                        ) { Text("Cancel") }
+
+                                        Button(
+                                                onClick = onSave,
+                                                modifier = Modifier.weight(1f),
+                                                enabled =
+                                                        !uiState.isLoading &&
+                                                                formData.selectedMatch != null &&
+                                                                formData.locationName
+                                                                        .isNotBlank() &&
+                                                                formData.locationAddress
+                                                                        .isNotBlank()
+                                        ) {
+                                                if (uiState.isLoading) {
+                                                        CircularProgressIndicator(
+                                                                modifier = Modifier.size(16.dp),
+                                                                color =
+                                                                        MaterialTheme.colorScheme
+                                                                                .onPrimary
+                                                        )
+                                                } else {
+                                                        Text(if (isEditing) "Update" else "Create")
+                                                }
+                                        }
+                                }
                         }
-                      },
-                      label = { Text("Latitude") },
-                      modifier = Modifier.weight(1f),
-                      keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal)
-              )
-
-              OutlinedTextField(
-                      value = formData.longitude.toString(),
-                      onValueChange = {
-                        it.toDoubleOrNull()?.let { lng ->
-                          eventViewModel.updateFormData(formData.copy(longitude = lng))
-                        }
-                      },
-                      label = { Text("Longitude") },
-                      modifier = Modifier.weight(1f),
-                      keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal)
-              )
-            }
-          }
-
-          // Capacity and Contact
-          EventFormSection(title = "Details") {
-            OutlinedTextField(
-                    value = formData.capacity.toString(),
-                    onValueChange = {
-                      it.toIntOrNull()?.let { capacity ->
-                        eventViewModel.updateFormData(formData.copy(capacity = capacity))
-                      }
-                    },
-                    label = { Text("Capacity *") },
-                    modifier = Modifier.fillMaxWidth(),
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
-            )
-
-            OutlinedTextField(
-                    value = formData.contactNumber,
-                    onValueChange = {
-                      eventViewModel.updateFormData(formData.copy(contactNumber = it))
-                    },
-                    label = { Text("Contact Number (Optional)") },
-                    modifier = Modifier.fillMaxWidth(),
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone)
-            )
-          }
-
-          // Amenities
-          EventFormSection(title = "Amenities") {
-            CheckboxRow(
-                    checked = formData.amenities.isIndoor,
-                    onCheckedChange = {
-                      eventViewModel.updateFormData(
-                              formData.copy(amenities = formData.amenities.copy(isIndoor = it))
-                      )
-                    },
-                    text = "Indoor"
-            )
-
-            CheckboxRow(
-                    checked = formData.amenities.isOutdoor,
-                    onCheckedChange = {
-                      eventViewModel.updateFormData(
-                              formData.copy(amenities = formData.amenities.copy(isOutdoor = it))
-                      )
-                    },
-                    text = "Outdoor"
-            )
-
-            CheckboxRow(
-                    checked = formData.amenities.isChildFriendly,
-                    onCheckedChange = {
-                      eventViewModel.updateFormData(
-                              formData.copy(
-                                      amenities = formData.amenities.copy(isChildFriendly = it)
-                              )
-                      )
-                    },
-                    text = "Child Friendly"
-            )
-
-            CheckboxRow(
-                    checked = formData.amenities.isPetFriendly,
-                    onCheckedChange = {
-                      eventViewModel.updateFormData(
-                              formData.copy(amenities = formData.amenities.copy(isPetFriendly = it))
-                      )
-                    },
-                    text = "Pet Friendly"
-            )
-          }
-
-          // Accessibility
-          EventFormSection(title = "Accessibility") {
-            CheckboxRow(
-                    checked = formData.accessibility.isWheelchairAccessible,
-                    onCheckedChange = {
-                      eventViewModel.updateFormData(
-                              formData.copy(
-                                      accessibility =
-                                              formData.accessibility.copy(
-                                                      isWheelchairAccessible = it
-                                              )
-                              )
-                      )
-                    },
-                    text = "Wheelchair Accessible"
-            )
-
-            CheckboxRow(
-                    checked = formData.accessibility.hasAccessibleToilets,
-                    onCheckedChange = {
-                      eventViewModel.updateFormData(
-                              formData.copy(
-                                      accessibility =
-                                              formData.accessibility.copy(hasAccessibleToilets = it)
-                              )
-                      )
-                    },
-                    text = "Accessible Toilets"
-            )
-          }
+                }
         }
-
-        // Footer buttons
-        Divider()
-
-        Row(
-                modifier = Modifier.fillMaxWidth().padding(16.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-          OutlinedButton(onClick = onDismiss, modifier = Modifier.weight(1f)) { Text("Cancel") }
-
-          Button(
-                  onClick = onSave,
-                  modifier = Modifier.weight(1f),
-                  enabled =
-                          !uiState.isLoading &&
-                                  formData.title.isNotBlank() &&
-                                  formData.locationName.isNotBlank() &&
-                                  formData.locationAddress.isNotBlank()
-          ) {
-            if (uiState.isLoading) {
-              CircularProgressIndicator(
-                      modifier = Modifier.size(16.dp),
-                      color = MaterialTheme.colorScheme.onPrimary
-              )
-            } else {
-              Text(if (isEditing) "Update" else "Create")
-            }
-          }
-        }
-      }
-    }
-  }
 }
 
 @Composable
 private fun EventFormSection(title: String, content: @Composable ColumnScope.() -> Unit) {
-  Column {
-    Text(
-            text = title,
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.SemiBold,
-            color = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.padding(bottom = 8.dp)
-    )
+        Column {
+                Text(
+                        text = title,
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.SemiBold,
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.padding(bottom = 8.dp)
+                )
 
-    Column(verticalArrangement = Arrangement.spacedBy(12.dp), content = content)
-  }
+                Column(verticalArrangement = Arrangement.spacedBy(12.dp), content = content)
+        }
 }
 
 @Composable
@@ -325,15 +557,18 @@ private fun CheckboxRow(
         text: String,
         modifier: Modifier = Modifier
 ) {
-  Row(modifier = modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-    Checkbox(
-            checked = checked,
-            onCheckedChange = onCheckedChange,
-            colors = CheckboxDefaults.colors(checkedColor = MaterialTheme.colorScheme.primary)
-    )
+        Row(modifier = modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                Checkbox(
+                        checked = checked,
+                        onCheckedChange = onCheckedChange,
+                        colors =
+                                CheckboxDefaults.colors(
+                                        checkedColor = MaterialTheme.colorScheme.primary
+                                )
+                )
 
-    Spacer(modifier = Modifier.width(8.dp))
+                Spacer(modifier = Modifier.width(8.dp))
 
-    Text(text = text, style = MaterialTheme.typography.bodyMedium)
-  }
+                Text(text = text, style = MaterialTheme.typography.bodyMedium)
+        }
 }

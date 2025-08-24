@@ -6,15 +6,15 @@ import java.util.Date
 import javax.inject.Inject
 
 class UpdateEventUseCase @Inject constructor(private val eventRepository: IEventRepository) {
-  suspend fun execute(event: Event): Result<Unit> {
-    // Validate event data
-    if (event.title.isBlank()) {
-      return Result.failure(Exception("Event title is required"))
-    }
-
-    if (event.location.name.isBlank()) {
-      return Result.failure(Exception("Location name is required"))
-    }
+      suspend fun execute(event: Event): Result<Unit> {
+        // Validate event data
+        if (event.matchId.isBlank()) {
+            return Result.failure(Exception("Please select a match"))
+        }
+        
+        if (event.location.name.isBlank()) {
+            return Result.failure(Exception("Location name is required"))
+        }
 
     if (event.location.address.isBlank()) {
       return Result.failure(Exception("Location address is required"))
