@@ -15,6 +15,8 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.ColorMatrix
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -531,10 +533,17 @@ fun SignupLeagueStep(
                                                                                                         alpha =
                                                                                                                 0.1f
                                                                                                 )
-                                                                                else
+                                                                                else if (isEnabled)
                                                                                         MaterialTheme
                                                                                                 .colorScheme
                                                                                                 .surface
+                                                                                else
+                                                                                        MaterialTheme
+                                                                                                .colorScheme
+                                                                                                .surfaceVariant
+                                                                                                .copy(
+                                                                                                        alpha = 0.3f
+                                                                                                )
                                                                 ),
                                                         border =
                                                                 if (isSelected && isEnabled)
@@ -544,25 +553,25 @@ fun SignupLeagueStep(
                                                                                         .colorScheme
                                                                                         .primary
                                                                         )
+                                                                else if (isEnabled)
+                                                                        BorderStroke(
+                                                                                1.dp,
+                                                                                MaterialTheme
+                                                                                        .colorScheme
+                                                                                        .outline
+                                                                                        .copy(
+                                                                                                alpha = 0.2f
+                                                                                        )
+                                                                        )
                                                                 else
                                                                         BorderStroke(
                                                                                 1.dp,
-                                                                                if (isEnabled)
-                                                                                        MaterialTheme
-                                                                                                .colorScheme
-                                                                                                .outline
-                                                                                                .copy(
-                                                                                                        alpha =
-                                                                                                                0.2f
-                                                                                                )
-                                                                                else
-                                                                                        MaterialTheme
-                                                                                                .colorScheme
-                                                                                                .outline
-                                                                                                .copy(
-                                                                                                        alpha =
-                                                                                                                0.1f
-                                                                                                )
+                                                                                MaterialTheme
+                                                                                        .colorScheme
+                                                                                        .outline
+                                                                                        .copy(
+                                                                                                alpha = 0.05f
+                                                                                        )
                                                                         )
                                                 ) {
                                                         Column(
@@ -592,7 +601,16 @@ fun SignupLeagueStep(
                                                                                                 )
                                                                                                 .weight(
                                                                                                         1f
-                                                                                                )
+                                                                                                ),
+                                                                                colorFilter = if (!isEnabled) {
+                                                                                        // Grayscale effect for disabled leagues
+                                                                                        ColorFilter.colorMatrix(
+                                                                                                ColorMatrix().apply {
+                                                                                                        setToSaturation(0f)
+                                                                                                }
+                                                                                        )
+                                                                                } else null,
+                                                                                alpha = if (!isEnabled) 0.4f else 1f
                                                                         )
                                                                 }
                                                                         ?: run {
@@ -662,10 +680,9 @@ fun SignupLeagueStep(
                                                                                 else
                                                                                         MaterialTheme
                                                                                                 .colorScheme
-                                                                                                .onSurface
+                                                                                                .onSurfaceVariant
                                                                                                 .copy(
-                                                                                                        alpha =
-                                                                                                                0.4f
+                                                                                                        alpha = 0.3f
                                                                                                 )
                                                                 )
                                                         }

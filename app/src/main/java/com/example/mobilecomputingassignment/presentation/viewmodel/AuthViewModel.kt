@@ -96,6 +96,52 @@ constructor(
                 }
         }
 
+        fun sendPasswordResetEmail(email: String) {
+                if (!isValidEmail(email)) {
+                        _uiState.value =
+                                _uiState.value.copy(
+                                        errorMessage = "Please enter a valid email address",
+                                        isEmailValid = false
+                                )
+                        return
+                }
+
+                viewModelScope.launch {
+                        _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null)
+
+                        try {
+                                com.google.firebase.auth.FirebaseAuth.getInstance()
+                                        .sendPasswordResetEmail(email)
+                                        .addOnCompleteListener { task ->
+                                                _uiState.value =
+                                                        _uiState.value.copy(isLoading = false)
+                                                if (task.isSuccessful) {
+                                                        _uiState.value =
+                                                                _uiState.value.copy(
+                                                                        errorMessage =
+                                                                                "Password reset email sent! Check your inbox."
+                                                                )
+                                                } else {
+                                                        _uiState.value =
+                                                                _uiState.value.copy(
+                                                                        errorMessage =
+                                                                                task.exception
+                                                                                        ?.message
+                                                                                        ?: "Failed to send reset email"
+                                                                )
+                                                }
+                                        }
+                        } catch (e: Exception) {
+                                _uiState.value =
+                                        _uiState.value.copy(
+                                                isLoading = false,
+                                                errorMessage = e.message
+                                                                ?: "Failed to send reset email"
+                                        )
+                        }
+                }
+        }
+
         fun googleSignIn(idToken: String) {
                 viewModelScope.launch {
                         _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null)
@@ -103,11 +149,35 @@ constructor(
                         googleSignInUseCase
                                 .execute(idToken)
                                 .onSuccess {
-                                        _uiState.value =
-                                                _uiState.value.copy(
-                                                        isLoading = false,
-                                                        currentStep = OnboardingStep.COMPLETE
-                                                )
+                                        // Get the current Firebase user to check if they need
+                                        // onboarding
+                                        val firebaseUser =
+                                                com.google.firebase.auth.FirebaseAuth.getInstance()
+                                                        .currentUser
+                                        if (firebaseUser != null) {
+                                                // For now, assume Google users need to complete
+                                                // onboarding
+                                                // In a real app, you'd check their Firestore
+                                                // profile
+                                                _signupData.value =
+                                                        _signupData.value.copy(
+                                                                email = firebaseUser.email ?: ""
+                                                        )
+                                                _uiState.value =
+                                                        _uiState.value.copy(
+                                                                isLoading = false,
+                                                                currentStep =
+                                                                        OnboardingStep
+                                                                                .SIGNUP_USERNAME_AGE
+                                                        )
+                                        } else {
+                                                _uiState.value =
+                                                        _uiState.value.copy(
+                                                                isLoading = false,
+                                                                currentStep =
+                                                                        OnboardingStep.COMPLETE
+                                                        )
+                                        }
                                 }
                                 .onFailure { exception ->
                                         _uiState.value =

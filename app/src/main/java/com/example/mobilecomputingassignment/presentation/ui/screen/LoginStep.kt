@@ -20,6 +20,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.mobilecomputingassignment.R
+import com.example.mobilecomputingassignment.presentation.ui.component.ForgotPasswordDialog
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
@@ -29,6 +30,7 @@ import com.google.android.gms.common.api.ApiException
 fun LoginStep(
         onLoginClick: (String, String) -> Unit,
         onGoogleSignInClick: (String) -> Unit,
+        onForgotPasswordClick: (String) -> Unit,
         onBackClick: () -> Unit,
         isLoading: Boolean,
         errorMessage: String?
@@ -36,6 +38,7 @@ fun LoginStep(
         var email by remember { mutableStateOf("") }
         var password by remember { mutableStateOf("") }
         var passwordVisible by remember { mutableStateOf(false) }
+        var showForgotPasswordDialog by remember { mutableStateOf(false) }
         val context = LocalContext.current
 
         val googleSignInLauncher =
@@ -213,9 +216,27 @@ fun LoginStep(
                         }
 
                         TextButton(
-                                onClick = { /* Handle forgot password */},
+                                onClick = { showForgotPasswordDialog = true },
                                 modifier = Modifier.align(Alignment.CenterHorizontally)
-                        ) { Text("Forgot Password?", style = MaterialTheme.typography.bodyMedium) }
+                        ) {
+                                Text(
+                                        "Forgot Password?",
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        color = MaterialTheme.colorScheme.primary
+                                )
+                        }
                 }
+        }
+
+        // Forgot Password Dialog
+        if (showForgotPasswordDialog) {
+                ForgotPasswordDialog(
+                        onSendResetEmail = { resetEmail ->
+                                onForgotPasswordClick(resetEmail)
+                                showForgotPasswordDialog = false
+                        },
+                        onDismiss = { showForgotPasswordDialog = false },
+                        isLoading = isLoading
+                )
         }
 }

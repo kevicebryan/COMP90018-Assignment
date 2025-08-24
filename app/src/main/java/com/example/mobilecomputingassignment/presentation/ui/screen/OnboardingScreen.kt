@@ -42,6 +42,7 @@ fun OnboardingScreen(onNavigateToMain: () -> Unit, viewModel: AuthViewModel = hi
             LoginStep(
                     onLoginClick = { email, password -> viewModel.login(email, password) },
                     onGoogleSignInClick = { idToken -> viewModel.googleSignIn(idToken) },
+                    onForgotPasswordClick = { email -> viewModel.sendPasswordResetEmail(email) },
                     onBackClick = { viewModel.navigateToStep(OnboardingStep.WELCOME) },
                     isLoading = uiState.isLoading,
                     errorMessage = uiState.errorMessage
