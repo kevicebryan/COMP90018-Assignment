@@ -4,7 +4,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ExitToApp
-import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -63,16 +62,16 @@ fun ProfileScreen(
         }
 
         item {
-            ProfileMenuItem(
-                    icon = Icons.Default.Info,
+            ProfileMenuItemWithDrawable(
+                    iconRes = R.drawable.ic_privacy,
                     title = "Privacy Policy",
                     onClick = onShowPrivacyPolicy
             )
         }
 
         item {
-            ProfileMenuItem(
-                    icon = Icons.Default.Info,
+            ProfileMenuItemWithDrawable(
+                    iconRes = R.drawable.ic_terms,
                     title = "Terms & Conditions",
                     onClick = onShowTermsConditions
             )
