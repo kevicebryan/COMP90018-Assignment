@@ -1,0 +1,208 @@
+package com.example.mobilecomputingassignment.data.models
+
+import com.example.mobilecomputingassignment.domain.models.*
+import com.google.firebase.Timestamp
+
+data class EventDto(
+        val id: String = "",
+        val hostUserId: String = "",
+        val hostUsername: String = "",
+        val title: String = "",
+        val description: String = "",
+        val date: Timestamp = Timestamp.now(),
+        val checkInTime: Timestamp = Timestamp.now(),
+        val matchId: String = "",
+        val matchDetails: MatchDetailsDto? = null,
+        val location: EventLocationDto = EventLocationDto(),
+        val capacity: Int = 0,
+        val contactNumber: String = "",
+        val amenities: EventAmenitiesDto = EventAmenitiesDto(),
+        val accessibility: EventAccessibilityDto = EventAccessibilityDto(),
+        val attendees: List<String> = emptyList(),
+        val interestedUsers: List<String> = emptyList(),
+        val createdAt: Timestamp = Timestamp.now(),
+        val updatedAt: Timestamp = Timestamp.now(),
+        val isActive: Boolean = true
+) {
+  // Convert to domain model
+  fun toDomain(): Event {
+    return Event(
+            id = id,
+            hostUserId = hostUserId,
+            hostUsername = hostUsername,
+            title = title,
+            description = description,
+            date = date.toDate(),
+            checkInTime = checkInTime.toDate(),
+            matchId = matchId,
+            matchDetails = matchDetails?.toDomain(),
+            location = location.toDomain(),
+            capacity = capacity,
+            contactNumber = contactNumber,
+            amenities = amenities.toDomain(),
+            accessibility = accessibility.toDomain(),
+            attendees = attendees,
+            interestedUsers = interestedUsers,
+            createdAt = createdAt.toDate(),
+            updatedAt = updatedAt.toDate(),
+            isActive = isActive
+    )
+  }
+
+  companion object {
+    // Convert from domain model
+    fun fromDomain(event: Event): EventDto {
+      return EventDto(
+              id = event.id,
+              hostUserId = event.hostUserId,
+              hostUsername = event.hostUsername,
+              title = event.title,
+              description = event.description,
+              date = Timestamp(event.date),
+              checkInTime = Timestamp(event.checkInTime),
+              matchId = event.matchId,
+              matchDetails = event.matchDetails?.let { MatchDetailsDto.fromDomain(it) },
+              location = EventLocationDto.fromDomain(event.location),
+              capacity = event.capacity,
+              contactNumber = event.contactNumber,
+              amenities = EventAmenitiesDto.fromDomain(event.amenities),
+              accessibility = EventAccessibilityDto.fromDomain(event.accessibility),
+              attendees = event.attendees,
+              interestedUsers = event.interestedUsers,
+              createdAt = Timestamp(event.createdAt),
+              updatedAt = Timestamp(event.updatedAt),
+              isActive = event.isActive
+      )
+    }
+  }
+}
+
+data class EventLocationDto(
+        val name: String = "",
+        val address: String = "",
+        val latitude: Double = 0.0,
+        val longitude: Double = 0.0
+) {
+  fun toDomain(): EventLocation {
+    return EventLocation(name, address, latitude, longitude)
+  }
+
+  companion object {
+    fun fromDomain(location: EventLocation): EventLocationDto {
+      return EventLocationDto(
+              location.name,
+              location.address,
+              location.latitude,
+              location.longitude
+      )
+    }
+  }
+}
+
+data class EventAmenitiesDto(
+        val isIndoor: Boolean = false,
+        val isOutdoor: Boolean = false,
+        val isChildFriendly: Boolean = false,
+        val isPetFriendly: Boolean = false,
+        val hasParking: Boolean = false,
+        val hasFood: Boolean = false,
+        val hasDrinks: Boolean = false,
+        val hasWifi: Boolean = false
+) {
+  fun toDomain(): EventAmenities {
+    return EventAmenities(
+            isIndoor,
+            isOutdoor,
+            isChildFriendly,
+            isPetFriendly,
+            hasParking,
+            hasFood,
+            hasDrinks,
+            hasWifi
+    )
+  }
+
+  companion object {
+    fun fromDomain(amenities: EventAmenities): EventAmenitiesDto {
+      return EventAmenitiesDto(
+              amenities.isIndoor,
+              amenities.isOutdoor,
+              amenities.isChildFriendly,
+              amenities.isPetFriendly,
+              amenities.hasParking,
+              amenities.hasFood,
+              amenities.hasDrinks,
+              amenities.hasWifi
+      )
+    }
+  }
+}
+
+data class EventAccessibilityDto(
+        val isWheelchairAccessible: Boolean = false,
+        val hasAccessibleToilets: Boolean = false,
+        val hasAccessibleParking: Boolean = false,
+        val hasSignLanguageSupport: Boolean = false,
+        val hasAudioSupport: Boolean = false
+) {
+  fun toDomain(): EventAccessibility {
+    return EventAccessibility(
+            isWheelchairAccessible,
+            hasAccessibleToilets,
+            hasAccessibleParking,
+            hasSignLanguageSupport,
+            hasAudioSupport
+    )
+  }
+
+  companion object {
+    fun fromDomain(accessibility: EventAccessibility): EventAccessibilityDto {
+      return EventAccessibilityDto(
+              accessibility.isWheelchairAccessible,
+              accessibility.hasAccessibleToilets,
+              accessibility.hasAccessibleParking,
+              accessibility.hasSignLanguageSupport,
+              accessibility.hasAudioSupport
+      )
+    }
+  }
+}
+
+data class MatchDetailsDto(
+        val id: String = "",
+        val homeTeam: String = "",
+        val awayTeam: String = "",
+        val competition: String = "",
+        val venue: String = "",
+        val matchTime: Timestamp = Timestamp.now(),
+        val round: String = "",
+        val season: String = ""
+) {
+  fun toDomain(): MatchDetails {
+    return MatchDetails(
+            id,
+            homeTeam,
+            awayTeam,
+            competition,
+            venue,
+            matchTime.toDate(),
+            round,
+            season
+    )
+  }
+
+  companion object {
+    fun fromDomain(match: MatchDetails): MatchDetailsDto {
+      return MatchDetailsDto(
+              match.id,
+              match.homeTeam,
+              match.awayTeam,
+              match.competition,
+              match.venue,
+              Timestamp(match.matchTime),
+              match.round,
+              match.season
+      )
+    }
+  }
+}
