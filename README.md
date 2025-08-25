@@ -149,7 +149,7 @@ Legend: ✅ Implemented | 🔲 Planned | 🔄 In Progress
 1. **Clone the repository**
 
    ```bash
-   git clone [repository-url]
+   git clone [[repository-url]](https://github.com/kevicebryan/COMP90018-Assignment.git)
    cd watchalong-app
    ```
 
