@@ -128,11 +128,11 @@ fun EventCard(
         )
       }
 
-      EventDetailRow(
-              icon = Icons.Default.Person,
-              label = "Capacity",
-              value = "${event.attendees.size}/${event.capacity}"
-      )
+                   EventDetailRow(
+                     icon = Icons.Default.Person,
+                     label = "Capacity",
+                     value = "${if (event.attendees.isNotEmpty()) 1 else 0}/${event.capacity}"
+             )
 
       if (event.contactNumber.isNotBlank()) {
         EventDetailRow(icon = Icons.Default.Phone, label = "Contact", value = event.contactNumber)

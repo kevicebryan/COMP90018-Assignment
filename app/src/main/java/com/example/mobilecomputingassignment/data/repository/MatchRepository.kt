@@ -8,6 +8,24 @@ import java.util.*
 import javax.inject.Inject
 import javax.inject.Singleton
 
+/**
+ * MatchRepository - Data Access Layer for Match Information
+ *
+ * This repository handles all match-related data operations. It acts as a bridge between the UI and
+ * the Squiggle API.
+ *
+ * Key Responsibilities:
+ * - Fetch matches from Squiggle API
+ * - Filter matches by date
+ * - Convert API data to domain models
+ * - Handle errors and provide fallbacks
+ *
+ * Architecture:
+ * - Repository Pattern: Centralizes data access logic
+ * - Single Responsibility: Only handles match data
+ * - Error Handling: Returns Result<T> for safe error handling
+ * - Date Filtering: Only returns future/incomplete matches
+ */
 @Singleton
 class MatchRepository @Inject constructor(private val squiggleApiService: SquiggleApiService) {
   companion object {
@@ -44,7 +62,7 @@ class MatchRepository @Inject constructor(private val squiggleApiService: Squigg
                           venue = game.venue,
                           matchTime = parseApiDate(game.date),
                           round = game.roundname,
-                          season = game.year.toString()
+                          season = game.year
                   )
                 }
 
@@ -84,7 +102,7 @@ class MatchRepository @Inject constructor(private val squiggleApiService: Squigg
                           venue = game.venue,
                           matchTime = parseApiDate(game.date),
                           round = game.roundname,
-                          season = game.year.toString()
+                          season = game.year
                   )
                 }
 

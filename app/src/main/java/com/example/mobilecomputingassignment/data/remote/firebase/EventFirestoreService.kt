@@ -8,18 +8,56 @@ import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.tasks.await
 
+/**
+ * EventFirestoreService - Firebase Firestore Operations
+ *
+ * This service handles all direct interactions with Firebase Firestore database. It provides CRUD
+ * (Create, Read, Update, Delete) operations for events.
+ *
+ * Key Concepts:
+ * - Firestore: Google's NoSQL cloud database
+ * - Collections: Like tables in SQL, but for documents
+ * - Documents: Individual records stored as JSON-like objects
+ * - Queries: Ways to filter and retrieve documents
+ *
+ * Architecture:
+ * - This is the Data Layer (closest to external services)
+ * - Uses DTOs (EventDto) for data transfer
+ * - Returns Result<T> for error handling
+ * - Uses Kotlin Coroutines for async operations
+ */
 @Singleton
 class EventFirestoreService @Inject constructor(private val firestore: FirebaseFirestore) {
   companion object {
+    // Firestore collection name (like a table name in SQL)
     private const val EVENTS_COLLECTION = "events"
+
+    // Log tag for debugging
     private const val TAG = "EventFirestoreService"
   }
 
+  /**
+   * CREATE OPERATION
+   *
+   * Creates a new event document in Firestore.
+   *
+   * Process:
+   * 1. Generate a new document ID
+   * 2. Add the ID to the event data
+   * 3. Save the document to Firestore
+   * 4. Return the document ID
+   */
   suspend fun createEvent(event: EventDto): Result<String> {
     return try {
+      // Generate a new document ID (Firestore auto-generates this)
       val docRef = firestore.collection(EVENTS_COLLECTION).document()
+
+      // Add the generated ID to the event data
       val eventWithId = event.copy(id = docRef.id)
+
+      // Save the document to Firestore (await() waits for completion)
       docRef.set(eventWithId).await()
+
       Log.d(TAG, "Event created successfully with ID: ${docRef.id}")
       Result.success(docRef.id)
     } catch (e: Exception) {
@@ -67,21 +105,35 @@ class EventFirestoreService @Inject constructor(private val firestore: FirebaseF
     }
   }
 
+  /**
+   * READ OPERATION - Get Events by Host
+   *
+   * Retrieves all events hosted by a specific user.
+   *
+   * Firestore Query:
+   * - whereEqualTo: Filters documents where field equals value
+   * - orderBy: Sorts results by specified field
+   * - get(): Executes the query
+   * - await(): Waits for async operation to complete
+   */
   suspend fun getEventsByHost(hostUserId: String): Result<List<EventDto>> {
     return try {
+      // Build the query: find events where hostUserId matches AND isActive is true
       val querySnapshot =
               firestore
                       .collection(EVENTS_COLLECTION)
-                      .whereEqualTo("hostUserId", hostUserId)
-                      .whereEqualTo("isActive", true)
-                      .orderBy("date", Query.Direction.ASCENDING)
-                      .get()
-                      .await()
+                      .whereEqualTo("hostUserId", hostUserId) // Filter by host
+                      .whereEqualTo("isActive", true) // Only active events
+                      .orderBy("date", Query.Direction.ASCENDING) // Sort by date
+                      .get() // Execute query
+                      .await() // Wait for completion
 
+      // Convert Firestore documents to EventDto objects
       val events =
               querySnapshot.documents.mapNotNull { document ->
-                document.toObject(EventDto::class.java)
+                document.toObject(EventDto::class.java) // Auto-convert JSON to object
               }
+
       Log.d(TAG, "Retrieved ${events.size} hosted events for user: $hostUserId")
       Result.success(events)
     } catch (e: Exception) {
@@ -171,13 +223,23 @@ class EventFirestoreService @Inject constructor(private val firestore: FirebaseF
     }
   }
 
+  /**
+   * UPDATE OPERATION - Add Attendee
+   *
+   * Updates the attendees field of an event document. In our schema, attendees is a single string
+   * (user ID) rather than an array.
+   *
+   * Note: This replaces the previous attendee (single attendee model)
+   */
   suspend fun addAttendee(eventId: String, userId: String): Result<Unit> {
     return try {
+      // Update the attendees field with the new user ID
       firestore
               .collection(EVENTS_COLLECTION)
-              .document(eventId)
-              .update("attendees", com.google.firebase.firestore.FieldValue.arrayUnion(userId))
-              .await()
+              .document(eventId) // Reference specific document
+              .update("attendees", userId) // Set attendees field to user ID
+              .await() // Wait for update to complete
+
       Log.d(TAG, "User $userId added as attendee to event: $eventId")
       Result.success(Unit)
     } catch (e: Exception) {

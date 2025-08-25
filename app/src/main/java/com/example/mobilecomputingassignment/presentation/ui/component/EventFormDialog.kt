@@ -379,6 +379,24 @@ fun EventFormDialog(
                                                                                 KeyboardType.Phone
                                                                 )
                                                 )
+
+                                                OutlinedTextField(
+                                                        value = formData.volume.toString(),
+                                                        onValueChange = {
+                                                                it.toIntOrNull()?.let { volume ->
+                                                                        eventViewModel.updateFormData(
+                                                                                formData.copy(volume = volume)
+                                                                        )
+                                                                }
+                                                        },
+                                                        label = { Text("Volume") },
+                                                        modifier = Modifier.fillMaxWidth(),
+                                                        keyboardOptions =
+                                                                KeyboardOptions(
+                                                                        keyboardType =
+                                                                                KeyboardType.Number
+                                                                )
+                                                )
                                         }
 
                                         // Amenities
@@ -450,6 +468,74 @@ fun EventFormDialog(
                                                                 )
                                                         },
                                                         text = "Pet Friendly"
+                                                )
+
+                                                CheckboxRow(
+                                                        checked = formData.amenities.hasParking,
+                                                        onCheckedChange = {
+                                                                eventViewModel.updateFormData(
+                                                                        formData.copy(
+                                                                                amenities =
+                                                                                        formData.amenities
+                                                                                                .copy(
+                                                                                                        hasParking =
+                                                                                                                it
+                                                                                                )
+                                                                        )
+                                                                )
+                                                        },
+                                                        text = "Has Parking"
+                                                )
+
+                                                CheckboxRow(
+                                                        checked = formData.amenities.hasFood,
+                                                        onCheckedChange = {
+                                                                eventViewModel.updateFormData(
+                                                                        formData.copy(
+                                                                                amenities =
+                                                                                        formData.amenities
+                                                                                                .copy(
+                                                                                                        hasFood =
+                                                                                                                it
+                                                                                                )
+                                                                        )
+                                                                )
+                                                        },
+                                                        text = "Has Food"
+                                                )
+
+                                                CheckboxRow(
+                                                        checked = formData.amenities.hasToilet,
+                                                        onCheckedChange = {
+                                                                eventViewModel.updateFormData(
+                                                                        formData.copy(
+                                                                                amenities =
+                                                                                        formData.amenities
+                                                                                                .copy(
+                                                                                                        hasToilet =
+                                                                                                                it
+                                                                                                )
+                                                                        )
+                                                                )
+                                                        },
+                                                        text = "Has Toilet"
+                                                )
+
+                                                CheckboxRow(
+                                                        checked = formData.amenities.hasWifi,
+                                                        onCheckedChange = {
+                                                                eventViewModel.updateFormData(
+                                                                        formData.copy(
+                                                                                amenities =
+                                                                                        formData.amenities
+                                                                                                .copy(
+                                                                                                        hasWifi =
+                                                                                                                it
+                                                                                                )
+                                                                        )
+                                                                )
+                                                        },
+                                                        text = "Has WiFi"
                                                 )
                                         }
 
