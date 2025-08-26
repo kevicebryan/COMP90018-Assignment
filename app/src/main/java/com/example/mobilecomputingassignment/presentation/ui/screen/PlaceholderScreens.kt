@@ -9,10 +9,7 @@ fun ExploreScreen() {
   Text(text = "Hello World - Explore", style = MaterialTheme.typography.headlineMedium)
 }
 
-@Composable
-fun EventsScreen() {
-  Text(text = "Hello World - Events", style = MaterialTheme.typography.headlineMedium)
-}
+// EventsScreen is now implemented in EventsScreen.kt
 
 @Composable
 fun CheckInScreen() {

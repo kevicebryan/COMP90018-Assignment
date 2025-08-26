@@ -3,6 +3,7 @@ package com.example.mobilecomputingassignment.presentation.viewmodel
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.mobilecomputingassignment.core.utils.ContentFilter
 import com.example.mobilecomputingassignment.data.repository.TeamRepository
 import com.example.mobilecomputingassignment.domain.models.Team
 import com.example.mobilecomputingassignment.domain.usecases.auth.*
@@ -305,7 +306,19 @@ constructor(
                 birthdateString: String,
                 ageConfirmed: Boolean
         ) {
-                // Validate username
+                // Validate username for inappropriate content
+                val usernameValidation = ContentFilter.validateContent(username)
+                if (!usernameValidation.isValid) {
+                        _uiState.value =
+                                _uiState.value.copy(
+                                        errorMessage =
+                                                "Username: ${usernameValidation.errorMessage}",
+                                        isUsernameValid = false
+                                )
+                        return
+                }
+
+                // Validate username length
                 if (username.length < 3) {
                         _uiState.value =
                                 _uiState.value.copy(
@@ -484,7 +497,7 @@ constructor(
                                 .execute(
                                         email = data.email,
                                         password = data.password,
-                                        username = data.username,
+                                        username = ContentFilter.sanitizeInput(data.username),
                                         birthdateString = data.birthdate,
                                         leagues = data.leagues,
                                         teams = data.teams
