@@ -34,7 +34,7 @@ fun MainAppScreen(
         val scope = rememberCoroutineScope()
 
         if (showQRCode) {
-                // Pass the SAME user/isLoading used by your Profile UI
+                // Same as before
                 QRCodeScreen(
                         user = uiState.user,
                         isLoading = uiState.isLoading,
@@ -58,7 +58,7 @@ fun MainAppScreen(
                         bottomBar = {
                                 WatchMatesBottomNavigation(
                                         selectedTab = selectedTab,
-                                        onTabSelected = { selectedTab = it }
+                                        onTabSelected = { selectedTab = it } // keep normal tab switching
                                 )
                         }
                 ) { innerPadding ->
@@ -90,7 +90,19 @@ fun MainAppScreen(
                                         )
                                         1 -> ExploreScreen()
                                         2 -> EventsScreen()
-                                        3 -> CheckInScreen()
+
+                                        // ⬇️ Open the QR SCANNER directly for the "Check-in" tab
+                                        3 -> QRScannerScreen(
+                                                onBackClick = { selectedTab = 0 }, // go back to Profile (or wherever you want)
+                                                onResult = { scannedText ->
+                                                        // Handle the scanned result here (snackbar for demo)
+                                                        scope.launch {
+                                                                snackbarHostState.showSnackbar("Scanned: $scannedText")
+                                                        }
+                                                        // After handling, you can switch tab or stay on scanner as you like:
+                                                        // selectedTab = 0
+                                                }
+                                        )
                                 }
                         }
                 }
