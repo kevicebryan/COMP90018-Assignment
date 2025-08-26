@@ -7,3 +7,4 @@ data class Team(
         val logoUrl: String? = null, // Keep for API compatibility
         val localLogoRes: Int? = null // Local drawable resource ID
 )
+//test
