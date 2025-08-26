@@ -1,6 +1,15 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
-    
+
+    <!-- Add this: internet is already present -->
+    <uses-permission android:name="android.permission.CAMERA" />
+
+    <!-- Optional but recommended: declare camera hardware -->
+    <uses-feature
+        android:name="android.hardware.camera.any"
+        android:required="true" />
+    <!-- If scanning is optional in your app, set required="false" instead. -->
+
     <uses-permission android:name="android.permission.INTERNET" />
 
     <application
@@ -15,7 +24,7 @@
         android:theme="@style/Theme.Watchmates"
         tools:targetApi="31">
 
-        <!-- Splash Activity - Shows onboarding image on app launch -->
+        <!-- Splash Activity -->
         <activity
             android:name=".SplashActivity"
             android:exported="true"
@@ -25,8 +34,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        
-        <!-- Main Activity - The actual app content -->
+
+        <!-- Main Activity -->
         <activity
             android:name=".MainActivity"
             android:exported="false"
