@@ -524,4 +524,11 @@ constructor(
         fun clearError() {
                 _uiState.value = _uiState.value.copy(errorMessage = null)
         }
+
+        // Clear cached event data when logout occurs
+        fun clearEventData() {
+                android.util.Log.d("EventViewModel", "Clearing event data")
+                _uiState.value = EventUiState()
+                _formData.value = EventFormData()
+        }
 }

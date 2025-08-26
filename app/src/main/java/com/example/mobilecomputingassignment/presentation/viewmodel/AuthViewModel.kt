@@ -541,6 +541,13 @@ constructor(
                 _uiState.value = _uiState.value.copy(errorMessage = null, isUsernameValid = true)
         }
 
+        // Clear all auth data when logout occurs
+        fun clearAuthData() {
+                android.util.Log.d("AuthViewModel", "Clearing auth data")
+                _uiState.value = AuthUiState()
+                _signupData.value = SignupData()
+        }
+
         private fun isValidEmail(email: String): Boolean {
                 return android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()
         }
