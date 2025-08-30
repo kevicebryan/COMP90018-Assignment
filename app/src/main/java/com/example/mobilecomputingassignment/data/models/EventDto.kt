@@ -2,6 +2,7 @@ package com.example.mobilecomputingassignment.data.models
 
 import com.example.mobilecomputingassignment.domain.models.*
 import com.google.firebase.Timestamp
+import com.google.firebase.firestore.PropertyName
 
 /**
  * Data Transfer Objects (DTOs) for Firebase Firestore
@@ -58,7 +59,9 @@ data class EventDto(
         // Metadata
         val createdAt: Timestamp = Timestamp.now(), // Document creation time
         val updatedAt: Timestamp = Timestamp.now(), // Last modification time
-        val isActive: Boolean = true, // Soft delete flag
+        @get:PropertyName("isActive")
+        @set:PropertyName("isActive")
+        var isActive: Boolean = true, // Soft delete flag
         val volume: Int = 1 // Event volume level
 ) {
   /**

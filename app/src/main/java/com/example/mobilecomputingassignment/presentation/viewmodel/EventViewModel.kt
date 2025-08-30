@@ -61,7 +61,10 @@ data class EventUiState(
         val editingEvent: Event? = null, // Event being edited
 
         // Match selection
-        val availableMatches: List<MatchDetails> = emptyList() // Matches for selected date
+        val availableMatches: List<MatchDetails> = emptyList(), // Matches for selected date
+
+        // Map picker
+        val showMapPicker: Boolean = false // Show map picker dialog
 )
 
 /**
@@ -172,6 +175,10 @@ constructor(
                                                 emptyList()
                                         }
 
+                                Log.d(
+                                        TAG,
+                                        "Loaded ${hostedEvents.size} hosted events, ${interestedEvents.size} interested events, ${allEvents.size} total events"
+                                )
                                 _uiState.value =
                                         _uiState.value.copy(
                                                 isLoading = false,
@@ -289,7 +296,12 @@ constructor(
 
         fun createEvent() {
                 val userId = currentUser?.uid ?: return
-                val username = currentUser?.displayName ?: "Unknown User"
+                // TODO: use the profile to get the username
+                val username =
+                        currentUser?.displayName
+                                ?: currentUser?.email?.split("@")?.first() ?: "Unknown User"
+
+                Log.d(TAG, "Creating event with userId: $userId, username: $username")
                 val form = _formData.value
 
                 // Validate venue name and address for inappropriate content
@@ -340,7 +352,10 @@ constructor(
                                 amenities = form.amenities,
                                 accessibility = form.accessibility,
                                 attendees = "",
-                                volume = form.volume
+                                volume = form.volume,
+                                createdAt = Date(),
+                                updatedAt = Date(),
+                                isActive = true
                         )
 
                 viewModelScope.launch {
@@ -523,6 +538,26 @@ constructor(
 
         fun clearError() {
                 _uiState.value = _uiState.value.copy(errorMessage = null)
+        }
+
+        // Map picker methods
+        fun showMapPicker() {
+                _uiState.value = _uiState.value.copy(showMapPicker = true)
+        }
+
+        fun hideMapPicker() {
+                _uiState.value = _uiState.value.copy(showMapPicker = false)
+        }
+
+        fun onLocationSelected(latLng: com.google.android.gms.maps.model.LatLng, address: String) {
+                val updatedFormData =
+                        _formData.value.copy(
+                                latitude = latLng.latitude,
+                                longitude = latLng.longitude,
+                                locationAddress = address
+                        )
+                _formData.value = updatedFormData
+                hideMapPicker()
         }
 
         // Clear cached event data when logout occurs

@@ -55,6 +55,9 @@ class EventFirestoreService @Inject constructor(private val firestore: FirebaseF
       // Add the generated ID to the event data
       val eventWithId = event.copy(id = docRef.id)
 
+      // Log the event data before saving
+      Log.d(TAG, "Creating event with data: hostUserId=${eventWithId.hostUserId}, hostUsername=${eventWithId.hostUsername}, isActive=${eventWithId.isActive}")
+
       // Save the document to Firestore (await() waits for completion)
       docRef.set(eventWithId).await()
 
@@ -127,6 +130,12 @@ class EventFirestoreService @Inject constructor(private val firestore: FirebaseF
                       .orderBy("date", Query.Direction.ASCENDING) // Sort by date
                       .get() // Execute query
                       .await() // Wait for completion
+
+      // Log raw documents for debugging
+      Log.d(TAG, "Raw documents for host $hostUserId:")
+      querySnapshot.documents.forEach { doc ->
+        Log.d(TAG, "Document ${doc.id}: hostUserId=${doc.getString("hostUserId")}, isActive=${doc.getBoolean("isActive")}")
+      }
 
       // Convert Firestore documents to EventDto objects
       val events =
