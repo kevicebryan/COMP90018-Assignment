@@ -165,7 +165,6 @@ Legend: ✅ Implemented | 🔲 Planned | 🔄 In Progress
    - Add your API keys:
      ```properties
      MAPS_API_KEY="your_google_maps_api_key"
-     AFL_API_KEY="your_afl_api_key"
      ```
 
 4. **Build and Run**
