@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import java.util.Calendar
 
 data class AuthUiState(
         val isLoading: Boolean = false,
@@ -338,16 +339,6 @@ constructor(
                         return
                 }
 
-                // Validate age confirmation
-                if (!ageConfirmed) {
-                        _uiState.value =
-                                _uiState.value.copy(
-                                        errorMessage = "You must confirm that you are 18 or older",
-                                        isAgeValid = false
-                                )
-                        return
-                }
-
                 // Validate birthdate format and age
                 try {
                         val parts = birthdateString.split("/")
@@ -377,15 +368,10 @@ constructor(
                                 java.util.Calendar.getInstance().get(java.util.Calendar.YEAR)
                         val age = currentYear - year
 
-                        if (age < 18) {
-                                _uiState.value =
-                                        _uiState.value.copy(
-                                                errorMessage =
-                                                        "You must be 18 or older to use this app",
-                                                isAgeValid = false
-                                        )
-                                return
-                        }
+                        _uiState.value = _uiState.value.copy(
+                                isAgeValid = true,
+                        )
+
                 } catch (e: Exception) {
                         _uiState.value =
                                 _uiState.value.copy(

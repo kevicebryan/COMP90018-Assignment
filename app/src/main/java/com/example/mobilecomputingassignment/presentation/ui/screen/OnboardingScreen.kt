@@ -80,7 +80,8 @@ fun OnboardingScreen(onNavigateToMain: () -> Unit, viewModel: AuthViewModel = hi
                     initialUsername = signupData.username,
                     initialBirthdate = signupData.birthdate,
                     initialAgeConfirmed = signupData.birthdate.isNotEmpty(),
-                    onUsernameChange = { viewModel.clearUsernameError() }
+                    onUsernameChange = { viewModel.clearUsernameError() },
+                    uiState = uiState
             )
         }
         OnboardingStep.SIGNUP_LEAGUE -> {
