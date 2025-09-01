@@ -16,7 +16,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.mobilecomputingassignment.data.documents.LegalDocuments
-import com.example.mobilecomputingassignment.domain.models.Team
 import com.example.mobilecomputingassignment.presentation.ui.component.WatchMatesBottomNavigation
 import com.example.mobilecomputingassignment.presentation.viewmodel.AuthViewModel
 import com.google.firebase.auth.FirebaseAuth
@@ -53,7 +52,13 @@ fun MainAppScreen(onLogout: () -> Unit, viewModel: AuthViewModel = hiltViewModel
         } else if (showTeamSelection) {
                 // TODO: Insert necessary parameters into function
                 // TODO: Figure out a way to modify the user's saved teams list (how to access?)
-                TeamSelectionScreen()
+                TeamSelectionScreen(
+                    availableTeams = TODO(),
+                    initiallySelectedTeamIds = TODO(),
+                    isLoading = TODO(),
+                    onSaveClick = TODO(),
+                    onBackClick = TODO()
+                )
         } else {
                 Scaffold(
                         bottomBar = {
