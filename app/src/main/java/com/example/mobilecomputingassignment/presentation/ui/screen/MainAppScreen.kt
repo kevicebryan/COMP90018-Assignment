@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -29,7 +30,7 @@ fun MainAppScreen(onLogout: () -> Unit, viewModel: AuthViewModel = hiltViewModel
         var showTermsConditions by remember { mutableStateOf(false) }
         var showTeamSelection by remember { mutableStateOf(false) }
 
-        val signupData by viewModel.signupData.collectAsState()
+        val signupData by viewModel.signupData.collectAsState() // Not sure if this necessary?
         val currentUser = FirebaseAuth.getInstance().currentUser
 
         if (showQRCode) {
@@ -50,14 +51,23 @@ fun MainAppScreen(onLogout: () -> Unit, viewModel: AuthViewModel = hiltViewModel
                         onBackClick = { showTermsConditions = false }
                 )
         } else if (showTeamSelection) {
-                // TODO: Insert necessary parameters into function
-                // TODO: Figure out a way to modify the user's saved teams list (how to access?)
+                // Loading AFL Teams using viewModel
+                LaunchedEffect(Unit) {
+                        viewModel.loadAflTeams()
+                }
+
+                val uiState by viewModel.uiState.collectAsState()
+                val signupData by viewModel.signupData.collectAsState()
+
                 TeamSelectionScreen(
-                    availableTeams = TODO(),
-                    initiallySelectedTeamIds = TODO(),
-                    isLoading = TODO(),
-                    onSaveClick = TODO(),
-                    onBackClick = TODO()
+                    availableTeams = uiState.availableTeams,
+                    initiallySelectedTeamIds = signupData.teams.toSet(),
+                    isLoading = uiState.isLoadingTeams,
+                    onSaveClick = { updatedSelectedTeamIds ->
+                            viewModel.updateUserTeams(updatedSelectedTeamIds.toList())
+                            showTeamSelection = false
+                    },
+                    onBackClick = { showTeamSelection = false}
                 )
         } else {
                 Scaffold(

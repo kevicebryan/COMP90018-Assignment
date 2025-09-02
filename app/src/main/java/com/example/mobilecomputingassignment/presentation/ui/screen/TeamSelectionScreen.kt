@@ -66,7 +66,6 @@ fun TeamSelectionScreen(
                         Icon(Icons.Default.ArrowBack, contentDescription = "Back")
                     }
                 }
-                // Optional: colors = TopAppBarDefaults.topAppBarColors(...)
             )
         },
         bottomBar = {
@@ -121,13 +120,13 @@ fun TeamSelectionScreen(
                             horizontalArrangement = Arrangement.spacedBy(8.dp) // Matched
                         ) {
                             teamRow.forEach { team ->
-                                val isSelected = localSelectedTeamIds.contains(team.name) // Or team.id
+                                val isSelected = localSelectedTeamIds.contains(team.id.toString())
 
                                 TeamDisplayCard( // Using the common/matched card
                                     team = team,
                                     isSelected = isSelected,
                                     onTeamClick = {
-                                        val teamIdentifier = team.name // or team.id
+                                        val teamIdentifier = team.id.toString()
                                         localSelectedTeamIds =
                                             if (isSelected) localSelectedTeamIds - teamIdentifier
                                             else localSelectedTeamIds + teamIdentifier
