@@ -32,7 +32,7 @@ fun MainAppScreen(
         onLogout: () -> Unit,
         viewModel: AuthViewModel = hiltViewModel()
 ) {
-        var selectedTab by remember { mutableIntStateOf(0) }
+        var selectedTab by remember { mutableIntStateOf(0) }   // 0=Explore, 1=Events, 2=Check-in, 3=Profile
         var showQRCode by remember { mutableStateOf(false) }
         var showPrivacyPolicy by remember { mutableStateOf(false) }
         var showTermsConditions by remember { mutableStateOf(false) }
@@ -119,9 +119,50 @@ fun MainAppScreen(
                                                 onShowTermsConditions = { showTermsConditions = true },
                                                 onShowTeamSelection = { showTeamSelection = true }
                                         )
-                                        1 -> ExploreScreen()
-                                        2 -> EventsScreen()
-                                        3 -> CheckInScreen()
+                                }
+                        ) { innerPadding ->
+                                Box(
+                                        modifier = Modifier
+                                                .fillMaxSize()
+                                                .padding(innerPadding),
+                                        contentAlignment = Alignment.Center
+                                ) {
+                                        // MUST match the order in WatchMatesBottomNavigation:
+                                        // Explore, Events, Check-in, Profile
+                                        when (selectedTab) {
+                                                0 -> ExploreScreen()
+                                                1 -> EventsScreen()
+                                                2 -> QRScannerScreen( // Open the scanner for "Check-in"
+                                                        onBackClick = { selectedTab = 0 }, // or keep current tab if you prefer
+                                                        onResult = { scannedText ->
+                                                                // Handle the scanned result (snackbar example)
+                                                                scope.launch { snackbarHostState.showSnackbar("Scanned: $scannedText") }
+                                                                // Optionally navigate or change tabs here
+                                                        }
+                                                )
+                                                3 -> ProfileScreen(
+                                                        onLogout = onLogout,
+                                                        onShowQR = {
+                                                                val username = uiState.user?.username.orEmpty()
+                                                                val id = uiState.user?.id.orEmpty()
+                                                                when {
+                                                                        uiState.isLoading -> scope.launch {
+                                                                                snackbarHostState.showSnackbar("Profile is still loading…")
+                                                                        }
+                                                                        username.isBlank() -> scope.launch {
+                                                                                snackbarHostState.showSnackbar("Please set a username in your profile first.")
+                                                                        }
+                                                                        id.isBlank() -> scope.launch {
+                                                                                snackbarHostState.showSnackbar("Missing user ID for QR.")
+                                                                        }
+                                                                        else -> showQRCode = true
+                                                                }
+                                                        },
+                                                        onShowPrivacyPolicy = { showPrivacyPolicy = true },
+                                                        onShowTermsConditions = { showTermsConditions = true },
+                                                        onShowTeamSelection = { showTeamSelection = true }
+                                                )
+                                        }
                                 }
                         }
                 }
