@@ -6,14 +6,17 @@ import androidx.lifecycle.viewModelScope
 import com.example.mobilecomputingassignment.core.utils.ContentFilter
 import com.example.mobilecomputingassignment.data.repository.TeamRepository
 import com.example.mobilecomputingassignment.domain.models.Team
-import com.example.mobilecomputingassignment.domain.usecases.auth.*
+import com.example.mobilecomputingassignment.domain.usecases.auth.CheckEmailExistsUseCase
+import com.example.mobilecomputingassignment.domain.usecases.auth.CheckUsernameExistsUseCase
+import com.example.mobilecomputingassignment.domain.usecases.auth.GoogleSignInUseCase
+import com.example.mobilecomputingassignment.domain.usecases.auth.LoginUseCase
+import com.example.mobilecomputingassignment.domain.usecases.auth.RegisterUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import java.util.Calendar
+import javax.inject.Inject
 
 data class AuthUiState(
         val isLoading: Boolean = false,
@@ -469,6 +472,33 @@ constructor(
                                                                 "Failed to load teams: ${exception.message}"
                                                 )
                                 }
+                }
+        }
+
+        fun updateUserTeams(newTeamIds: List<String>) {
+                viewModelScope.launch {
+                        try {
+                                // Get current Firebase user
+                                val uid = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.uid
+                                        ?: throw Exception("User not logged in")
+
+                                // Save the selected teams to Firestore under the user's document
+                                com.google.firebase.firestore.FirebaseFirestore.getInstance()
+                                        .collection("users")
+                                        .document(uid)
+                                        .update("teams", newTeamIds)
+                                        .addOnSuccessListener {
+                                                // Update local state after successful save
+                                                _signupData.value = _signupData.value.copy(teams = newTeamIds)
+                                        }
+                                        .addOnFailureListener { e ->
+                                                _uiState.value =
+                                                        _uiState.value.copy(errorMessage = e.message ?: "Failed to save teams")
+                                        }
+                        } catch (e: Exception) {
+                                _uiState.value =
+                                        _uiState.value.copy(errorMessage = e.message ?: "Failed to save teams")
+                        }
                 }
         }
 

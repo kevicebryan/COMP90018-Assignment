@@ -1,9 +1,20 @@
 package com.example.mobilecomputingassignment.presentation.ui.screen
 
-import androidx.compose.foundation.layout.*
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -27,6 +38,7 @@ fun MainAppScreen(
         var showTermsConditions by remember { mutableStateOf(false) }
         var showTeamSelection by remember { mutableStateOf(false) }
 
+        val signupData by viewModel.signupData.collectAsState()
         val profileViewModel: ProfileViewModel = hiltViewModel()
         val uiState: ProfileUiState by profileViewModel.uiState.collectAsStateWithLifecycle()
 
@@ -51,6 +63,25 @@ fun MainAppScreen(
                         title = "Terms & Conditions",
                         content = LegalDocuments.TERMS_CONDITIONS,
                         onBackClick = { showTermsConditions = false }
+                )
+        } else if (showTeamSelection) {
+                // Loading AFL Teams using viewModel
+                LaunchedEffect(Unit) {
+                        viewModel.loadAflTeams()
+                }
+
+                val uiState by viewModel.uiState.collectAsState()
+                val signupData by viewModel.signupData.collectAsState()
+
+                TeamSelectionScreen(
+                    availableTeams = uiState.availableTeams,
+                    initiallySelectedTeamIds = signupData.teams.toSet(),
+                    isLoading = uiState.isLoadingTeams,
+                    onSaveClick = { updatedSelectedTeamIds ->
+                            viewModel.updateUserTeams(updatedSelectedTeamIds.toList())
+                            showTeamSelection = false
+                    },
+                    onBackClick = { showTeamSelection = false}
                 )
         } else {
                 Scaffold(
