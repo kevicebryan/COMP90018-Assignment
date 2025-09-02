@@ -136,5 +136,6 @@ dependencies {
 
     // ML Kit (on-device barcode/QR scanning)
     implementation("com.google.mlkit:barcode-scanning:17.2.0")
+    implementation("androidx.lifecycle:lifecycle-runtime-compose:2.8.4") // or latest stable
 
 }

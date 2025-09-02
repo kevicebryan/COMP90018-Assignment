@@ -77,6 +77,12 @@ constructor(private val eventFirestoreService: EventFirestoreService) : IEventRe
     return eventFirestoreService.addAttendee(eventId, userId)
   }
 
+  // inside EventRepository class
+  override suspend fun isUserAttending(eventId: String, userId: String): Result<Boolean> {
+    return eventFirestoreService.isUserAttending(eventId, userId)
+  }
+
+
   override suspend fun removeAttendee(eventId: String, userId: String): Result<Unit> {
     return eventFirestoreService.removeAttendee(eventId, userId)
   }

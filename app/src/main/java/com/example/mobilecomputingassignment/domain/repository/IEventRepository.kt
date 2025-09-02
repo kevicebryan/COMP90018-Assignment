@@ -14,4 +14,5 @@ interface IEventRepository {
   suspend fun removeUserInterest(eventId: String, userId: String): Result<Unit>
   suspend fun addAttendee(eventId: String, userId: String): Result<Unit>
   suspend fun removeAttendee(eventId: String, userId: String): Result<Unit>
+  suspend fun isUserAttending(eventId: String, userId: String): Result<Boolean>
 }
