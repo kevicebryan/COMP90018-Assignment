@@ -43,8 +43,11 @@ data class Event(
         val amenities: EventAmenities = EventAmenities(),      // General venue features
         val accessibility: EventAccessibility = EventAccessibility(),  // Accessibility features
         
-        // User participation tracking
+        // User participation tracking - // keep legacy single-attendee string so nothing else explodes
         val attendees: String = "",        // Currently checked-in user ID (single attendee model)
+        // 🔸 NEW: surface the counter to the UI
+        val attendeesCount: Long = 0L,
+
         val interestedUsers: List<String> = emptyList(),  // Users who showed interest
         
         // Metadata for tracking

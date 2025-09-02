@@ -1,21 +1,9 @@
 package com.example.mobilecomputingassignment.presentation.ui.screen
 
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.SnackbarHostState
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -25,6 +13,8 @@ import com.example.mobilecomputingassignment.presentation.ui.component.WatchMate
 import com.example.mobilecomputingassignment.presentation.viewmodel.AuthViewModel
 import com.example.mobilecomputingassignment.presentation.viewmodel.ProfileUiState
 import com.example.mobilecomputingassignment.presentation.viewmodel.ProfileViewModel
+import com.example.mobilecomputingassignment.presentation.viewmodel.CheckInViewModel
+import com.example.mobilecomputingassignment.presentation.viewmodel.PointsViewModel
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -33,26 +23,141 @@ fun MainAppScreen(
         onLogout: () -> Unit,
         viewModel: AuthViewModel = hiltViewModel()
 ) {
-        // Bottom bar order in your BottomNavigation:
-        // 0=Explore, 1=Events, 2=Check-in, 3=Profile
+        // BottomNav order: 0=Explore, 1=Events, 2=Check-in, 3=Profile
         var selectedTab by remember { mutableIntStateOf(0) }
         var showQRCode by remember { mutableStateOf(false) }
+        var showScanner by remember { mutableStateOf(false) }
         var showPrivacyPolicy by remember { mutableStateOf(false) }
         var showTermsConditions by remember { mutableStateOf(false) }
         var showTeamSelection by remember { mutableStateOf(false) }
 
-        // Auth VM data you already use elsewhere
-        val signupData by viewModel.signupData.collectAsState()
+        // check-in flow state
+        var scannedHostId by remember { mutableStateOf<String?>(null) }
+        var showHostEvents by remember { mutableStateOf(false) }
+        var selectedEventId by remember { mutableStateOf<String?>(null) }
+        var showCheckInComplete by remember { mutableStateOf(false) }
 
-        // Profile VM state (used by ProfileScreen & QRCodeScreen)
+        // points flow state
+        var showPointsEarned by remember { mutableStateOf(false) }
+        var earnedPoints by remember { mutableStateOf<Int?>(null) }
+        var alreadyCheckedDialog by remember { mutableStateOf(false) }
+
+        val signupData by viewModel.signupData.collectAsState()
         val profileViewModel: ProfileViewModel = hiltViewModel()
         val uiState: ProfileUiState by profileViewModel.uiState.collectAsStateWithLifecycle()
+
+        val checkInViewModel: CheckInViewModel = hiltViewModel()
+        val pointsViewModel: PointsViewModel = hiltViewModel()
 
         val snackbarHostState = remember { SnackbarHostState() }
         val scope = rememberCoroutineScope()
 
-        // Full-screen branches first
+        // ----- Full-screen branches FIRST -----
         when {
+                // Scanner
+                showScanner -> {
+                        QRScannerScreen(
+                                onBackClick = { showScanner = false },
+                                onResult = { qrText ->
+                                        val hostId = qrText.trim()
+                                        if (hostId.isBlank()) {
+                                                scope.launch { snackbarHostState.showSnackbar("Invalid QR code") }
+                                                showScanner = false
+                                        } else {
+                                                scannedHostId = hostId
+                                                showScanner = false
+                                                showHostEvents = true
+                                        }
+                                }
+                        )
+                        return
+                }
+
+                // Select event (hostId from QR)
+                showHostEvents && scannedHostId != null -> {
+                        HostEventsScreen(
+                                hostId = scannedHostId!!,
+                                onBackClick = { showHostEvents = false },
+                                onSelectEvent = { eventId ->
+                                        scope.launch {
+                                                // 1) PRE-CHECK
+                                                val already = checkInViewModel.hasAlreadyCheckedIn(eventId).getOrElse {
+                                                        // If the check failed, treat as not already checked to avoid blocking
+                                                        false
+                                                }
+                                                if (already) {
+                                                        alreadyCheckedDialog = true
+                                                        return@launch
+                                                }
+
+                                                // 2) PROCEED WITH CHECK-IN
+                                                val res = checkInViewModel.checkInToEvent(eventId)
+                                                if (res.isSuccess) {
+                                                        selectedEventId = eventId
+                                                        showHostEvents = false
+                                                        showCheckInComplete = true  // will later allow “Reveal points”
+                                                } else {
+                                                        snackbarHostState.showSnackbar(res.exceptionOrNull()?.message ?: "Check-in failed")
+                                                }
+                                        }
+                                }
+                        )
+                        if (alreadyCheckedDialog) {
+                                AlertDialog(
+                                        onDismissRequest = { alreadyCheckedDialog = false },
+                                        confirmButton = {
+                                                TextButton(onClick = { alreadyCheckedDialog = false }) {
+                                                        Text("OK")
+                                                }
+                                        },
+                                        title = { Text("Already checked in") },
+                                        text  = { Text("You've already checked in to this event. You won't receive points for checking in twice.") }
+                                )
+                        }
+                        return
+                }
+
+                // Check-in complete → reveal points
+                showCheckInComplete && selectedEventId != null -> {
+                        CheckInCompleteScreen(
+                                onBackClick = { showCheckInComplete = false },
+                                eventId = selectedEventId!!,
+                                onRevealPointsClick = {
+                                        val earned = (10..50).random()
+                                        scope.launch {
+                                                val res = pointsViewModel.awardPoints(earned, currentPointsHint = uiState.user?.points)
+                                                if (res.isSuccess) {
+                                                        earnedPoints = earned
+                                                        // refresh profile so the UI picks up new total elsewhere
+                                                        profileViewModel.refreshProfile()
+                                                        showCheckInComplete = false
+                                                        showPointsEarned = true
+                                                } else {
+                                                        snackbarHostState.showSnackbar(res.exceptionOrNull()?.message ?: "Failed to update points")
+                                                }
+                                        }
+                                }
+                        )
+                        return
+                }
+
+                // Points earned screen
+                showPointsEarned && earnedPoints != null -> {
+                        PointsEarnedScreen(
+                                points = earnedPoints!!,
+                                onBackClick = {
+                                        showPointsEarned = false
+                                },
+                                // ✅ ADDED: let the screen navigate straight to Profile if you added a "See Points" button there
+                                onSeePoints = {
+                                        showPointsEarned = false
+                                        selectedTab = 3 // Profile tab
+                                }
+                        )
+                        return
+                }
+
+                // Existing branches
                 showQRCode -> {
                         QRCodeScreen(
                                 user = uiState.user,
@@ -78,18 +183,14 @@ fun MainAppScreen(
                         return
                 }
                 showTeamSelection -> {
-                        // Load teams when this screen becomes visible
                         LaunchedEffect(Unit) { viewModel.loadAflTeams() }
-
-                        // Collect ONLY here to avoid shadowing the profile uiState
                         val authUiState by viewModel.uiState.collectAsState()
-
                         TeamSelectionScreen(
                                 availableTeams = authUiState.availableTeams,
                                 initiallySelectedTeamIds = signupData.teams.toSet(),
                                 isLoading = authUiState.isLoadingTeams,
-                                onSaveClick = { updatedSelectedTeamIds ->
-                                        viewModel.updateUserTeams(updatedSelectedTeamIds.toList())
+                                onSaveClick = { ids ->
+                                        viewModel.updateUserTeams(ids.toList())
                                         showTeamSelection = false
                                 },
                                 onBackClick = { showTeamSelection = false }
@@ -98,7 +199,7 @@ fun MainAppScreen(
                 }
         }
 
-        // Normal “tabbed” shell
+        // ----- Normal tab shell -----
         Scaffold(
                 snackbarHost = { SnackbarHost(snackbarHostState) },
                 bottomBar = {
@@ -114,17 +215,12 @@ fun MainAppScreen(
                                 .padding(innerPadding),
                         contentAlignment = Alignment.Center
                 ) {
-                        // MUST match the order defined in WatchMatesBottomNavigation:
-                        // Explore, Events, Check-in, Profile
                         when (selectedTab) {
                                 0 -> ExploreScreen()
                                 1 -> EventsScreen()
-                                2 -> QRScannerScreen(
-                                        onBackClick = { selectedTab = 0 }, // or keep 2 to remain on scanner
-                                        onResult = { scannedText ->
-                                                scope.launch { snackbarHostState.showSnackbar("Scanned: $scannedText") }
-                                                // TODO: handle check-in logic/navigation with scannedText
-                                        }
+                                2 -> CheckInLanding(
+                                        onBackClick = null,
+                                        onTapScan = { showScanner = true }
                                 )
                                 3 -> ProfileScreen(
                                         onLogout = onLogout,
