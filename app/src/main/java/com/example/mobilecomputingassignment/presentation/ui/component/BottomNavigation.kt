@@ -16,11 +16,11 @@ fun WatchMatesBottomNavigation(selectedTab: Int, onTabSelected: (Int) -> Unit) {
     ) {
         val tabs =
                 listOf(
-                        NavigationItem("Profile", Icons.Default.Person),
                         NavigationItem("Explore", Icons.Default.Search),
                         NavigationItem("Events", Icons.Default.DateRange),
-                        NavigationItem("Check-in", Icons.Default.LocationOn)
-                )
+                        NavigationItem("Check-in", Icons.Default.LocationOn),
+                        NavigationItem("Profile", Icons.Default.Person),
+        )
 
         tabs.forEachIndexed { index, item ->
             NavigationBarItem(

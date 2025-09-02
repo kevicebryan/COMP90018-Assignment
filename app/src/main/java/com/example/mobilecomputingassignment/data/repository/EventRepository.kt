@@ -31,8 +31,25 @@ constructor(private val eventFirestoreService: EventFirestoreService) : IEventRe
   }
 
   override suspend fun getEventsByHost(hostUserId: String): Result<List<Event>> {
-    return eventFirestoreService.getEventsByHost(hostUserId).map { eventDtos ->
-      eventDtos.map { it.toDomain() }
+    return try {
+      // Log the hostUserId to verify it's correct
+      println("Getting events for host: $hostUserId")
+
+      val result = eventFirestoreService.getEventsByHost(hostUserId)
+
+      // Log the result
+      result
+              .onSuccess { eventDtos ->
+                println("Found ${eventDtos.size} events for host $hostUserId")
+              }
+              .onFailure { error ->
+                println("Error getting events for host $hostUserId: ${error.message}")
+              }
+
+      result.map { eventDtos -> eventDtos.map { it.toDomain() } }
+    } catch (e: Exception) {
+      println("Exception getting events for host $hostUserId: ${e.message}")
+      Result.failure(e)
     }
   }
 

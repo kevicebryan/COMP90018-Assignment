@@ -27,6 +27,8 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.example.mobilecomputingassignment.R
 import com.example.mobilecomputingassignment.domain.models.Team
+import com.example.mobilecomputingassignment.presentation.viewmodel.AuthUiState
+import java.util.Calendar
 
 enum class PasswordStrength {
         WEAK,
@@ -309,6 +311,27 @@ private fun PasswordRequirement(text: String, isMet: Boolean) {
         }
 }
 
+fun calculateAge(birthdateString: String): Int {
+        return try {
+                val parts = birthdateString.split("/")
+                if (parts.size != 3) return 0
+                val day = parts[0].toInt()
+                val month = parts[1].toInt()
+                val year = parts[2].toInt()
+
+                val today = Calendar.getInstance()
+                var age = today.get(Calendar.YEAR) - year
+                if (today.get(Calendar.MONTH) + 1 < month ||
+                        (today.get(Calendar.MONTH) + 1 == month && today.get(Calendar.DAY_OF_MONTH) < day)
+                ) {
+                        age--
+                }
+                age
+        } catch (e: Exception) {
+                0
+        }
+}
+
 @Composable
 fun SignupUsernameAndAgeStep(
         onNextClick: (String, String, Boolean) -> Unit,
@@ -318,7 +341,8 @@ fun SignupUsernameAndAgeStep(
         initialUsername: String = "",
         initialBirthdate: String = "",
         initialAgeConfirmed: Boolean = false,
-        onUsernameChange: ((String) -> Unit)? = null
+        onUsernameChange: ((String) -> Unit)? = null,
+        uiState: AuthUiState
 ) {
         var username by remember { mutableStateOf(initialUsername) }
         var birthdate by remember { mutableStateOf(initialBirthdate) }
@@ -417,14 +441,26 @@ fun SignupUsernameAndAgeStep(
                                 verticalAlignment = Alignment.CenterVertically,
                                 horizontalArrangement = Arrangement.spacedBy(12.dp)
                         ) {
+                                val calculatedAge = calculateAge(birthdate)
+                                val isBirthdateValid = birthdate.length == 10
+
                                 Checkbox(
                                         checked = ageConfirmed,
-                                        onCheckedChange = { ageConfirmed = it }
+                                        onCheckedChange = { checked ->
+                                                if (calculatedAge >= 18 && isBirthdateValid) {
+                                                        ageConfirmed = checked
+                                                }
+                                        },
+                                        enabled = calculatedAge >= 18 && isBirthdateValid
                                 )
+
                                 Text(
                                         text = "I confirm that I am 18 years or older",
                                         style = MaterialTheme.typography.bodyMedium,
-                                        color = MaterialTheme.colorScheme.onSurface
+                                        color = if (calculatedAge >= 18 && isBirthdateValid)
+                                                MaterialTheme.colorScheme.onSurface
+                                        else
+                                                MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f) // greyed out
                                 )
                         }
 

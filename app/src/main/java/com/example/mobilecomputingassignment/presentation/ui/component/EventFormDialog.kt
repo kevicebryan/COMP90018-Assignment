@@ -11,11 +11,13 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import com.example.mobilecomputingassignment.R
 import com.example.mobilecomputingassignment.presentation.viewmodel.EventViewModel
 import java.text.SimpleDateFormat
 import java.util.*
@@ -30,6 +32,23 @@ fun EventFormDialog(
 ) {
         val formData by eventViewModel.formData.collectAsState()
         val uiState by eventViewModel.uiState.collectAsState()
+
+        // Show map picker if requested
+        if (uiState.showMapPicker) {
+                MapPickerDialog(
+                        onDismiss = { eventViewModel.hideMapPicker() },
+                        onLocationSelected = { latLng, address ->
+                                eventViewModel.onLocationSelected(latLng, address)
+                        },
+                        initialLatLng =
+                                if (formData.latitude != 0.0 && formData.longitude != 0.0) {
+                                        com.google.android.gms.maps.model.LatLng(
+                                                formData.latitude,
+                                                formData.longitude
+                                        )
+                                } else null
+                )
+        }
 
         Dialog(
                 onDismissRequest = onDismiss,
@@ -85,9 +104,262 @@ fun EventFormDialog(
                                         LaunchedEffect(formData.date) {
                                                 eventViewModel.loadMatchesForDate(formData.date)
                                         }
-                                        
+
+                                        // Date and Time
+                                        EventFormSection(title = "Date & Time") {
+                                                var showDatePicker by remember {
+                                                        mutableStateOf(false)
+                                                }
+                                                var showTimePicker by remember {
+                                                        mutableStateOf(false)
+                                                }
+
+                                                // Date picker
+                                                OutlinedTextField(
+                                                        value =
+                                                                SimpleDateFormat(
+                                                                                "yyyy-MM-dd",
+                                                                                Locale.getDefault()
+                                                                        )
+                                                                        .format(formData.date),
+                                                        onValueChange = {},
+                                                        label = { Text("Event Date *") },
+                                                        modifier = Modifier.fillMaxWidth(),
+                                                        readOnly = true,
+                                                        leadingIcon = {
+                                                                Icon(
+                                                                        painter =
+                                                                                painterResource(
+                                                                                        id =
+                                                                                                R.drawable
+                                                                                                        .ic_calendar
+                                                                                ),
+                                                                        contentDescription =
+                                                                                "Select date",
+                                                                        tint =
+                                                                                MaterialTheme
+                                                                                        .colorScheme
+                                                                                        .primary
+                                                                )
+                                                        },
+                                                        trailingIcon = {
+                                                                IconButton(
+                                                                        onClick = {
+                                                                                showDatePicker =
+                                                                                        true
+                                                                        }
+                                                                ) {
+                                                                        Icon(
+                                                                                painter =
+                                                                                        painterResource(
+                                                                                                id =
+                                                                                                        R.drawable
+                                                                                                                .ic_calendar
+                                                                                        ),
+                                                                                contentDescription =
+                                                                                        "Select date",
+                                                                                tint =
+                                                                                        MaterialTheme
+                                                                                                .colorScheme
+                                                                                                .primary
+                                                                        )
+                                                                }
+                                                        }
+                                                )
+
+                                                // Time picker
+                                                OutlinedTextField(
+                                                        value =
+                                                                SimpleDateFormat(
+                                                                                "HH:mm",
+                                                                                Locale.getDefault()
+                                                                        )
+                                                                        .format(
+                                                                                formData.checkInTime
+                                                                        ),
+                                                        onValueChange = {},
+                                                        label = { Text("Check-in Time *") },
+                                                        modifier = Modifier.fillMaxWidth(),
+                                                        readOnly = true,
+                                                        leadingIcon = {
+                                                                Icon(
+                                                                        painter =
+                                                                                painterResource(
+                                                                                        id =
+                                                                                                R.drawable
+                                                                                                        .ic_clock
+                                                                                ),
+                                                                        contentDescription =
+                                                                                "Select time",
+                                                                        tint =
+                                                                                MaterialTheme
+                                                                                        .colorScheme
+                                                                                        .primary
+                                                                )
+                                                        },
+                                                        trailingIcon = {
+                                                                IconButton(
+                                                                        onClick = {
+                                                                                showTimePicker =
+                                                                                        true
+                                                                        }
+                                                                ) {
+                                                                        Icon(
+                                                                                painter =
+                                                                                        painterResource(
+                                                                                                id =
+                                                                                                        R.drawable
+                                                                                                                .ic_clock
+                                                                                        ),
+                                                                                contentDescription =
+                                                                                        "Select time",
+                                                                                tint =
+                                                                                        MaterialTheme
+                                                                                                .colorScheme
+                                                                                                .primary
+                                                                        )
+                                                                }
+                                                        }
+                                                )
+
+                                                // Date picker dialog
+                                                if (showDatePicker) {
+                                                        val datePickerState =
+                                                                rememberDatePickerState(
+                                                                        initialSelectedDateMillis =
+                                                                                formData.date.time
+                                                                )
+
+                                                        DatePickerDialog(
+                                                                onDismissRequest = {
+                                                                        showDatePicker = false
+                                                                },
+                                                                confirmButton = {
+                                                                        TextButton(
+                                                                                onClick = {
+                                                                                        datePickerState
+                                                                                                .selectedDateMillis
+                                                                                                ?.let {
+                                                                                                        millis
+                                                                                                        ->
+                                                                                                        val newDate =
+                                                                                                                Date(
+                                                                                                                        millis
+                                                                                                                )
+                                                                                                        eventViewModel
+                                                                                                                .updateFormData(
+                                                                                                                        formData.copy(
+                                                                                                                                date =
+                                                                                                                                        newDate
+                                                                                                                        )
+                                                                                                                )
+                                                                                                }
+                                                                                        showDatePicker =
+                                                                                                false
+                                                                                }
+                                                                        ) { Text("OK") }
+                                                                },
+                                                                dismissButton = {
+                                                                        TextButton(
+                                                                                onClick = {
+                                                                                        showDatePicker =
+                                                                                                false
+                                                                                }
+                                                                        ) { Text("Cancel") }
+                                                                }
+                                                        ) {
+                                                                DatePicker(
+                                                                        state = datePickerState,
+                                                                        showModeToggle = false
+                                                                )
+                                                        }
+                                                }
+
+                                                // Time picker dialog
+                                                if (showTimePicker) {
+                                                        val calendar = Calendar.getInstance()
+                                                        calendar.time = formData.checkInTime
+
+                                                        val timePickerState =
+                                                                rememberTimePickerState(
+                                                                        initialHour =
+                                                                                calendar.get(
+                                                                                        Calendar.HOUR_OF_DAY
+                                                                                ),
+                                                                        initialMinute =
+                                                                                calendar.get(
+                                                                                        Calendar.MINUTE
+                                                                                )
+                                                                )
+
+                                                        AlertDialog(
+                                                                onDismissRequest = {
+                                                                        showTimePicker = false
+                                                                },
+                                                                title = {
+                                                                        Text("Select Check-in Time")
+                                                                },
+                                                                text = {
+                                                                        TimePicker(
+                                                                                state =
+                                                                                        timePickerState
+                                                                        )
+                                                                },
+                                                                confirmButton = {
+                                                                        TextButton(
+                                                                                onClick = {
+                                                                                        val newCalendar =
+                                                                                                Calendar.getInstance()
+                                                                                        newCalendar
+                                                                                                .set(
+                                                                                                        Calendar.HOUR_OF_DAY,
+                                                                                                        timePickerState
+                                                                                                                .hour
+                                                                                                )
+                                                                                        newCalendar
+                                                                                                .set(
+                                                                                                        Calendar.MINUTE,
+                                                                                                        timePickerState
+                                                                                                                .minute
+                                                                                                )
+                                                                                        newCalendar
+                                                                                                .set(
+                                                                                                        Calendar.SECOND,
+                                                                                                        0
+                                                                                                )
+                                                                                        newCalendar
+                                                                                                .set(
+                                                                                                        Calendar.MILLISECOND,
+                                                                                                        0
+                                                                                                )
+
+                                                                                        eventViewModel
+                                                                                                .updateFormData(
+                                                                                                        formData.copy(
+                                                                                                                checkInTime =
+                                                                                                                        newCalendar
+                                                                                                                                .time
+                                                                                                        )
+                                                                                                )
+                                                                                        showTimePicker =
+                                                                                                false
+                                                                                }
+                                                                        ) { Text("OK") }
+                                                                },
+                                                                dismissButton = {
+                                                                        TextButton(
+                                                                                onClick = {
+                                                                                        showTimePicker =
+                                                                                                false
+                                                                                }
+                                                                        ) { Text("Cancel") }
+                                                                }
+                                                        )
+                                                }
+                                        }
+
                                         // Match Selection
-                                        EventFormSection(title = "Match Selection") {
+                                        EventFormSection(title = "Match Showing") {
                                                 // Match dropdown
                                                 if (uiState.isLoadingMatches) {
                                                         Row(
@@ -211,41 +483,6 @@ fun EventFormDialog(
                                                 }
                                         }
 
-                                        // Date and Time
-                                        EventFormSection(title = "Date & Time") {
-                                                // For now, using text fields - we'll add date/time
-                                                // pickers later
-                                                OutlinedTextField(
-                                                        value =
-                                                                SimpleDateFormat(
-                                                                                "yyyy-MM-dd",
-                                                                                Locale.getDefault()
-                                                                        )
-                                                                        .format(formData.date),
-                                                        onValueChange = { /* TODO: Implement date picker */
-                                                        },
-                                                        label = { Text("Event Date *") },
-                                                        modifier = Modifier.fillMaxWidth(),
-                                                        readOnly = true
-                                                )
-
-                                                OutlinedTextField(
-                                                        value =
-                                                                SimpleDateFormat(
-                                                                                "HH:mm",
-                                                                                Locale.getDefault()
-                                                                        )
-                                                                        .format(
-                                                                                formData.checkInTime
-                                                                        ),
-                                                        onValueChange = { /* TODO: Implement time picker */
-                                                        },
-                                                        label = { Text("Check-in Time *") },
-                                                        modifier = Modifier.fillMaxWidth(),
-                                                        readOnly = true
-                                                )
-                                        }
-
                                         // Location
                                         EventFormSection(title = "Location") {
                                                 OutlinedTextField(
@@ -276,63 +513,88 @@ fun EventFormDialog(
                                                         maxLines = 2
                                                 )
 
-                                                // TODO: Add map picker for lat/lng
-                                                Row(
+                                                // Map picker button
+                                                Button(
+                                                        onClick = {
+                                                                eventViewModel.showMapPicker()
+                                                        },
                                                         modifier = Modifier.fillMaxWidth(),
-                                                        horizontalArrangement =
-                                                                Arrangement.spacedBy(8.dp)
+                                                        colors =
+                                                                ButtonDefaults.buttonColors(
+                                                                        containerColor =
+                                                                                MaterialTheme
+                                                                                        .colorScheme
+                                                                                        .primary
+                                                                )
                                                 ) {
-                                                        OutlinedTextField(
-                                                                value =
-                                                                        formData.latitude
-                                                                                .toString(),
-                                                                onValueChange = {
-                                                                        it.toDoubleOrNull()?.let {
-                                                                                lat ->
-                                                                                eventViewModel
-                                                                                        .updateFormData(
-                                                                                                formData.copy(
-                                                                                                        latitude =
-                                                                                                                lat
-                                                                                                )
-                                                                                        )
-                                                                        }
-                                                                },
-                                                                label = { Text("Latitude") },
-                                                                modifier = Modifier.weight(1f),
-                                                                keyboardOptions =
-                                                                        KeyboardOptions(
-                                                                                keyboardType =
-                                                                                        KeyboardType
-                                                                                                .Decimal
-                                                                        )
+                                                        Icon(
+                                                                painter =
+                                                                        painterResource(
+                                                                                id =
+                                                                                        R.drawable
+                                                                                                .ic_my_location
+                                                                        ),
+                                                                contentDescription =
+                                                                        "Select location on map",
+                                                                tint =
+                                                                        MaterialTheme.colorScheme
+                                                                                .onPrimary
                                                         )
+                                                        Spacer(modifier = Modifier.width(8.dp))
+                                                        Text("Select Location on Map")
+                                                }
 
-                                                        OutlinedTextField(
-                                                                value =
-                                                                        formData.longitude
-                                                                                .toString(),
-                                                                onValueChange = {
-                                                                        it.toDoubleOrNull()?.let {
-                                                                                lng ->
-                                                                                eventViewModel
-                                                                                        .updateFormData(
-                                                                                                formData.copy(
-                                                                                                        longitude =
-                                                                                                                lng
-                                                                                                )
-                                                                                        )
-                                                                        }
-                                                                },
-                                                                label = { Text("Longitude") },
-                                                                modifier = Modifier.weight(1f),
-                                                                keyboardOptions =
-                                                                        KeyboardOptions(
-                                                                                keyboardType =
-                                                                                        KeyboardType
-                                                                                                .Decimal
+                                                // Show selected coordinates if available
+                                                if (formData.latitude != 0.0 &&
+                                                                formData.longitude != 0.0
+                                                ) {
+                                                        Card(
+                                                                modifier = Modifier.fillMaxWidth(),
+                                                                colors =
+                                                                        CardDefaults.cardColors(
+                                                                                containerColor =
+                                                                                        MaterialTheme
+                                                                                                .colorScheme
+                                                                                                .surfaceVariant
                                                                         )
-                                                        )
+                                                        ) {
+                                                                Column(
+                                                                        modifier =
+                                                                                Modifier.padding(
+                                                                                        12.dp
+                                                                                )
+                                                                ) {
+                                                                        Text(
+                                                                                text =
+                                                                                        "Selected Location:",
+                                                                                style =
+                                                                                        MaterialTheme
+                                                                                                .typography
+                                                                                                .titleSmall,
+                                                                                fontWeight =
+                                                                                        FontWeight
+                                                                                                .SemiBold
+                                                                        )
+                                                                        Spacer(
+                                                                                modifier =
+                                                                                        Modifier.height(
+                                                                                                4.dp
+                                                                                        )
+                                                                        )
+                                                                        Text(
+                                                                                text =
+                                                                                        "Coordinates: ${formData.latitude}, ${formData.longitude}",
+                                                                                style =
+                                                                                        MaterialTheme
+                                                                                                .typography
+                                                                                                .bodySmall,
+                                                                                color =
+                                                                                        MaterialTheme
+                                                                                                .colorScheme
+                                                                                                .onSurfaceVariant
+                                                                        )
+                                                                }
+                                                        }
                                                 }
                                         }
 
@@ -377,24 +639,6 @@ fun EventFormDialog(
                                                                 KeyboardOptions(
                                                                         keyboardType =
                                                                                 KeyboardType.Phone
-                                                                )
-                                                )
-
-                                                OutlinedTextField(
-                                                        value = formData.volume.toString(),
-                                                        onValueChange = {
-                                                                it.toIntOrNull()?.let { volume ->
-                                                                        eventViewModel.updateFormData(
-                                                                                formData.copy(volume = volume)
-                                                                        )
-                                                                }
-                                                        },
-                                                        label = { Text("Volume") },
-                                                        modifier = Modifier.fillMaxWidth(),
-                                                        keyboardOptions =
-                                                                KeyboardOptions(
-                                                                        keyboardType =
-                                                                                KeyboardType.Number
                                                                 )
                                                 )
                                         }
@@ -632,7 +876,7 @@ private fun EventFormSection(title: String, content: @Composable ColumnScope.() 
                         modifier = Modifier.padding(bottom = 8.dp)
                 )
 
-                Column(verticalArrangement = Arrangement.spacedBy(12.dp), content = content)
+                Column(verticalArrangement = Arrangement.spacedBy(6.dp), content = content)
         }
 }
 

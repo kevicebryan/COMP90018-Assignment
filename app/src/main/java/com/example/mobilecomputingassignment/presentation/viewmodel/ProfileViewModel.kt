@@ -34,16 +34,19 @@ constructor(private val userRepository: UserRepository, private val auth: Fireba
   fun loadUserProfile() {
     val currentUser = auth.currentUser
     if (currentUser == null) {
+      android.util.Log.d("ProfileViewModel", "No authenticated user found")
       _uiState.value =
               _uiState.value.copy(isLoading = false, errorMessage = "User not authenticated")
       return
     }
 
+    android.util.Log.d("ProfileViewModel", "Loading profile for user: ${currentUser.uid}")
     viewModelScope.launch {
       _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null)
 
       try {
         val user = userRepository.getUserById(currentUser.uid)
+        android.util.Log.d("ProfileViewModel", "Loaded user profile: ${user?.username}")
         _uiState.value =
                 _uiState.value.copy(
                         user = user,
@@ -51,6 +54,7 @@ constructor(private val userRepository: UserRepository, private val auth: Fireba
                         errorMessage = if (user == null) "User profile not found" else null
                 )
       } catch (e: Exception) {
+        android.util.Log.e("ProfileViewModel", "Failed to load profile", e)
         _uiState.value =
                 _uiState.value.copy(
                         isLoading = false,
@@ -62,5 +66,11 @@ constructor(private val userRepository: UserRepository, private val auth: Fireba
 
   fun refreshProfile() {
     loadUserProfile()
+  }
+
+  // Clear cached user data when logout occurs
+  fun clearUserData() {
+    android.util.Log.d("ProfileViewModel", "Clearing user data")
+    _uiState.value = ProfileUiState()
   }
 }
