@@ -1,11 +1,16 @@
+// In: app/src/main/java/com/example/mobilecomputingassignment/MainActivity.kt
+
 package com.example.mobilecomputingassignment
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.*
-import androidx.compose.material3.*
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.*
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.mobilecomputingassignment.presentation.ui.screen.MainAppScreen
@@ -24,9 +29,11 @@ class MainActivity : ComponentActivity() {
         setContent {
             WatchmatesTheme {
                 Surface(
-                        modifier = Modifier.fillMaxSize(),
-                        color = MaterialTheme.colorScheme.background
-                ) { WatchMatesApp() }
+                    modifier = Modifier.fillMaxSize(),
+                    color = MaterialTheme.colorScheme.background
+                ) {
+                    WatchMatesApp()
+                }
             }
         }
     }
@@ -42,46 +49,39 @@ fun WatchMatesApp() {
     val eventViewModel: EventViewModel = hiltViewModel()
     val authViewModel: AuthViewModel = hiltViewModel()
 
-    // Listen to auth state changes
+    // Listen to auth state changes to automatically update the UI and clear data
     LaunchedEffect(Unit) {
         auth.addAuthStateListener { firebaseAuth ->
             val newUser = firebaseAuth.currentUser
-            // If user changed (logout or new login), clear cached data
+            // Check if the user state has actually changed
             if (currentUser != newUser) {
                 if (currentUser != null && newUser == null) {
-                    // User logged out, clear all cached data
-                    android.util.Log.d("MainActivity", "User logged out, clearing cached data")
+                    // User logged out, clear all cached data to prevent data leaks
                     profileViewModel.clearUserData()
                     eventViewModel.clearEventData()
                     authViewModel.clearAuthData()
-                } else if (currentUser == null && newUser != null) {
-                    // New user logged in, refresh data
-                    android.util.Log.d(
-                            "MainActivity",
-                            "New user logged in, refreshing data: ${newUser.uid}"
-                    )
-                    profileViewModel.loadUserProfile()
-                    eventViewModel.loadUserEvents()
                 }
+                // Update the state to trigger recomposition
                 currentUser = newUser
             }
         }
     }
 
     if (currentUser == null) {
+        // If no user is logged in, show the onboarding/login screen
         OnboardingScreen(
-                onNavigateToMain = {
-                    // User successfully authenticated, update state
-                    currentUser = auth.currentUser
-                }
+            onNavigateToMain = {
+                // This is called after a successful login/signup
+                currentUser = auth.currentUser
+            }
         )
     } else {
-        // User is authenticated, show main app
+        // If a user is logged in, show the main application
         MainAppScreen(
-                onLogout = {
-                    auth.signOut()
-                    // Note: currentUser will be set to null by the auth state listener
-                }
+            onLogout = {
+                auth.signOut()
+                // The auth state listener above will handle the UI update
+            }
         )
     }
 }
