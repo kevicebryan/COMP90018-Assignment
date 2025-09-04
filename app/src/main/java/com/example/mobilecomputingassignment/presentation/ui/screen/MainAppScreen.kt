@@ -11,18 +11,16 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.mobilecomputingassignment.data.documents.LegalDocuments
 import com.example.mobilecomputingassignment.presentation.ui.component.WatchMatesBottomNavigation
 import com.example.mobilecomputingassignment.presentation.viewmodel.AuthViewModel
-import com.example.mobilecomputingassignment.presentation.viewmodel.ProfileUiState
-import com.example.mobilecomputingassignment.presentation.viewmodel.ProfileViewModel
 import com.example.mobilecomputingassignment.presentation.viewmodel.CheckInViewModel
 import com.example.mobilecomputingassignment.presentation.viewmodel.PointsViewModel
+import com.example.mobilecomputingassignment.presentation.viewmodel.ProfileUiState
+import com.example.mobilecomputingassignment.presentation.viewmodel.ProfileViewModel
+import com.example.mobilecomputingassignment.presentation.screens.explore.ExploreScreen
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainAppScreen(
-        onLogout: () -> Unit,
-        viewModel: AuthViewModel = hiltViewModel()
-) {
+fun MainAppScreen(onLogout: () -> Unit, viewModel: AuthViewModel = hiltViewModel()) {
         // BottomNav order: 0=Explore, 1=Events, 2=Check-in, 3=Profile
         var selectedTab by remember { mutableIntStateOf(0) }
         var showQRCode by remember { mutableStateOf(false) }
@@ -61,7 +59,11 @@ fun MainAppScreen(
                                 onResult = { qrText ->
                                         val hostId = qrText.trim()
                                         if (hostId.isBlank()) {
-                                                scope.launch { snackbarHostState.showSnackbar("Invalid QR code") }
+                                                scope.launch {
+                                                        snackbarHostState.showSnackbar(
+                                                                "Invalid QR code"
+                                                        )
+                                                }
                                                 showScanner = false
                                         } else {
                                                 scannedHostId = hostId
@@ -81,10 +83,16 @@ fun MainAppScreen(
                                 onSelectEvent = { eventId ->
                                         scope.launch {
                                                 // 1) PRE-CHECK
-                                                val already = checkInViewModel.hasAlreadyCheckedIn(eventId).getOrElse {
-                                                        // If the check failed, treat as not already checked to avoid blocking
-                                                        false
-                                                }
+                                                val already =
+                                                        checkInViewModel.hasAlreadyCheckedIn(
+                                                                        eventId
+                                                                )
+                                                                .getOrElse {
+                                                                        // If the check failed,
+                                                                        // treat as not already
+                                                                        // checked to avoid blocking
+                                                                        false
+                                                                }
                                                 if (already) {
                                                         alreadyCheckedDialog = true
                                                         return@launch
@@ -95,9 +103,14 @@ fun MainAppScreen(
                                                 if (res.isSuccess) {
                                                         selectedEventId = eventId
                                                         showHostEvents = false
-                                                        showCheckInComplete = true  // will later allow “Reveal points”
+                                                        showCheckInComplete =
+                                                                true // will later allow “Reveal
+                                                        // points”
                                                 } else {
-                                                        snackbarHostState.showSnackbar(res.exceptionOrNull()?.message ?: "Check-in failed")
+                                                        snackbarHostState.showSnackbar(
+                                                                res.exceptionOrNull()?.message
+                                                                        ?: "Check-in failed"
+                                                        )
                                                 }
                                         }
                                 }
@@ -106,12 +119,16 @@ fun MainAppScreen(
                                 AlertDialog(
                                         onDismissRequest = { alreadyCheckedDialog = false },
                                         confirmButton = {
-                                                TextButton(onClick = { alreadyCheckedDialog = false }) {
-                                                        Text("OK")
-                                                }
+                                                TextButton(
+                                                        onClick = { alreadyCheckedDialog = false }
+                                                ) { Text("OK") }
                                         },
                                         title = { Text("Already checked in") },
-                                        text  = { Text("You've already checked in to this event. You won't receive points for checking in twice.") }
+                                        text = {
+                                                Text(
+                                                        "You've already checked in to this event. You won't receive points for checking in twice."
+                                                )
+                                        }
                                 )
                         }
                         return
@@ -125,15 +142,24 @@ fun MainAppScreen(
                                 onRevealPointsClick = {
                                         val earned = (10..50).random()
                                         scope.launch {
-                                                val res = pointsViewModel.awardPoints(earned, currentPointsHint = uiState.user?.points)
+                                                val res =
+                                                        pointsViewModel.awardPoints(
+                                                                earned,
+                                                                currentPointsHint =
+                                                                        uiState.user?.points
+                                                        )
                                                 if (res.isSuccess) {
                                                         earnedPoints = earned
-                                                        // refresh profile so the UI picks up new total elsewhere
+                                                        // refresh profile so the UI picks up new
+                                                        // total elsewhere
                                                         profileViewModel.refreshProfile()
                                                         showCheckInComplete = false
                                                         showPointsEarned = true
                                                 } else {
-                                                        snackbarHostState.showSnackbar(res.exceptionOrNull()?.message ?: "Failed to update points")
+                                                        snackbarHostState.showSnackbar(
+                                                                res.exceptionOrNull()?.message
+                                                                        ?: "Failed to update points"
+                                                        )
                                                 }
                                         }
                                 }
@@ -145,10 +171,9 @@ fun MainAppScreen(
                 showPointsEarned && earnedPoints != null -> {
                         PointsEarnedScreen(
                                 points = earnedPoints!!,
-                                onBackClick = {
-                                        showPointsEarned = false
-                                },
-                                // ✅ ADDED: let the screen navigate straight to Profile if you added a "See Points" button there
+                                onBackClick = { showPointsEarned = false },
+                                // ✅ ADDED: let the screen navigate straight to Profile if you added
+                                // a "See Points" button there
                                 onSeePoints = {
                                         showPointsEarned = false
                                         selectedTab = 3 // Profile tab
@@ -210,40 +235,55 @@ fun MainAppScreen(
                 }
         ) { innerPadding ->
                 Box(
-                        modifier = Modifier
-                                .fillMaxSize()
-                                .padding(innerPadding),
+                        modifier = Modifier.fillMaxSize().padding(innerPadding),
                         contentAlignment = Alignment.Center
                 ) {
                         when (selectedTab) {
-                                0 -> ExploreScreen()
+                                0 -> ExploreScreen(onNavigateToEvent = { /* TODO: Handle event navigation */ })
                                 1 -> EventsScreen()
-                                2 -> CheckInLanding(
-                                        onBackClick = null,
-                                        onTapScan = { showScanner = true }
-                                )
-                                3 -> ProfileScreen(
-                                        onLogout = onLogout,
-                                        onShowQR = {
-                                                val username = uiState.user?.username.orEmpty()
-                                                val id = uiState.user?.id.orEmpty()
-                                                when {
-                                                        uiState.isLoading -> scope.launch {
-                                                                snackbarHostState.showSnackbar("Profile is still loading…")
+                                2 ->
+                                        CheckInLanding(
+                                                onBackClick = null,
+                                                onTapScan = { showScanner = true }
+                                        )
+                                3 ->
+                                        ProfileScreen(
+                                                onLogout = onLogout,
+                                                onShowQR = {
+                                                        val username =
+                                                                uiState.user?.username.orEmpty()
+                                                        val id = uiState.user?.id.orEmpty()
+                                                        when {
+                                                                uiState.isLoading ->
+                                                                        scope.launch {
+                                                                                snackbarHostState
+                                                                                        .showSnackbar(
+                                                                                                "Profile is still loading…"
+                                                                                        )
+                                                                        }
+                                                                username.isBlank() ->
+                                                                        scope.launch {
+                                                                                snackbarHostState
+                                                                                        .showSnackbar(
+                                                                                                "Please set a username in your profile first."
+                                                                                        )
+                                                                        }
+                                                                id.isBlank() ->
+                                                                        scope.launch {
+                                                                                snackbarHostState
+                                                                                        .showSnackbar(
+                                                                                                "Missing user ID for QR."
+                                                                                        )
+                                                                        }
+                                                                else -> showQRCode = true
                                                         }
-                                                        username.isBlank() -> scope.launch {
-                                                                snackbarHostState.showSnackbar("Please set a username in your profile first.")
-                                                        }
-                                                        id.isBlank() -> scope.launch {
-                                                                snackbarHostState.showSnackbar("Missing user ID for QR.")
-                                                        }
-                                                        else -> showQRCode = true
-                                                }
-                                        },
-                                        onShowPrivacyPolicy = { showPrivacyPolicy = true },
-                                        onShowTermsConditions = { showTermsConditions = true },
-                                        onShowTeamSelection = { showTeamSelection = true }
-                                )
+                                                },
+                                                onShowPrivacyPolicy = { showPrivacyPolicy = true },
+                                                onShowTermsConditions = {
+                                                        showTermsConditions = true
+                                                },
+                                                onShowTeamSelection = { showTeamSelection = true }
+                                        )
                         }
                 }
         }
