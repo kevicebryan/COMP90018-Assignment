@@ -58,7 +58,7 @@ android {
         buildConfig = true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.4"
+//        kotlinCompilerExtensionVersion = "1.5.4"
     }
 }
 
@@ -74,10 +74,10 @@ dependencies {
     implementation(libs.androidx.material3)
 
     // Add Material 3 explicitly
-    implementation("androidx.compose.material3:material3:1.1.2")
+    implementation("androidx.compose.material3:material3:1.2.1")
 
     // Google Fonts
-    implementation("androidx.compose.ui:ui-text-google-fonts:1.5.4")
+    implementation("androidx.compose.ui:ui-text-google-fonts:1.6.8")
 
     // Firebase BOM (manages all Firebase versions)
     implementation(platform("com.google.firebase:firebase-bom:32.7.0"))

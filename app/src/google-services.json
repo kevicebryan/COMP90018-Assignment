@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "462123055270",
+    "project_id": "watchmates-9e1ee",
+    "storage_bucket": "watchmates-9e1ee.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:462123055270:android:51e318ec1c5447d61f9c67",
+        "android_client_info": {
+          "package_name": "com.example.mobilecomputingassignment"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "462123055270-f1dpf4njmpc6gbjm45933iil6bbjrrff.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.mobilecomputingassignment",
+            "certificate_hash": "20328401dd41fa2bb6b7738bb0e28b35f08bd951"
+          }
+        },
+        {
+          "client_id": "462123055270-63esilpce4n3a440jqocflvrp81l74sh.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB1L19z-VZT5SFIKUBcQt9S-6Bqcbt59-Y"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "462123055270-63esilpce4n3a440jqocflvrp81l74sh.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
