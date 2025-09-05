@@ -1,29 +1,26 @@
 package com.example.mobilecomputingassignment.presentation.ui.screen
 
+// import androidx.compose.runtime.getValue // Redundant if other specific imports are used
+// import androidx.compose.runtime.mutableIntStateOf // Redundant if other specific imports are used
+// import androidx.compose.runtime.setValue // Redundant if other specific imports are used
+// Import your ViewModels and SignupLeagueStep
+// Make sure this path is correct for your SignupLeagueStep composable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
-// import androidx.compose.runtime.getValue // Redundant if other specific imports are used
-// import androidx.compose.runtime.mutableIntStateOf // Redundant if other specific imports are used
-// import androidx.compose.runtime.setValue // Redundant if other specific imports are used
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.mobilecomputingassignment.data.documents.LegalDocuments
 import com.example.mobilecomputingassignment.presentation.ui.component.WatchMatesBottomNavigation
-
-// Import your ViewModels and SignupLeagueStep
 import com.example.mobilecomputingassignment.presentation.viewmodel.AuthViewModel
 import com.example.mobilecomputingassignment.presentation.viewmodel.CheckInViewModel
 import com.example.mobilecomputingassignment.presentation.viewmodel.PointsViewModel
 import com.example.mobilecomputingassignment.presentation.viewmodel.ProfileUiState
 import com.example.mobilecomputingassignment.presentation.viewmodel.ProfileViewModel
-// Make sure this path is correct for your SignupLeagueStep composable
-import com.example.mobilecomputingassignment.presentation.ui.screen.SignupLeagueStep
-
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -71,7 +68,11 @@ fun MainAppScreen(
                                 onResult = { qrText ->
                                         val hostId = qrText.trim()
                                         if (hostId.isBlank()) {
-                                                scope.launch { snackbarHostState.showSnackbar("Invalid QR code") }
+                                                scope.launch {
+                                                        snackbarHostState.showSnackbar(
+                                                                "Invalid QR code"
+                                                        )
+                                                }
                                                 showScanner = false
                                         } else {
                                                 scannedHostId = hostId
@@ -80,7 +81,8 @@ fun MainAppScreen(
                                         }
                                 }
                         )
-                        return // Use 'return' for full-screen overlays to stop further composition of this branch
+                        return // Use 'return' for full-screen overlays to stop further composition
+                        // of this branch
                 }
 
                 // Select event (hostId from QR)
@@ -90,7 +92,11 @@ fun MainAppScreen(
                                 onBackClick = { showHostEvents = false },
                                 onSelectEvent = { eventId ->
                                         scope.launch {
-                                                val already = checkInViewModel.hasAlreadyCheckedIn(eventId).getOrElse { false }
+                                                val already =
+                                                        checkInViewModel.hasAlreadyCheckedIn(
+                                                                        eventId
+                                                                )
+                                                                .getOrElse { false }
                                                 if (already) {
                                                         alreadyCheckedDialog = true
                                                         return@launch
@@ -101,7 +107,10 @@ fun MainAppScreen(
                                                         showHostEvents = false
                                                         showCheckInComplete = true
                                                 } else {
-                                                        snackbarHostState.showSnackbar(res.exceptionOrNull()?.message ?: "Check-in failed")
+                                                        snackbarHostState.showSnackbar(
+                                                                res.exceptionOrNull()?.message
+                                                                        ?: "Check-in failed"
+                                                        )
                                                 }
                                         }
                                 }
@@ -109,9 +118,17 @@ fun MainAppScreen(
                         if (alreadyCheckedDialog) {
                                 AlertDialog(
                                         onDismissRequest = { alreadyCheckedDialog = false },
-                                        confirmButton = { TextButton(onClick = { alreadyCheckedDialog = false }) { Text("OK") } },
+                                        confirmButton = {
+                                                TextButton(
+                                                        onClick = { alreadyCheckedDialog = false }
+                                                ) { Text("OK") }
+                                        },
                                         title = { Text("Already checked in") },
-                                        text = { Text("You've already checked in to this event. You won't receive points for checking in twice.") }
+                                        text = {
+                                                Text(
+                                                        "You've already checked in to this event. You won't receive points for checking in twice."
+                                                )
+                                        }
                                 )
                         }
                         return
@@ -125,14 +142,22 @@ fun MainAppScreen(
                                 onRevealPointsClick = {
                                         val earned = (10..50).random()
                                         scope.launch {
-                                                val res = pointsViewModel.awardPoints(earned, currentPointsHint = uiState.user?.points) // Assuming points is Long, cast if needed
+                                                val res =
+                                                        pointsViewModel.awardPoints(
+                                                                earned,
+                                                                currentPointsHint =
+                                                                        uiState.user?.points
+                                                        ) // Assuming points is Long, cast if needed
                                                 if (res.isSuccess) {
                                                         earnedPoints = earned
                                                         profileViewModel.refreshProfile()
                                                         showCheckInComplete = false
                                                         showPointsEarned = true
                                                 } else {
-                                                        snackbarHostState.showSnackbar(res.exceptionOrNull()?.message ?: "Failed to update points")
+                                                        snackbarHostState.showSnackbar(
+                                                                res.exceptionOrNull()?.message
+                                                                        ?: "Failed to update points"
+                                                        )
                                                 }
                                         }
                                 }
@@ -183,16 +208,16 @@ fun MainAppScreen(
                         val authUiState by viewModel.uiState.collectAsState()
                         TeamSelectionScreen(
                                 availableTeams = authUiState.availableTeams,
-                                // Assuming signupData.teams from AuthViewModel holds current user's teams
-                                // If not, you might need to fetch from ProfileViewModel's uiState.user?.teams
-                                initiallySelectedTeamIds = (uiState.user?.teams?.toSet() ?: signupData.teams.toSet()),
+                                // Assuming signupData.teams from AuthViewModel holds current user's
+                                // teams
+                                // If not, you might need to fetch from ProfileViewModel's
+                                // uiState.user?.teams
+                                initiallySelectedTeamNames = (uiState.user?.teams?.toSet()
+                                                ?: signupData.teams.toSet()),
                                 isLoading = authUiState.isLoadingTeams,
-                                onSaveClick = { ids ->
-                                        // Decide which ViewModel is responsible for updating teams
-                                        // If AuthViewModel:
-                                        // viewModel.updateUserTeams(ids.toList())
-                                        // If ProfileViewModel:
-                                        profileViewModel.updateUserTeams(ids.toList()) // Assuming ProfileViewModel has this method
+                                onSaveClick = { teamNames ->
+                                        // Use ProfileViewModel to update teams
+                                        profileViewModel.updateUserTeams(teamNames.toList())
                                         showTeamSelection = false
                                 },
                                 onBackClick = { showTeamSelection = false }
@@ -209,17 +234,24 @@ fun MainAppScreen(
                                 initialSelectedLeagues = currentUserLeagues,
                                 isEditingMode = true,
                                 onSaveLeagues = { updatedLeagues ->
-                                        profileViewModel.updateUserLeagues(updatedLeagues) // Call ProfileViewModel to save
+                                        profileViewModel.updateUserLeagues(
+                                                updatedLeagues
+                                        ) // Call ProfileViewModel to save
                                         showLeagueSelection = false // Close the screen
                                 },
-                                // These are for the original signature of SignupLeagueStep, adapt behavior:
-                                onNextClick = { /* No-op in editing mode, handled by onSaveLeagues */ },
+                                // These are for the original signature of SignupLeagueStep, adapt
+                                // behavior:
+                                onNextClick = { /* No-op in editing mode, handled by onSaveLeagues */
+                                },
                                 onSkipClick = { showLeagueSelection = false }, // Acts as "Cancel"
-                                onBackClick = { showLeagueSelection = false }  // Acts as "Back" or "Cancel"
+                                onBackClick = {
+                                        showLeagueSelection = false
+                                } // Acts as "Back" or "Cancel"
                         )
-                        return@MainAppScreen // Or just 'return' if not inside a specific lambda scope that needs qualification
+                        return@MainAppScreen // Or just 'return' if not inside a specific lambda
+                        // scope that needs qualification
                 }
-                // --- ^^^^^ END OF NEW LEAGUE SELECTION BRANCH ^^^^^ ---
+        // --- ^^^^^ END OF NEW LEAGUE SELECTION BRANCH ^^^^^ ---
         }
 
         // ----- Normal tab shell -----
@@ -233,49 +265,59 @@ fun MainAppScreen(
                 }
         ) { innerPadding ->
                 Box(
-                        modifier = Modifier
-                                .fillMaxSize()
-                                .padding(innerPadding),
+                        modifier = Modifier.fillMaxSize().padding(innerPadding),
                         contentAlignment = Alignment.Center
                 ) {
                         when (selectedTab) {
                                 0 -> ExploreScreen()
                                 1 -> EventsScreen()
-                                2 -> CheckInLanding(
-                                        onBackClick = null, // Or some default action
-                                        onTapScan = { showScanner = true }
-                                )
-                                3 -> ProfileScreen(
-                                        onLogout = onLogout,
-                                        onShowQR = {
-                                                val username = uiState.user?.username.orEmpty()
-                                                val id = uiState.user?.id.orEmpty()
-                                                when {
-                                                        uiState.isLoading -> scope.launch { snackbarHostState.showSnackbar("Profile is still loading…") }
-                                                        username.isBlank() -> scope.launch { snackbarHostState.showSnackbar("Please set a username in your profile first.") }
-                                                        id.isBlank() -> scope.launch { snackbarHostState.showSnackbar("Missing user ID for QR.") }
-                                                        else -> showQRCode = true
-                                                }
-                                        },
-                                        onShowPrivacyPolicy = { showPrivacyPolicy = true },
-                                        onShowTermsConditions = { showTermsConditions = true },
-                                        onShowTeamSelection = { showTeamSelection = true },
-                                        onShowLeagueSelection = { showLeagueSelection = true } // <-- THIS TRIGGERS THE NEW BRANCH
-                                )
+                                2 ->
+                                        CheckInLanding(
+                                                onBackClick = null, // Or some default action
+                                                onTapScan = { showScanner = true }
+                                        )
+                                3 ->
+                                        ProfileScreen(
+                                                onLogout = onLogout,
+                                                onShowQR = {
+                                                        val username =
+                                                                uiState.user?.username.orEmpty()
+                                                        val id = uiState.user?.id.orEmpty()
+                                                        when {
+                                                                uiState.isLoading ->
+                                                                        scope.launch {
+                                                                                snackbarHostState
+                                                                                        .showSnackbar(
+                                                                                                "Profile is still loading…"
+                                                                                        )
+                                                                        }
+                                                                username.isBlank() ->
+                                                                        scope.launch {
+                                                                                snackbarHostState
+                                                                                        .showSnackbar(
+                                                                                                "Please set a username in your profile first."
+                                                                                        )
+                                                                        }
+                                                                id.isBlank() ->
+                                                                        scope.launch {
+                                                                                snackbarHostState
+                                                                                        .showSnackbar(
+                                                                                                "Missing user ID for QR."
+                                                                                        )
+                                                                        }
+                                                                else -> showQRCode = true
+                                                        }
+                                                },
+                                                onShowPrivacyPolicy = { showPrivacyPolicy = true },
+                                                onShowTermsConditions = {
+                                                        showTermsConditions = true
+                                                },
+                                                onShowTeamSelection = { showTeamSelection = true },
+                                                onShowLeagueSelection = {
+                                                        showLeagueSelection = true
+                                                } // <-- THIS TRIGGERS THE NEW BRANCH
+                                        )
                         }
                 }
         }
-}
-
-// Dummy/Placeholder for ProfileViewModel.updateUserTeams if it doesn't exist yet
-// You would need to implement this in your ProfileViewModel.kt similar to updateUserLeagues
-fun ProfileViewModel.updateUserTeams(teams: List<String>) {
-        // Placeholder: Implement actual logic to update user teams in Firebase via UserRepository
-        android.util.Log.d("ProfileViewModel", "Placeholder: Update user teams to: $teams")
-        // Example:
-        // viewModelScope.launch {
-        //   val userId = auth.currentUser?.uid ?: return@launch
-        //   userRepository.updateUserTeams(userId, teams) // Assuming this method exists in repo
-        //   refreshProfile()
-        // }
 }
