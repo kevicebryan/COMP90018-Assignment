@@ -321,16 +321,3 @@ fun MainAppScreen(
                 }
         }
 }
-
-// Dummy/Placeholder for ProfileViewModel.updateUserTeams if it doesn't exist yet
-// You would need to implement this in your ProfileViewModel.kt similar to updateUserLeagues
-fun ProfileViewModel.updateUserTeams(teams: List<String>) {
-        // Placeholder: Implement actual logic to update user teams in Firebase via UserRepository
-        android.util.Log.d("ProfileViewModel", "Placeholder: Update user teams to: $teams")
-        // Example:
-        // viewModelScope.launch {
-        //   val userId = auth.currentUser?.uid ?: return@launch
-        //   userRepository.updateUserTeams(userId, teams) // Assuming this method exists in repo
-        //   refreshProfile()
-        // }
-}
