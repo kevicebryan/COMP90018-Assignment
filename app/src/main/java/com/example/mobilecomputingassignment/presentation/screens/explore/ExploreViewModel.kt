@@ -105,6 +105,11 @@ constructor(
     loadEvents()
   }
 
+  fun onLocationPermissionGranted() {
+    _uiState.update { it.copy(isLocationPermissionGranted = true) }
+    updateNearbyEvents()
+  }
+
   fun addEventToInterested(event: Event) {
     viewModelScope.launch { 
       // TODO: Get current user ID from authentication service

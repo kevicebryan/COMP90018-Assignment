@@ -13,7 +13,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.example.mobilecomputingassignment.R
 import com.example.mobilecomputingassignment.domain.models.Event
-import com.example.mobilecomputingassignment.presentation.ui.components.TeamLogo
+import com.example.mobilecomputingassignment.presentation.ui.component.TeamLogo
 import java.text.SimpleDateFormat
 import java.util.*
 

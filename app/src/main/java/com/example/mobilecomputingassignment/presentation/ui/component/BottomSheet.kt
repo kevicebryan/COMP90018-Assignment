@@ -5,6 +5,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.graphics.Color
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -12,7 +13,8 @@ fun BottomSheet(content: @Composable ColumnScope.() -> Unit) {
   Surface(
           modifier = Modifier.fillMaxWidth().wrapContentHeight(),
           shape = MaterialTheme.shapes.large,
-          tonalElevation = 3.dp
+          tonalElevation = 0.dp,
+          color = Color.White
   ) {
     Column(modifier = Modifier.padding(16.dp).navigationBarsPadding()) {
       // Handle indicator
