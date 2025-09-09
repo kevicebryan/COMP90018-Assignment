@@ -3,19 +3,20 @@ package com.example.mobilecomputingassignment.presentation.ui.screen
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.mobilecomputingassignment.data.documents.LegalDocuments
+import com.example.mobilecomputingassignment.presentation.screens.explore.ExploreScreen
 import com.example.mobilecomputingassignment.presentation.ui.component.WatchMatesBottomNavigation
 import com.example.mobilecomputingassignment.presentation.viewmodel.AuthViewModel
 import com.example.mobilecomputingassignment.presentation.viewmodel.CheckInViewModel
 import com.example.mobilecomputingassignment.presentation.viewmodel.PointsViewModel
 import com.example.mobilecomputingassignment.presentation.viewmodel.ProfileUiState
 import com.example.mobilecomputingassignment.presentation.viewmodel.ProfileViewModel
-import com.example.mobilecomputingassignment.presentation.screens.explore.ExploreScreen
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -28,6 +29,7 @@ fun MainAppScreen(onLogout: () -> Unit, viewModel: AuthViewModel = hiltViewModel
         var showPrivacyPolicy by remember { mutableStateOf(false) }
         var showTermsConditions by remember { mutableStateOf(false) }
         var showTeamSelection by remember { mutableStateOf(false) }
+        var showLeagueSelection by remember { mutableStateOf(false) }
 
         // check-in flow state
         var scannedHostId by remember { mutableStateOf<String?>(null) }
@@ -97,15 +99,13 @@ fun MainAppScreen(onLogout: () -> Unit, viewModel: AuthViewModel = hiltViewModel
                                                         alreadyCheckedDialog = true
                                                         return@launch
                                                 }
-
-                                                // 2) PROCEED WITH CHECK-IN
                                                 val res = checkInViewModel.checkInToEvent(eventId)
                                                 if (res.isSuccess) {
                                                         selectedEventId = eventId
                                                         showHostEvents = false
                                                         showCheckInComplete =
-                                                                true // will later allow “Reveal
-                                                        // points”
+                                                                true // will later allow "Reveal
+                                                        // points"
                                                 } else {
                                                         snackbarHostState.showSnackbar(
                                                                 res.exceptionOrNull()?.message
@@ -208,17 +208,49 @@ fun MainAppScreen(onLogout: () -> Unit, viewModel: AuthViewModel = hiltViewModel
                         return
                 }
                 showTeamSelection -> {
-                        LaunchedEffect(Unit) { viewModel.loadAflTeams() }
+                        LaunchedEffect(Unit) { viewModel.loadAflTeams() } // AuthViewModel
                         val authUiState by viewModel.uiState.collectAsState()
                         TeamSelectionScreen(
                                 availableTeams = authUiState.availableTeams,
-                                initiallySelectedTeamIds = signupData.teams.toSet(),
+                                // Assuming signupData.teams from AuthViewModel holds current user's
+                                // teams
+                                // If not, you might need to fetch from ProfileViewModel's
+                                // uiState.user?.teams
+                                initiallySelectedTeamNames = (uiState.user?.teams?.toSet()
+                                                ?: signupData.teams.toSet()),
                                 isLoading = authUiState.isLoadingTeams,
-                                onSaveClick = { ids ->
-                                        viewModel.updateUserTeams(ids.toList())
+                                onSaveClick = { teamNames ->
+                                        // Use ProfileViewModel to update teams
+                                        profileViewModel.updateUserTeams(teamNames.toList())
                                         showTeamSelection = false
                                 },
                                 onBackClick = { showTeamSelection = false }
+                        )
+                        return
+                }
+
+                // --- VVVVV NEW BRANCH FOR LEAGUE SELECTION VVVVV ---
+                showLeagueSelection -> {
+                        // Get the current user's leagues from ProfileViewModel's uiState
+                        val currentUserLeagues = uiState.user?.leagues?.toSet() ?: emptySet()
+
+                        SignupLeagueStep(
+                                initialSelectedLeagues = currentUserLeagues,
+                                isEditingMode = true,
+                                onSaveLeagues = { updatedLeagues ->
+                                        profileViewModel.updateUserLeagues(
+                                                updatedLeagues
+                                        ) // Call ProfileViewModel to save
+                                        showLeagueSelection = false // Close the screen
+                                },
+                                // These are for the original signature of SignupLeagueStep, adapt
+                                // behavior:
+                                onNextClick = { /* No-op in editing mode, handled by onSaveLeagues */
+                                },
+                                onSkipClick = { showLeagueSelection = false }, // Acts as "Cancel"
+                                onBackClick = {
+                                        showLeagueSelection = false
+                                } // Acts as "Back" or "Cancel"
                         )
                         return
                 }
@@ -239,7 +271,11 @@ fun MainAppScreen(onLogout: () -> Unit, viewModel: AuthViewModel = hiltViewModel
                         contentAlignment = Alignment.Center
                 ) {
                         when (selectedTab) {
-                                0 -> ExploreScreen(onNavigateToEvent = { /* TODO: Handle event navigation */ })
+                                0 ->
+                                        ExploreScreen(
+                                                onNavigateToEvent = { /* TODO: Handle event navigation */
+                                                }
+                                        )
                                 1 -> EventsScreen()
                                 2 ->
                                         CheckInLanding(
@@ -282,7 +318,10 @@ fun MainAppScreen(onLogout: () -> Unit, viewModel: AuthViewModel = hiltViewModel
                                                 onShowTermsConditions = {
                                                         showTermsConditions = true
                                                 },
-                                                onShowTeamSelection = { showTeamSelection = true }
+                                                onShowTeamSelection = { showTeamSelection = true },
+                                                onShowLeagueSelection = {
+                                                        showLeagueSelection = true
+                                                }
                                         )
                         }
                 }

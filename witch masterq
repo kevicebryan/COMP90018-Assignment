@@ -1,0 +1,34 @@
+[33m74a0eee[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmaster[m[33m, [m[1;31morigin/master[m[33m, [m[1;31morigin/HEAD[m[33m)[m fixed username not showing on QR (#5)
+[33m9c75bc3[m Merge pull request #9 from kevicebryan/fromJo/feat/cancelevent
+[33m8818949[m 18 year old checkbox disabled/enabled
+[33md9a4a9b[m Merge pull request #7 from kevicebryan/from-Jo/fix/navbar
+[33m8d44beb[m Merge pull request #8 from kevicebryan/fix/add-match-picker-for-manage-events
+[33m5338537[m fix: event match picker, date, and other fields
+[33m53c5a2c[m Create material_theme_project_new.xml
+[33m72301fd[m Fixed bottom nav bar
+[33m5cd705e[m[33m ([m[1;31morigin/test[m[33m)[m Merge pull request #4 from kevicebryan/fix/relogin-different-account
+[33m50917da[m Clear cached ViewModel data on user logout
+[33m132df93[m Merge pull request #3 from kevicebryan/team/test
+[33mf817b9e[m team/test
+[33m048aeaf[m pull
+[33m6ab61ad[m Merge pull request #2 from kevicebryan/feat/events-management
+[33mc0e9355[m Update README.md
+[33mfdddcb6[m Add content filtering and event volume to event management
+[33mc346173[m Integrate match selection with event creation flow
+[33m8b0174d[m Add event management feature with UI and data layers
+[33m9ac78f9[m Add custom drawable icons and update profile and QR screens
+[33m9bd6735[m Add forgot password dialog and reset email flow
+[33m839b16a[m Add profile, legal docs, QR code, and UI components
+[33m89e06d3[m Merge pull request #1 from kevicebryan/feat/auth
+[33m58a0f06[m Refactor UI and remove test logic from AuthViewModel
+[33m9b5a94c[m Add AFL team support and onboarding improvements
+[33ma01449c[m Replace launcher icons with PNG format
+[33ma9b8c08[m Update README and fix auth UI and ViewModel issues
+[33m50b67b9[m Add user onboarding and authentication with Hilt DI
+[33m866d54b[m Merge branch 'master' of https://github.com/kevicebryan/COMP90018-Assignment
+[33m94295ed[m Move theme files to presentation/ui/theme package
+[33m7d801af[m Create README.md
+[33meb9e97e[m Add WatchMates theme, Firebase, and Google Fonts integration
+[33mc1e213c[m init
+[33m3ad00bd[m Create deploymentTargetSelector.xml
+[33m89feda3[m init
