@@ -13,6 +13,10 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.mobilecomputingassignment.R
+import com.example.mobilecomputingassignment.presentation.ui.component.ShakeToReveal
+import com.example.mobilecomputingassignment.presentation.ui.component.rememberVibrate
+
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -21,6 +25,8 @@ fun CheckInCompleteScreen(
     eventId: String,
     onRevealPointsClick: () -> Unit // NEW
 ) {
+    val vibrate = rememberVibrate()
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -41,6 +47,11 @@ fun CheckInCompleteScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Top
         ) {
+            ShakeToReveal(onShake = {
+                onRevealPointsClick()
+                vibrate()
+            })
+
             Spacer(Modifier.height(32.dp))
 
             // Optional illustration if you have it (R.drawable.image_32)
@@ -71,7 +82,10 @@ fun CheckInCompleteScreen(
             Spacer(Modifier.height(24.dp))
 
             Button(
-                onClick = onRevealPointsClick,
+                onClick = {
+                    onRevealPointsClick()
+                    vibrate()
+                },
                 modifier = Modifier
                     .width(178.dp)
                     .height(40.dp)
