@@ -31,6 +31,9 @@ import com.example.mobilecomputingassignment.R
 import com.example.mobilecomputingassignment.domain.models.Team
 import com.example.mobilecomputingassignment.presentation.viewmodel.AuthUiState
 import java.util.Calendar
+import androidx.compose.material3.ExperimentalMaterial3Api // Add this
+import androidx.compose.material3.Scaffold // Add this
+import androidx.compose.material3.TopAppBar // Add this
 
 enum class PasswordStrength {
         WEAK,
@@ -420,6 +423,8 @@ fun SignupUsernameAndAgeStep(
         }
 }
 
+// Add this annotation above the function
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SignupLeagueStep(
         onNextClick: (List<String>) -> Unit,
@@ -429,40 +434,59 @@ fun SignupLeagueStep(
         isEditingMode: Boolean = false,
         onSaveLeagues: ((List<String>) -> Unit)? = null
 ) {
+        // ----- START: ALL THE NEW CODE IS BELOW -----
+
         var selectedLeagues by remember { mutableStateOf(initialSelectedLeagues) }
 
-        val actualButtonText = if (isEditingMode) "Save" else "Next"
-        val actualTitle = if (isEditingMode) "Update Your Leagues" else "Pick your favorite leagues"
-        val actualSubtitle = if (isEditingMode) "Manage your preferred leagues" else "This is to help recommend watch alongs for you"
+        val actualButtonText = if (isEditingMode) "Save Changes" else "Next"
+        val actualTitle = if (isEditingMode) "Edit Favourite Leagues" else "Pick your favorite leagues"
 
-        val actualOnButtonClick = if (isEditingMode) {
-                { onSaveLeagues?.invoke(selectedLeagues.toList()) ?: Unit }
-        } else {
-                { onNextClick(selectedLeagues.toList()) }
+        val actualOnButtonClick = {
+                if (isEditingMode) {
+                        onSaveLeagues?.invoke(selectedLeagues.toList())
+                } else {
+                        onNextClick(selectedLeagues.toList())
+                }
         }
 
-        val availableLeagues =
-                listOf(
-                        "AFL",
-                        "A-League",
-                        "Premier League",
-                        "NBA",
-                )
-        val enabledLeagues = setOf("AFL") // Example: Only AFL is selectable
+        // This Scaffold structure mirrors your working TeamSelectionScreen
+        Scaffold(
+                topBar = {
+                        TopAppBar(
+                                title = { Text(actualTitle) },
+                                navigationIcon = {
+                                        // THIS IS THE FIX: The IconButton now correctly calls onBackClick
+                                        IconButton(onClick = onBackClick) {
+                                                Icon(
+                                                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                                        contentDescription = "Back"
+                                                )
+                                        }
+                                }
+                        )
+                },
+                bottomBar = {
+                        // A bottom bar with a button for a consistent UI
+                        Button(
+                                onClick = { actualOnButtonClick() },
+                                modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(16.dp)
+                        ) {
+                                Text(actualButtonText)
+                        }
+                }
+        ) { innerPadding -> // This padding prevents content from hiding under the bars
 
-        SignupLayout(
-                title = actualTitle,
-                subtitle = actualSubtitle,
-                onBackClick = onBackClick,
-                currentStep = if (isEditingMode) 0 else 4, // Step for signup flow, 0 or ignored for editing
-                totalSteps = if (isEditingMode) 0 else 6,  // Total steps for signup flow
-                buttonText = actualButtonText,
-                buttonEnabled = true, // Enable button always for selection, or add validation if needed
-                onButtonClick = actualOnButtonClick,
-                showSkip = !isEditingMode, // Only show skip if not in editing mode
-                onSkipClick = if (!isEditingMode) onSkipClick else null, // Provide original skip for signup
-                isEditingMode = isEditingMode // Pass this to SignupLayout
-        ) {
+                // Your existing UI for displaying leagues goes inside the Scaffold's content area
+                val availableLeagues =
+                        listOf(
+                                "AFL",
+                                "A-League",
+                                "Premier League",
+                                "NBA",
+                        )
+                val enabledLeagues = setOf("AFL")
                 val leagueImages =
                         mapOf(
                                 "AFL" to R.drawable.league_afl,
@@ -471,9 +495,14 @@ fun SignupLeagueStep(
                                 "NBA" to R.drawable.league_nba
                         )
 
+                // The LazyColumn now uses the padding from the Scaffold
                 LazyColumn(
                         verticalArrangement = Arrangement.spacedBy(8.dp),
-                        modifier = Modifier.heightIn(min = 200.dp, max = 320.dp) // Make height flexible
+                        modifier = Modifier
+                                .fillMaxSize()
+                                .padding(innerPadding)
+                                .padding(horizontal = 16.dp),
+                        contentPadding = PaddingValues(vertical = 8.dp) // Adds padding inside the list
                 ) {
                         items(availableLeagues.chunked(3)) { leagueRow ->
                                 Row(
@@ -481,7 +510,7 @@ fun SignupLeagueStep(
                                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                                 ) {
                                         leagueRow.forEach { league ->
-                                                val isEnabled = enabledLeagues.contains(league) // For now, only AFL is enabled
+                                                val isEnabled = enabledLeagues.contains(league)
                                                 val isSelected = selectedLeagues.contains(league)
                                                 Card(
                                                         onClick = {
@@ -491,23 +520,40 @@ fun SignupLeagueStep(
                                                                                 else selectedLeagues + league
                                                                 }
                                                         },
-                                                        modifier = Modifier.weight(1f).aspectRatio(1f),
+                                                        modifier = Modifier
+                                                                .weight(1f)
+                                                                .aspectRatio(1f),
                                                         shape = RoundedCornerShape(12.dp),
                                                         colors = CardDefaults.cardColors(
                                                                 containerColor = when {
-                                                                        isSelected && isEnabled -> MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
+                                                                        isSelected && isEnabled -> MaterialTheme.colorScheme.primary.copy(
+                                                                                alpha = 0.1f
+                                                                        )
                                                                         isEnabled -> MaterialTheme.colorScheme.surface
-                                                                        else -> MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f) // Disabled look
+                                                                        else -> MaterialTheme.colorScheme.surfaceVariant.copy(
+                                                                                alpha = 0.3f
+                                                                        )
                                                                 }
                                                         ),
                                                         border = when {
-                                                                isSelected && isEnabled -> BorderStroke(2.dp, MaterialTheme.colorScheme.primary)
-                                                                isEnabled -> BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.2f))
-                                                                else -> BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.05f))
+                                                                isSelected && isEnabled -> BorderStroke(
+                                                                        2.dp,
+                                                                        MaterialTheme.colorScheme.primary
+                                                                )
+                                                                isEnabled -> BorderStroke(
+                                                                        1.dp,
+                                                                        MaterialTheme.colorScheme.outline.copy(alpha = 0.2f)
+                                                                )
+                                                                else -> BorderStroke(
+                                                                        1.dp,
+                                                                        MaterialTheme.colorScheme.outline.copy(alpha = 0.05f)
+                                                                )
                                                         }
                                                 ) {
                                                         Column(
-                                                                modifier = Modifier.fillMaxSize().padding(12.dp),
+                                                                modifier = Modifier
+                                                                        .fillMaxSize()
+                                                                        .padding(12.dp),
                                                                 horizontalAlignment = Alignment.CenterHorizontally,
                                                                 verticalArrangement = Arrangement.Center
                                                         ) {
@@ -515,16 +561,25 @@ fun SignupLeagueStep(
                                                                         Image(
                                                                                 painter = painterResource(id = imageRes),
                                                                                 contentDescription = "$league logo",
-                                                                                modifier = Modifier.size(48.dp).weight(1f),
-                                                                                colorFilter = if (!isEnabled) ColorFilter.colorMatrix(ColorMatrix().apply { setToSaturation(0f) }) else null,
+                                                                                modifier = Modifier
+                                                                                        .size(48.dp)
+                                                                                        .weight(1f),
+                                                                                colorFilter = if (!isEnabled) ColorFilter.colorMatrix(
+                                                                                        ColorMatrix().apply { setToSaturation(0f) }) else null,
                                                                                 alpha = if (!isEnabled) 0.4f else 1f
                                                                         )
                                                                 } ?: Box(
-                                                                        modifier = Modifier.size(48.dp).weight(1f)
-                                                                                .background(MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(8.dp)),
+                                                                        modifier = Modifier
+                                                                                .size(48.dp)
+                                                                                .weight(1f)
+                                                                                .background(
+                                                                                        MaterialTheme.colorScheme.surfaceVariant,
+                                                                                        RoundedCornerShape(8.dp)
+                                                                                ),
                                                                         contentAlignment = Alignment.Center
                                                                 ) {
-                                                                        Text(league.take(3), style = MaterialTheme.typography.labelMedium)
+                                                                        Text(league.take(3),
+                                                                                style = MaterialTheme.typography.labelMedium)
                                                                 }
                                                                 Spacer(modifier = Modifier.height(8.dp))
                                                                 Text(
@@ -535,13 +590,15 @@ fun SignupLeagueStep(
                                                                         color = when {
                                                                                 isSelected && isEnabled -> MaterialTheme.colorScheme.primary
                                                                                 isEnabled -> MaterialTheme.colorScheme.onSurface
-                                                                                else -> MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f)
+                                                                                else -> MaterialTheme.colorScheme.onSurfaceVariant.copy(
+                                                                                        alpha = 0.3f
+                                                                                )
                                                                         }
                                                                 )
                                                         }
                                                 }
                                         }
-                                        repeat(3 - leagueRow.size) { // Fill remaining columns if less than 3 items
+                                        repeat(3 - leagueRow.size) {
                                                 Spacer(modifier = Modifier.weight(1f))
                                         }
                                 }
@@ -549,7 +606,6 @@ fun SignupLeagueStep(
                 }
         }
 }
-
 @Composable
 fun SignupTeamStep(
         onNextClick: (List<String>) -> Unit,
