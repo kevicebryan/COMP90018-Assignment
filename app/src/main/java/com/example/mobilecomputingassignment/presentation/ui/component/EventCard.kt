@@ -1,7 +1,9 @@
 package com.example.mobilecomputingassignment.presentation.ui.component
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -10,6 +12,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DateRange
@@ -64,7 +67,7 @@ fun EventCard(
 
     Card(
         modifier = modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(16.dp),
+        shape = RoundedCornerShape(20.dp),
         border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.4f)),
         colors =
             CardDefaults.cardColors(
@@ -73,67 +76,112 @@ fun EventCard(
             )
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            // Header with title and actions
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.Top
-            ) {
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        text = event.title,
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold,
-                        maxLines = 2,
-                        overflow = TextOverflow.Ellipsis
+            // Header with gradient background
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(
+                        color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f),
+                        shape = RoundedCornerShape(12.dp)
                     )
-
-                    if (event.description.isNotBlank()) {
+                    .padding(16.dp)
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.Top
+                ) {
+                    Column(modifier = Modifier.weight(1f)) {
                         Text(
-                            text = event.description,
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            text = event.title,
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.ExtraBold,
                             maxLines = 2,
                             overflow = TextOverflow.Ellipsis,
-                            modifier = Modifier.padding(top = 2.dp)
+                            color = MaterialTheme.colorScheme.primary
                         )
+
+                        if (event.description.isNotBlank()) {
+                            Spacer(modifier = Modifier.height(6.dp))
+                            Text(
+                                text = event.description,
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f),
+                                maxLines = 2,
+                                overflow = TextOverflow.Ellipsis,
+                                fontWeight = FontWeight.Medium
+                            )
+                        }
                     }
-                }
 
-                // Action buttons
-                Row {
-                    if (isHosted) {
-                        // Edit button
-                        IconButton(
-                            onClick = { onEditEvent?.invoke() }
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Edit,
-                                contentDescription = "Edit Event",
-                                tint = MaterialTheme.colorScheme.primary
-                            )
-                        }
+                    // Action buttons
+                    Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                        if (isHosted) {
+                            // Edit button with circular background
+                            Box(
+                                modifier = Modifier
+                                    .size(40.dp)
+                                    .background(
+                                        MaterialTheme.colorScheme.primaryContainer,
+                                        CircleShape
+                                    ),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                IconButton(
+                                    onClick = { onEditEvent?.invoke() }
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Edit,
+                                        contentDescription = "Edit Event",
+                                        tint = MaterialTheme.colorScheme.primary,
+                                        modifier = Modifier.size(20.dp)
+                                    )
+                                }
+                            }
 
-                        // Delete button
-                        IconButton(
-                            onClick = { showDeleteDialog = true }
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Delete,
-                                contentDescription = "Delete Event",
-                                tint = MaterialTheme.colorScheme.error
-                            )
-                        }
-                    } else {
-                        // Interest button
-                        IconButton(
-                            onClick = { onToggleInterest?.invoke() }
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Favorite,
-                                contentDescription = "Toggle Interest",
-                                tint = MaterialTheme.colorScheme.onPrimaryContainer
-                            )
+                            // Delete button with circular background
+                            Box(
+                                modifier = Modifier
+                                    .size(40.dp)
+                                    .background(
+                                        MaterialTheme.colorScheme.errorContainer,
+                                        CircleShape
+                                    ),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                IconButton(
+                                    onClick = { showDeleteDialog = true }
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Delete,
+                                        contentDescription = "Delete Event",
+                                        tint = MaterialTheme.colorScheme.error,
+                                        modifier = Modifier.size(20.dp)
+                                    )
+                                }
+                            }
+                        } else {
+                            // Interest button with circular background
+                            Box(
+                                modifier = Modifier
+                                    .size(40.dp)
+                                    .background(
+                                        MaterialTheme.colorScheme.tertiaryContainer,
+                                        CircleShape
+                                    ),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                IconButton(
+                                    onClick = { onToggleInterest?.invoke() }
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Favorite,
+                                        contentDescription = "Toggle Interest",
+                                        tint = MaterialTheme.colorScheme.tertiary,
+                                        modifier = Modifier.size(20.dp)
+                                    )
+                                }
+                            }
                         }
                     }
                 }
@@ -141,45 +189,55 @@ fun EventCard(
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            // Event details
-            EventDetailRow(
-                icon = Icons.Default.DateRange,
-                label = "Date",
-                value = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault()).format(event.date)
-            )
+            // Event details in nested card
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
+                ),
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    EventDetailRow(
+                        icon = Icons.Default.DateRange,
+                        label = "Date",
+                        value = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault()).format(event.date)
+                    )
 
-            EventDetailRow(
-                icon = Icons.Default.Info,
-                label = "Check-in",
-                value = SimpleDateFormat("HH:mm", Locale.getDefault()).format(event.checkInTime)
-            )
+                    EventDetailRow(
+                        icon = Icons.Default.Info,
+                        label = "Check-in",
+                        value = SimpleDateFormat("HH:mm", Locale.getDefault()).format(event.checkInTime)
+                    )
 
-            EventDetailRow(
-                icon = Icons.Default.LocationOn,
-                label = "Location",
-                value = event.location.name
-            )
+                    EventDetailRow(
+                        icon = Icons.Default.LocationOn,
+                        label = "Location",
+                        value = event.location.name
+                    )
 
-            if (event.location.address.isNotBlank()) {
-                EventDetailRow(
-                    icon = Icons.Default.Place,
-                    label = "Address",
-                    value = event.location.address
-                )
-            }
+                    if (event.location.address.isNotBlank()) {
+                        EventDetailRow(
+                            icon = Icons.Default.Place,
+                            label = "Address",
+                            value = event.location.address
+                        )
+                    }
 
-            EventDetailRow(
-                icon = Icons.Default.Person,
-                label = "Capacity",
-                value = "${event.attendeesCount}/${event.capacity}"
-            )
+                    EventDetailRow(
+                        icon = Icons.Default.Person,
+                        label = "Capacity",
+                        value = "${event.attendeesCount}/${event.capacity}"
+                    )
 
-            if (event.contactNumber.isNotBlank()) {
-                EventDetailRow(
-                    icon = Icons.Default.Phone,
-                    label = "Contact",
-                    value = event.contactNumber
-                )
+                    if (event.contactNumber.isNotBlank()) {
+                        EventDetailRow(
+                            icon = Icons.Default.Phone,
+                            label = "Contact",
+                            value = event.contactNumber
+                        )
+                    }
+                }
             }
 
             // Amenities and accessibility indicators
@@ -273,19 +331,30 @@ private fun EventDetailRow(
             .padding(vertical = 2.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Icon(
-            imageVector = icon,
-            contentDescription = null,
-            modifier = Modifier.size(16.dp),
-            tint = MaterialTheme.colorScheme.onSurfaceVariant
-        )
+        Box(
+            modifier = Modifier
+                .size(32.dp)
+                .background(
+                    MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
+                    CircleShape
+                ),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                modifier = Modifier.size(18.dp),
+                tint = MaterialTheme.colorScheme.primary
+            )
+        }
 
-        Spacer(modifier = Modifier.width(8.dp))
+        Spacer(modifier = Modifier.width(12.dp))
 
         Text(
             text = value,
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurface,
+            fontWeight = FontWeight.Medium
         )
     }
 }
