@@ -44,7 +44,6 @@ fun CheckInCompleteScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Top
         ) {
- feat/checkin
             ShakeToReveal(onShake = {
                 onRevealPointsClick()
                 vibrate()

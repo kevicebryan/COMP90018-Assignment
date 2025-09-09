@@ -17,8 +17,6 @@ import com.example.mobilecomputingassignment.presentation.viewmodel.CheckInViewM
 import com.example.mobilecomputingassignment.presentation.viewmodel.PointsViewModel
 import com.example.mobilecomputingassignment.presentation.viewmodel.ProfileUiState
 import com.example.mobilecomputingassignment.presentation.viewmodel.ProfileViewModel
-import com.example.mobilecomputingassignment.presentation.viewmodel.CheckInViewModel
-import com.example.mobilecomputingassignment.presentation.viewmodel.PointsViewModel
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
