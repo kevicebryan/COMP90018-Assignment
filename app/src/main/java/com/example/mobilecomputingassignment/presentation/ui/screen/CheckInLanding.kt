@@ -23,46 +23,44 @@ import com.example.mobilecomputingassignment.R
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CheckInLanding(
-    // Pass null when used as a bottom-tab (no back arrow). Pass a lambda to show the arrow.
     onBackClick: (() -> Unit)? = null,
-    // Called when the user taps the “Tap to scan” button
     onTapScan: () -> Unit
 ) {
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                modifier = Modifier.height(120.dp), // taller bar
-                title = {
-                    Image(
-                        painter = painterResource(R.drawable.checkin_font),
-                        contentDescription = null,
-                        modifier = Modifier.height(120.dp) // bigger logo (try 48–64dp)
-                    )
-                },
-                navigationIcon = {
-                    if (onBackClick != null) {
-                        IconButton(onClick = onBackClick) {
-                            Icon(
-                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                contentDescription = "Back"
-                            )
-                        }
-                    }
-                }
-            )
-        }
-    ) { padding ->
+    Scaffold { padding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
-                .padding(horizontal = 24.dp),
+                .padding(horizontal = 24.dp), // keep your old horizontal padding
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Top
         ) {
-            Spacer(Modifier.height(46.dp)) // matches your reference top margin
+            // === Header (like EventsScreen) ===
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 16.dp), // space from top
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                if (onBackClick != null) {
+                    IconButton(onClick = onBackClick) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Back"
+                        )
+                    }
+                    Spacer(Modifier.width(4.dp))
+                }
+                Text(
+                    text = "Check In",
+                    style = MaterialTheme.typography.headlineMedium,
+                    fontWeight = FontWeight.Bold
+                )
+            }
 
-            // === Circular “image box” with orange stroke (#FE8F00) ===
+            // === Preserve your original spacing/content ===
+            Spacer(Modifier.height(46.dp)) // same as before
+
             Box(
                 modifier = Modifier
                     .size(256.dp)
@@ -70,22 +68,16 @@ fun CheckInLanding(
                     .border(width = 8.dp, color = Color(0xFFFE8F00), shape = CircleShape),
                 contentAlignment = Alignment.Center
             ) {
-                // Option A: use your vector at res/drawable/image_30.xml
-                // (You included it in your reference)
                 Image(
                     painter = painterResource(id = R.drawable.image_30),
                     contentDescription = "Check-in illustration",
                     modifier = Modifier.fillMaxSize(),
                     contentScale = ContentScale.Crop
                 )
-
-                // Option B (fallback): leave empty or put an icon/text placeholder
-                // Text("QR", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
             }
 
             Spacer(Modifier.height(24.dp))
 
-            // === Helper text (centered) ===
             Text(
                 text = "Scan the host's QR code to check in for the event.",
                 style = MaterialTheme.typography.bodyLarge,
@@ -96,7 +88,6 @@ fun CheckInLanding(
 
             Spacer(Modifier.height(24.dp))
 
-            // === “Tap to scan” button — dark background (#221A14) & rounded corners ===
             Button(
                 onClick = onTapScan,
                 shape = RoundedCornerShape(20.dp),
