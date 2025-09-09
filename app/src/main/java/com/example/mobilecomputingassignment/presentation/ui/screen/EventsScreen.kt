@@ -34,7 +34,7 @@ fun EventsScreen(modifier: Modifier = Modifier, eventViewModel: EventViewModel =
       Text(
               text = "Events",
               style = MaterialTheme.typography.headlineMedium,
-              fontWeight = FontWeight.Bold
+//              fontWeight = FontWeight.Bold
       )
 
       // Add button (only show on hosted events tab)

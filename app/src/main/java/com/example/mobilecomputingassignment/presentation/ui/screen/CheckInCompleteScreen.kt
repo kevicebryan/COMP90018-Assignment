@@ -16,8 +16,6 @@ import com.example.mobilecomputingassignment.R
 import com.example.mobilecomputingassignment.presentation.ui.component.ShakeToReveal
 import com.example.mobilecomputingassignment.presentation.ui.component.rememberVibrate
 
-
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CheckInCompleteScreen(
@@ -26,7 +24,6 @@ fun CheckInCompleteScreen(
     onRevealPointsClick: () -> Unit // NEW
 ) {
     val vibrate = rememberVibrate()
-
     Scaffold(
         topBar = {
             TopAppBar(
@@ -47,6 +44,7 @@ fun CheckInCompleteScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Top
         ) {
+ feat/checkin
             ShakeToReveal(onShake = {
                 onRevealPointsClick()
                 vibrate()
@@ -86,6 +84,7 @@ fun CheckInCompleteScreen(
                     onRevealPointsClick()
                     vibrate()
                 },
+
                 modifier = Modifier
                     .width(178.dp)
                     .height(40.dp)

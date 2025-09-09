@@ -43,102 +43,94 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.example.mobilecomputingassignment.domain.models.Team
 
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TeamSelectionScreen(
-    availableTeams: List<Team>,             // All possible teams the user can pick from
-    initiallySelectedTeamIds: Set<String>,  // The IDs of teams the user has ALREADY selected
-    isLoading: Boolean,                     // True if teams are currently being loaded/fetched
-    onSaveClick: (updatedSelectedTeamIds: Set<String>) -> Unit, // Callback when user saves changes
-    onBackClick: () -> Unit                // Callback when user navigates back
+        availableTeams: List<Team>, // All possible teams the user can pick from
+        initiallySelectedTeamNames: Set<String>, // The names of teams the user has ALREADY selected
+        isLoading: Boolean, // True if teams are currently being loaded/fetched
+        onSaveClick:
+                (updatedSelectedTeamNames: Set<String>) -> Unit, // Callback when user saves changes
+        onBackClick: () -> Unit // Callback when user navigates back
 ) {
-    var localSelectedTeamIds by remember(initiallySelectedTeamIds) {
-        mutableStateOf(initiallySelectedTeamIds)
-    }
+    var localSelectedTeamNames by
+            remember(initiallySelectedTeamNames) { mutableStateOf(initiallySelectedTeamNames) }
 
     Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("Edit Favourite Teams") },
-                navigationIcon = {
-                    IconButton(onClick = onBackClick) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
-                    }
-                }
-            )
-        },
-        bottomBar = {
-            Button(
-                onClick = { onSaveClick(localSelectedTeamIds) },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                enabled = !isLoading && localSelectedTeamIds != initiallySelectedTeamIds
-            ) {
-                Text("Save Changes")
+            topBar = {
+                TopAppBar(
+                        title = { Text("Edit Favourite Teams") },
+                        navigationIcon = {
+                            IconButton(onClick = onBackClick) {
+                                Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                            }
+                        }
+                )
+            },
+            bottomBar = {
+                Button(
+                        onClick = { onSaveClick(localSelectedTeamNames) },
+                        modifier = Modifier.fillMaxWidth().padding(16.dp),
+                        enabled = !isLoading && localSelectedTeamNames != initiallySelectedTeamNames
+                ) { Text("Save Changes") }
             }
-        }
     ) { paddingValues ->
-        Box(
-            modifier = Modifier
-                .padding(paddingValues)
-                .fillMaxSize()
-        ) {
+        Box(modifier = Modifier.padding(paddingValues).fillMaxSize()) {
             if (isLoading) {
                 Box(
-                    modifier = Modifier.fillMaxSize(), // Changed from fillMaxWidth().height(320.dp) to fill screen
-                    contentAlignment = Alignment.Center
-                ) {
-                    CircularProgressIndicator()
-                }
+                        modifier = Modifier.fillMaxSize(), // Changed from
+                        // fillMaxWidth().height(320.dp) to fill
+                        // screen
+                        contentAlignment = Alignment.Center
+                ) { CircularProgressIndicator() }
             } else if (availableTeams.isEmpty()) {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     Text(
-                        text = "No teams available to select.",
-                        style = MaterialTheme.typography.bodyLarge,
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier.padding(16.dp)
+                            text = "No teams available to select.",
+                            style = MaterialTheme.typography.bodyLarge,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.padding(16.dp)
                     )
                 }
             } else {
                 LazyColumn(
-                    verticalArrangement = Arrangement.spacedBy(8.dp), // Matched from SignupTeamStep
-                    // If you want the fixed height like SignupTeamStep:
-                    // modifier = Modifier.height(320.dp).padding(horizontal = 16.dp)
-                    // If you want it to fill available space in Scaffold:
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(horizontal = 16.dp, vertical = 8.dp)
+                        verticalArrangement =
+                                Arrangement.spacedBy(8.dp), // Matched from SignupTeamStep
+                        // If you want the fixed height like SignupTeamStep:
+                        // modifier = Modifier.height(320.dp).padding(horizontal = 16.dp)
+                        // If you want it to fill available space in Scaffold:
+                        modifier =
+                                Modifier.fillMaxSize().padding(horizontal = 16.dp, vertical = 8.dp)
                 ) {
                     items(availableTeams.chunked(3)) { teamRow ->
                         Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(8.dp) // Matched
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(8.dp) // Matched
                         ) {
                             teamRow.forEach { team ->
-                                val isSelected = localSelectedTeamIds.contains(team.id.toString())
+                                val isSelected = localSelectedTeamNames.contains(team.name)
 
                                 TeamDisplayCard( // Using the common/matched card
-                                    team = team,
-                                    isSelected = isSelected,
-                                    onTeamClick = {
-                                        val teamIdentifier = team.id.toString()
-                                        localSelectedTeamIds =
-                                            if (isSelected) localSelectedTeamIds - teamIdentifier
-                                            else localSelectedTeamIds + teamIdentifier
-                                    },
-                                    modifier = Modifier
-                                        .weight(1f)
-                                        .aspectRatio(1f) // Apply weight and aspect ratio here
+                                        team = team,
+                                        isSelected = isSelected,
+                                        onTeamClick = {
+                                            localSelectedTeamNames =
+                                                    if (isSelected)
+                                                            localSelectedTeamNames - team.name
+                                                    else localSelectedTeamNames + team.name
+                                        },
+                                        modifier =
+                                                Modifier.weight(1f)
+                                                        .aspectRatio(
+                                                                1f
+                                                        ) // Apply weight and aspect ratio here
                                 )
                             }
                             // Fill out missing columns
                             repeat(3 - teamRow.size) {
-                                Spacer(Modifier.weight(1f).aspectRatio(1f)) // Ensure spacer maintains grid shape
+                                Spacer(
+                                        Modifier.weight(1f).aspectRatio(1f)
+                                ) // Ensure spacer maintains grid shape
                             }
                         }
                     }
@@ -152,65 +144,64 @@ fun TeamSelectionScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TeamDisplayCard(
-    team: Team,
-    isSelected: Boolean,
-    onTeamClick: () -> Unit,
-    modifier: Modifier = Modifier // Modifier is passed in, including .weight(1f).aspectRatio(1f)
+        team: Team,
+        isSelected: Boolean,
+        onTeamClick: () -> Unit,
+        modifier: Modifier =
+                Modifier // Modifier is passed in, including .weight(1f).aspectRatio(1f)
 ) {
     Card(
-        onClick = onTeamClick,
-        modifier = modifier, // This modifier will now include .weight(1f) and .aspectRatio(1f)
-        shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(
-            containerColor =
-                if (isSelected) MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
-                else MaterialTheme.colorScheme.surface
-        ),
-        border = if (isSelected) {
-            BorderStroke(2.dp, MaterialTheme.colorScheme.primary)
-        } else {
-            BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.2f))
-        }
+            onClick = onTeamClick,
+            modifier = modifier, // This modifier will now include .weight(1f) and .aspectRatio(1f)
+            shape = RoundedCornerShape(12.dp),
+            colors =
+                    CardDefaults.cardColors(
+                            containerColor =
+                                    if (isSelected)
+                                            MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
+                                    else MaterialTheme.colorScheme.surface
+                    ),
+            border =
+                    if (isSelected) {
+                        BorderStroke(2.dp, MaterialTheme.colorScheme.primary)
+                    } else {
+                        BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.2f))
+                    }
     ) {
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(12.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+                modifier = Modifier.fillMaxSize().padding(12.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
         ) {
             Box(
-                modifier = Modifier
-                    .weight(1f) // Ensure image area can expand
-                    .size(48.dp), // Keep logo area consistent
-                contentAlignment = Alignment.Center
+                    modifier =
+                            Modifier.weight(1f) // Ensure image area can expand
+                                    .size(48.dp), // Keep logo area consistent
+                    contentAlignment = Alignment.Center
             ) {
                 if (team.localLogoRes != null) {
                     Image(
-                        painter = painterResource(id = team.localLogoRes),
-                        contentDescription = "${team.name} logo",
-                        modifier = Modifier.fillMaxSize() // Fill the 48dp Box
+                            painter = painterResource(id = team.localLogoRes),
+                            contentDescription = "${team.name} logo",
+                            modifier = Modifier.fillMaxSize() // Fill the 48dp Box
                     )
                 } else if (!team.logoUrl.isNullOrEmpty()) {
                     AsyncImage(
-                        model = team.logoUrl,
-                        contentDescription = "${team.name} logo",
-                        modifier = Modifier.fillMaxSize() // Fill the 48dp Box
+                            model = team.logoUrl,
+                            contentDescription = "${team.name} logo",
+                            modifier = Modifier.fillMaxSize() // Fill the 48dp Box
                     )
                 } else {
                     Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .background(
-                                MaterialTheme.colorScheme.surfaceVariant,
-                                RoundedCornerShape(8.dp)
-                            ),
-                        contentAlignment = Alignment.Center
+                            modifier =
+                                    Modifier.fillMaxSize()
+                                            .background(
+                                                    MaterialTheme.colorScheme.surfaceVariant,
+                                                    RoundedCornerShape(8.dp)
+                                            ),
+                            contentAlignment = Alignment.Center
                     ) {
-                        Text(
-                            text = team.abbreviation,
-                            style = MaterialTheme.typography.labelMedium
-                        )
+                        Text(text = team.abbreviation, style = MaterialTheme.typography.labelMedium)
                     }
                 }
             }
@@ -218,12 +209,13 @@ fun TeamDisplayCard(
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
-                text = team.name,
-                style = MaterialTheme.typography.bodySmall,
-                textAlign = TextAlign.Center,
-                maxLines = 2,
-                color = if (isSelected) MaterialTheme.colorScheme.primary
-                else MaterialTheme.colorScheme.onSurface
+                    text = team.name,
+                    style = MaterialTheme.typography.bodySmall,
+                    textAlign = TextAlign.Center,
+                    maxLines = 2,
+                    color =
+                            if (isSelected) MaterialTheme.colorScheme.primary
+                            else MaterialTheme.colorScheme.onSurface
             )
         }
     }

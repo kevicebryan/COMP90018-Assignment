@@ -60,7 +60,6 @@ fun CheckInLanding(
 
             // === Preserve your original spacing/content ===
             Spacer(Modifier.height(46.dp)) // same as before
-
             Box(
                 modifier = Modifier
                     .size(256.dp)
@@ -77,7 +76,6 @@ fun CheckInLanding(
             }
 
             Spacer(Modifier.height(24.dp))
-
             Text(
                 text = "Scan the host's QR code to check in for the event.",
                 style = MaterialTheme.typography.bodyLarge,
@@ -87,7 +85,6 @@ fun CheckInLanding(
             )
 
             Spacer(Modifier.height(24.dp))
-
             Button(
                 onClick = onTapScan,
                 shape = RoundedCornerShape(20.dp),
@@ -105,4 +102,3 @@ fun CheckInLanding(
             }
         }
     }
-}

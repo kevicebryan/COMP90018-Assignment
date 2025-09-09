@@ -3,14 +3,18 @@ package com.example.mobilecomputingassignment.presentation.ui.screen
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.mobilecomputingassignment.data.documents.LegalDocuments
+import com.example.mobilecomputingassignment.presentation.screens.explore.ExploreScreen
 import com.example.mobilecomputingassignment.presentation.ui.component.WatchMatesBottomNavigation
 import com.example.mobilecomputingassignment.presentation.viewmodel.AuthViewModel
+import com.example.mobilecomputingassignment.presentation.viewmodel.CheckInViewModel
+import com.example.mobilecomputingassignment.presentation.viewmodel.PointsViewModel
 import com.example.mobilecomputingassignment.presentation.viewmodel.ProfileUiState
 import com.example.mobilecomputingassignment.presentation.viewmodel.ProfileViewModel
 import com.example.mobilecomputingassignment.presentation.viewmodel.CheckInViewModel
@@ -19,10 +23,7 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainAppScreen(
-        onLogout: () -> Unit,
-        viewModel: AuthViewModel = hiltViewModel()
-) {
+fun MainAppScreen(onLogout: () -> Unit, viewModel: AuthViewModel = hiltViewModel()) {
         // BottomNav order: 0=Explore, 1=Events, 2=Check-in, 3=Profile
         var selectedTab by remember { mutableIntStateOf(0) }
         var showQRCode by remember { mutableStateOf(false) }
@@ -30,6 +31,7 @@ fun MainAppScreen(
         var showPrivacyPolicy by remember { mutableStateOf(false) }
         var showTermsConditions by remember { mutableStateOf(false) }
         var showTeamSelection by remember { mutableStateOf(false) }
+        var showLeagueSelection by remember { mutableStateOf(false) }
 
         // check-in flow state
         var scannedHostId by remember { mutableStateOf<String?>(null) }
@@ -61,7 +63,12 @@ fun MainAppScreen(
                                 onResult = { qrText ->
                                         val hostId = qrText.trim()
                                         if (hostId.isBlank()) {
-                                                scope.launch { snackbarHostState.showSnackbar("Invalid QR code") }
+                                                scope.launch {
+                                                        snackbarHostState.showSnackbar(
+                                                                "Invalid QR code"
+                                                        )
+                                                }
+
                                                 showScanner = false
                                         } else {
                                                 scannedHostId = hostId
@@ -81,23 +88,34 @@ fun MainAppScreen(
                                 onSelectEvent = { eventId ->
                                         scope.launch {
                                                 // 1) PRE-CHECK
-                                                val already = checkInViewModel.hasAlreadyCheckedIn(eventId).getOrElse {
-                                                        // If the check failed, treat as not already checked to avoid blocking
-                                                        false
-                                                }
+                                                val already =
+                                                        checkInViewModel.hasAlreadyCheckedIn(
+                                                                        eventId
+                                                                )
+                                                                .getOrElse {
+                                                                        // If the check failed,
+                                                                        // treat as not already
+                                                                        // checked to avoid blocking
+                                                                        false
+                                                                }
+
                                                 if (already) {
                                                         alreadyCheckedDialog = true
                                                         return@launch
                                                 }
-
-                                                // 2) PROCEED WITH CHECK-IN
                                                 val res = checkInViewModel.checkInToEvent(eventId)
                                                 if (res.isSuccess) {
                                                         selectedEventId = eventId
                                                         showHostEvents = false
-                                                        showCheckInComplete = true  // will later allow “Reveal points”
+                                                        showCheckInComplete =
+                                                                true // will later allow "Reveal
+                                                        // points"
                                                 } else {
-                                                        snackbarHostState.showSnackbar(res.exceptionOrNull()?.message ?: "Check-in failed")
+                                                        snackbarHostState.showSnackbar(
+                                                                res.exceptionOrNull()?.message
+                                                                        ?: "Check-in failed"
+                                                        )
+
                                                 }
                                         }
                                 }
@@ -106,12 +124,17 @@ fun MainAppScreen(
                                 AlertDialog(
                                         onDismissRequest = { alreadyCheckedDialog = false },
                                         confirmButton = {
-                                                TextButton(onClick = { alreadyCheckedDialog = false }) {
-                                                        Text("OK")
-                                                }
+
+                                                TextButton(
+                                                        onClick = { alreadyCheckedDialog = false }
+                                                ) { Text("OK") }
                                         },
                                         title = { Text("Already checked in") },
-                                        text  = { Text("You've already checked in to this event. You won't receive points for checking in twice.") }
+                                        text = {
+                                                Text(
+                                                        "You've already checked in to this event. You won't receive points for checking in twice."
+                                                )
+                                        }
                                 )
                         }
                         return
@@ -125,15 +148,24 @@ fun MainAppScreen(
                                 onRevealPointsClick = {
                                         val earned = (10..50).random()
                                         scope.launch {
-                                                val res = pointsViewModel.awardPoints(earned, currentPointsHint = uiState.user?.points)
+                                                val res =
+                                                        pointsViewModel.awardPoints(
+                                                                earned,
+                                                                currentPointsHint =
+                                                                        uiState.user?.points
+                                                        )
                                                 if (res.isSuccess) {
                                                         earnedPoints = earned
-                                                        // refresh profile so the UI picks up new total elsewhere
+
                                                         profileViewModel.refreshProfile()
                                                         showCheckInComplete = false
                                                         showPointsEarned = true
                                                 } else {
-                                                        snackbarHostState.showSnackbar(res.exceptionOrNull()?.message ?: "Failed to update points")
+
+                                                        snackbarHostState.showSnackbar(
+                                                                res.exceptionOrNull()?.message
+                                                                        ?: "Failed to update points"
+                                                        )
                                                 }
                                         }
                                 }
@@ -145,10 +177,10 @@ fun MainAppScreen(
                 showPointsEarned && earnedPoints != null -> {
                         PointsEarnedScreen(
                                 points = earnedPoints!!,
-                                onBackClick = {
-                                        showPointsEarned = false
-                                },
-                                // ✅ ADDED: let the screen navigate straight to Profile if you added a "See Points" button there
+
+                                onBackClick = { showPointsEarned = false },
+                                // ✅ ADDED: let the screen navigate straight to Profile if you added
+                                // a "See Points" button there
                                 onSeePoints = {
                                         showPointsEarned = false
                                         selectedTab = 3 // Profile tab
@@ -183,17 +215,48 @@ fun MainAppScreen(
                         return
                 }
                 showTeamSelection -> {
-                        LaunchedEffect(Unit) { viewModel.loadAflTeams() }
                         val authUiState by viewModel.uiState.collectAsState()
                         TeamSelectionScreen(
                                 availableTeams = authUiState.availableTeams,
-                                initiallySelectedTeamIds = signupData.teams.toSet(),
+                                // Assuming signupData.teams from AuthViewModel holds current user's
+                                // teams
+                                // If not, you might need to fetch from ProfileViewModel's
+                                // uiState.user?.teams
+                                initiallySelectedTeamNames = (uiState.user?.teams?.toSet()
+                                                ?: signupData.teams.toSet()),
                                 isLoading = authUiState.isLoadingTeams,
-                                onSaveClick = { ids ->
-                                        viewModel.updateUserTeams(ids.toList())
+                                onSaveClick = { teamNames ->
+                                        // Use ProfileViewModel to update teams
+                                        profileViewModel.updateUserTeams(teamNames.toList())
                                         showTeamSelection = false
                                 },
                                 onBackClick = { showTeamSelection = false }
+                        )
+                        return
+                }
+
+                // --- VVVVV NEW BRANCH FOR LEAGUE SELECTION VVVVV ---
+                showLeagueSelection -> {
+                        // Get the current user's leagues from ProfileViewModel's uiState
+                        val currentUserLeagues = uiState.user?.leagues?.toSet() ?: emptySet()
+
+                        SignupLeagueStep(
+                                initialSelectedLeagues = currentUserLeagues,
+                                isEditingMode = true,
+                                onSaveLeagues = { updatedLeagues ->
+                                        profileViewModel.updateUserLeagues(
+                                                updatedLeagues
+                                        ) // Call ProfileViewModel to save
+                                        showLeagueSelection = false // Close the screen
+                                },
+                                // These are for the original signature of SignupLeagueStep, adapt
+                                // behavior:
+                                onNextClick = { /* No-op in editing mode, handled by onSaveLeagues */
+                                },
+                                onSkipClick = { showLeagueSelection = false }, // Acts as "Cancel"
+                                onBackClick = {
+                                        showLeagueSelection = false
+                                } // Acts as "Back" or "Cancel"
                         )
                         return
                 }
@@ -210,40 +273,62 @@ fun MainAppScreen(
                 }
         ) { innerPadding ->
                 Box(
-                        modifier = Modifier
-                                .fillMaxSize()
-                                .padding(innerPadding),
+                        modifier = Modifier.fillMaxSize().padding(innerPadding),
                         contentAlignment = Alignment.Center
                 ) {
                         when (selectedTab) {
-                                0 -> ExploreScreen()
-                                1 -> EventsScreen()
-                                2 -> CheckInLanding(
-                                        onBackClick = null,
-                                        onTapScan = { showScanner = true }
-                                )
-                                3 -> ProfileScreen(
-                                        onLogout = onLogout,
-                                        onShowQR = {
-                                                val username = uiState.user?.username.orEmpty()
-                                                val id = uiState.user?.id.orEmpty()
-                                                when {
-                                                        uiState.isLoading -> scope.launch {
-                                                                snackbarHostState.showSnackbar("Profile is still loading…")
-                                                        }
-                                                        username.isBlank() -> scope.launch {
-                                                                snackbarHostState.showSnackbar("Please set a username in your profile first.")
-                                                        }
-                                                        id.isBlank() -> scope.launch {
-                                                                snackbarHostState.showSnackbar("Missing user ID for QR.")
-                                                        }
-                                                        else -> showQRCode = true
+                                0 ->
+                                        ExploreScreen(
+                                                onNavigateToEvent = { /* TODO: Handle event navigation */
                                                 }
-                                        },
-                                        onShowPrivacyPolicy = { showPrivacyPolicy = true },
-                                        onShowTermsConditions = { showTermsConditions = true },
-                                        onShowTeamSelection = { showTeamSelection = true }
-                                )
+                                        )
+                                1 -> EventsScreen()
+                                2 ->
+                                        CheckInLanding(
+                                                onBackClick = null,
+                                                onTapScan = { showScanner = true }
+                                        )
+                                3 ->
+                                        ProfileScreen(
+                                                onLogout = onLogout,
+                                                onShowQR = {
+                                                        val username =
+                                                                uiState.user?.username.orEmpty()
+                                                        val id = uiState.user?.id.orEmpty()
+                                                        when {
+                                                                uiState.isLoading ->
+                                                                        scope.launch {
+                                                                                snackbarHostState
+                                                                                        .showSnackbar(
+                                                                                                "Profile is still loading…"
+                                                                                        )
+                                                                        }
+                                                                username.isBlank() ->
+                                                                        scope.launch {
+                                                                                snackbarHostState
+                                                                                        .showSnackbar(
+                                                                                                "Please set a username in your profile first."
+                                                                                        )
+                                                                        }
+                                                                id.isBlank() ->
+                                                                        scope.launch {
+                                                                                snackbarHostState
+                                                                                        .showSnackbar(
+                                                                                                "Missing user ID for QR."
+                                                                                        )
+                                                                        }
+                                                                else -> showQRCode = true
+                                                        }
+                                                },
+                                                onShowPrivacyPolicy = { showPrivacyPolicy = true },
+                                                onShowTermsConditions = {
+                                                        showTermsConditions = true
+                                                },
+                                                onShowTeamSelection = { showTeamSelection = true },
+                                                onShowLeagueSelection = {
+                                                        showLeagueSelection = true
+                                                }
+                                        )
                         }
                 }
         }
