@@ -201,13 +201,19 @@ fun EventCard(
                     EventDetailRow(
                         icon = Icons.Default.DateRange,
                         label = "Date",
-                        value = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault()).format(event.date)
+                        value = SimpleDateFormat(
+                            "MMM dd, yyyy",
+                            Locale.getDefault()
+                        ).format(event.date)
                     )
 
                     EventDetailRow(
                         icon = Icons.Default.Info,
                         label = "Check-in",
-                        value = SimpleDateFormat("HH:mm", Locale.getDefault()).format(event.checkInTime)
+                        value = SimpleDateFormat(
+                            "HH:mm",
+                            Locale.getDefault()
+                        ).format(event.checkInTime)
                     )
 
                     EventDetailRow(
