@@ -17,6 +17,8 @@ import com.example.mobilecomputingassignment.presentation.viewmodel.CheckInViewM
 import com.example.mobilecomputingassignment.presentation.viewmodel.PointsViewModel
 import com.example.mobilecomputingassignment.presentation.viewmodel.ProfileUiState
 import com.example.mobilecomputingassignment.presentation.viewmodel.ProfileViewModel
+import com.example.mobilecomputingassignment.presentation.viewmodel.CheckInViewModel
+import com.example.mobilecomputingassignment.presentation.viewmodel.PointsViewModel
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -66,6 +68,7 @@ fun MainAppScreen(onLogout: () -> Unit, viewModel: AuthViewModel = hiltViewModel
                                                                 "Invalid QR code"
                                                         )
                                                 }
+
                                                 showScanner = false
                                         } else {
                                                 scannedHostId = hostId
@@ -95,6 +98,7 @@ fun MainAppScreen(onLogout: () -> Unit, viewModel: AuthViewModel = hiltViewModel
                                                                         // checked to avoid blocking
                                                                         false
                                                                 }
+
                                                 if (already) {
                                                         alreadyCheckedDialog = true
                                                         return@launch
@@ -111,6 +115,7 @@ fun MainAppScreen(onLogout: () -> Unit, viewModel: AuthViewModel = hiltViewModel
                                                                 res.exceptionOrNull()?.message
                                                                         ?: "Check-in failed"
                                                         )
+
                                                 }
                                         }
                                 }
@@ -119,6 +124,7 @@ fun MainAppScreen(onLogout: () -> Unit, viewModel: AuthViewModel = hiltViewModel
                                 AlertDialog(
                                         onDismissRequest = { alreadyCheckedDialog = false },
                                         confirmButton = {
+
                                                 TextButton(
                                                         onClick = { alreadyCheckedDialog = false }
                                                 ) { Text("OK") }
@@ -150,12 +156,12 @@ fun MainAppScreen(onLogout: () -> Unit, viewModel: AuthViewModel = hiltViewModel
                                                         )
                                                 if (res.isSuccess) {
                                                         earnedPoints = earned
-                                                        // refresh profile so the UI picks up new
-                                                        // total elsewhere
+
                                                         profileViewModel.refreshProfile()
                                                         showCheckInComplete = false
                                                         showPointsEarned = true
                                                 } else {
+
                                                         snackbarHostState.showSnackbar(
                                                                 res.exceptionOrNull()?.message
                                                                         ?: "Failed to update points"
@@ -171,6 +177,7 @@ fun MainAppScreen(onLogout: () -> Unit, viewModel: AuthViewModel = hiltViewModel
                 showPointsEarned && earnedPoints != null -> {
                         PointsEarnedScreen(
                                 points = earnedPoints!!,
+
                                 onBackClick = { showPointsEarned = false },
                                 // ✅ ADDED: let the screen navigate straight to Profile if you added
                                 // a "See Points" button there
@@ -208,7 +215,6 @@ fun MainAppScreen(onLogout: () -> Unit, viewModel: AuthViewModel = hiltViewModel
                         return
                 }
                 showTeamSelection -> {
-                        LaunchedEffect(Unit) { viewModel.loadAflTeams() } // AuthViewModel
                         val authUiState by viewModel.uiState.collectAsState()
                         TeamSelectionScreen(
                                 availableTeams = authUiState.availableTeams,

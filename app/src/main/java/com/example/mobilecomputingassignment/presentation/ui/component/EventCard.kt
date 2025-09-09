@@ -230,12 +230,12 @@ fun EventCard(
                         )
                     }
 
+
                     EventDetailRow(
                         icon = Icons.Default.Person,
                         label = "Capacity",
                         value = "${event.attendeesCount}/${event.capacity}"
                     )
-
                     if (event.contactNumber.isNotBlank()) {
                         EventDetailRow(
                             icon = Icons.Default.Phone,
