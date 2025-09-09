@@ -35,12 +35,13 @@ fun MapPickerDialog(
   val scope = rememberCoroutineScope()
   val locationService = remember { LocationService(context) }
 
-  // Default to Sydney, Australia if no initial location
-  val defaultLocation = LatLng(-33.8688, 151.2093)
+  // Default to Melbourne, Australia if no initial location
+  val defaultLocation = LatLng(-37.7963, 144.9614)
   var selectedLocation by remember { mutableStateOf(initialLatLng ?: defaultLocation) }
   var address by remember { mutableStateOf("") }
   var isLoadingAddress by remember { mutableStateOf(false) }
   var hasLocationPermission by remember { mutableStateOf(locationService.hasLocationPermission()) }
+  var isInitialized by remember { mutableStateOf(false) }
 
   // Camera position state
   val cameraPositionState = rememberCameraPositionState {
@@ -71,6 +72,35 @@ fun MapPickerDialog(
               }
             }
           }
+
+  // Auto-get current location when dialog opens (only if no initial location provided)
+  LaunchedEffect(Unit) {
+    if (initialLatLng == null && !isInitialized) {
+      isInitialized = true
+      if (hasLocationPermission) {
+        val currentLocation = locationService.getCurrentLocation()
+        currentLocation?.let { location ->
+          val newLatLng = LatLng(location.latitude, location.longitude)
+          selectedLocation = newLatLng
+          cameraPositionState.animate(
+                  update = CameraUpdateFactory.newLatLngZoom(newLatLng, 15f)
+          )
+          // Get address for current location
+          isLoadingAddress = true
+          address = getAddressFromLatLng(context, newLatLng)
+          isLoadingAddress = false
+        }
+      } else {
+        // Request permission for location
+        permissionLauncher.launch(
+                arrayOf(
+                        Manifest.permission.ACCESS_FINE_LOCATION,
+                        Manifest.permission.ACCESS_COARSE_LOCATION
+                )
+        )
+      }
+    }
+  }
 
   // Map properties
   val mapProperties by remember {

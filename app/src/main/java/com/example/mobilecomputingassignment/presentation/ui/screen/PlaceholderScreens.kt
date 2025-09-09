@@ -4,11 +4,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 
-@Composable
-fun ExploreScreen() {
-  Text(text = "Hello World - Explore", style = MaterialTheme.typography.headlineMedium)
-}
-
+// ExploreScreen is now implemented in presentation/screens/explore/ExploreScreen.kt
 // EventsScreen is now implemented in EventsScreen.kt
 
 @Composable
