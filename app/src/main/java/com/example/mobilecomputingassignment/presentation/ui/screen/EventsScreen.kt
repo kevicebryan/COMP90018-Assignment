@@ -22,7 +22,7 @@ import com.example.mobilecomputingassignment.presentation.viewmodel.EventViewMod
 fun EventsScreen(modifier: Modifier = Modifier, eventViewModel: EventViewModel = hiltViewModel()) {
   val uiState by eventViewModel.uiState.collectAsState()
 
-  LaunchedEffect(Unit) { eventViewModel.loadUserEvents() }
+  LaunchedEffect(Unit) { eventViewModel.refreshEvents() }
 
   Column(modifier = modifier.fillMaxSize().padding(16.dp)) {
     // Header

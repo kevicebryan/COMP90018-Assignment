@@ -18,6 +18,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.example.mobilecomputingassignment.R
+import com.example.mobilecomputingassignment.presentation.ui.component.CustomMatchDialog
 import com.example.mobilecomputingassignment.presentation.viewmodel.EventViewModel
 import java.text.SimpleDateFormat
 import java.util.*
@@ -90,7 +91,7 @@ fun EventFormDialog(
                                         }
                                 }
 
-                                Divider()
+                                HorizontalDivider()
 
                                 // Form content
                                 Column(
@@ -386,16 +387,22 @@ fun EventFormDialog(
                                                                 Text("Loading matches...")
                                                         }
                                                 } else if (uiState.availableMatches.isEmpty()) {
-                                                        Text(
-                                                                text =
-                                                                        "No matches available for selected date",
-                                                                style =
-                                                                        MaterialTheme.typography
-                                                                                .bodyMedium,
-                                                                color =
-                                                                        MaterialTheme.colorScheme
-                                                                                .onSurfaceVariant
-                                                        )
+                                                        Column(
+                                                                verticalArrangement = Arrangement.spacedBy(12.dp)
+                                                        ) {
+                                                                Text(
+                                                                        text = "No matches available for selected date",
+                                                                        style = MaterialTheme.typography.bodyMedium,
+                                                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                                                )
+                                                                
+                                                                Button(
+                                                                        onClick = { eventViewModel.showCustomMatchDialog() },
+                                                                        modifier = Modifier.fillMaxWidth()
+                                                                ) {
+                                                                        Text("Create Custom Match")
+                                                                }
+                                                        }
                                                 } else {
                                                         // Match selection dropdown
                                                         var expanded by remember {
@@ -826,7 +833,7 @@ fun EventFormDialog(
                                 }
 
                                 // Footer buttons
-                                Divider()
+                                HorizontalDivider()
 
                                 Row(
                                         modifier = Modifier.fillMaxWidth().padding(16.dp),
@@ -862,6 +869,18 @@ fun EventFormDialog(
                                 }
                         }
                 }
+        }
+
+        // Custom Match Dialog
+        if (uiState.showCustomMatchDialog) {
+                CustomMatchDialog(
+                        availableTeams = uiState.availableTeams,
+                        isLoadingTeams = uiState.isLoadingTeams,
+                        onDismiss = { eventViewModel.hideCustomMatchDialog() },
+                        onCreateMatch = { homeTeam, awayTeam ->
+                                eventViewModel.createCustomMatch(homeTeam, awayTeam)
+                        }
+                )
         }
 }
 

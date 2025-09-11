@@ -19,10 +19,12 @@ import androidx.compose.ui.unit.dp
 import android.Manifest
 import android.content.pm.PackageManager
 import androidx.core.content.ContextCompat
+import android.content.Intent
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.mobilecomputingassignment.R
 import com.example.mobilecomputingassignment.data.service.LocationService
 import com.example.mobilecomputingassignment.presentation.screens.explore.components.EventDetailsDialog
+import com.example.mobilecomputingassignment.presentation.screens.explore.components.MatchDetailDrawer
 import com.example.mobilecomputingassignment.presentation.screens.explore.components.NearbyEventsBottomSheet
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.CameraPosition
@@ -34,7 +36,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun ExploreScreen(
         viewModel: ExploreViewModel = hiltViewModel(),
-        onNavigateToEvent: (String) -> Unit
+        @Suppress("UNUSED_PARAMETER") onNavigateToEvent: (String) -> Unit
 ) {
   val uiState by viewModel.uiState.collectAsState()
   val context = LocalContext.current
@@ -43,6 +45,11 @@ fun ExploreScreen(
   val defaultLocation = LatLng(-37.7963, 144.9614) // Melbourne location
   val cameraPositionState = rememberCameraPositionState {
     position = CameraPosition.fromLatLngZoom(defaultLocation, 13f)
+  }
+
+  // Refresh current user ID when screen is opened
+  LaunchedEffect(Unit) {
+    viewModel.refreshCurrentUserId()
   }
 
   // Location permission state
@@ -229,13 +236,19 @@ fun ExploreScreen(
     }
   }
 
-  // Event details dialog
+  // Match detail drawer
   uiState.selectedEvent?.let { selectedEvent ->
-    EventDetailsDialog(
-            event = selectedEvent,
-            onDismiss = { viewModel.onEventDeselected() },
-            onGetDirections = { event -> viewModel.openGoogleMapsDirections(event) },
-            onAddToInterested = { event -> viewModel.addEventToInterested(event) }
+    MatchDetailDrawer(
+      event = selectedEvent,
+      isVisible = true,
+      onDismiss = { viewModel.onEventDeselected() },
+      onGetDirections = { event -> 
+        val intent = viewModel.openGoogleMapsDirections(event)
+        context.startActivity(intent)
+      },
+      onToggleInterest = { event -> viewModel.toggleEventInterest(event) },
+      currentUserId = uiState.currentUserId,
+      isUpdatingInterest = uiState.isUpdatingInterest
     )
   }
 }
