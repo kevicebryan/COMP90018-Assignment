@@ -54,8 +54,25 @@ constructor(private val eventFirestoreService: EventFirestoreService) : IEventRe
   }
 
   override suspend fun getInterestedEvents(userId: String): Result<List<Event>> {
-    return eventFirestoreService.getInterestedEvents(userId).map { eventDtos ->
-      eventDtos.map { it.toDomain() }
+    return try {
+      // Log the userId to verify it's correct
+      println("Getting interested events for user: $userId")
+
+      val result = eventFirestoreService.getInterestedEvents(userId)
+
+      // Log the result
+      result
+              .onSuccess { eventDtos ->
+                println("Found ${eventDtos.size} interested events for user $userId")
+              }
+              .onFailure { error ->
+                println("Error getting interested events for user $userId: ${error.message}")
+              }
+
+      result.map { eventDtos -> eventDtos.map { it.toDomain() } }
+    } catch (e: Exception) {
+      println("Exception getting interested events for user $userId: ${e.message}")
+      Result.failure(e)
     }
   }
 

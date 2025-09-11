@@ -14,13 +14,15 @@ import javax.inject.Inject
 import kotlin.math.*
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import com.google.firebase.auth.FirebaseAuth
 
 @HiltViewModel
 class ExploreViewModel
 @Inject
 constructor(
         private val eventRepository: IEventRepository,
-        private val locationRepository: LocationRepository
+        private val locationRepository: LocationRepository,
+        private val auth: FirebaseAuth
 ) : ViewModel() {
 
   private val _uiState = MutableStateFlow(ExploreUiState())
@@ -30,6 +32,26 @@ constructor(
     checkLocationPermission()
     loadEvents()
     observeLocationUpdates()
+    updateCurrentUserId()
+  }
+
+  private fun updateCurrentUserId() {
+    val currentUserId = auth.currentUser?.uid
+    Log.d("ExploreViewModel", "Updating current user ID: $currentUserId")
+    _uiState.update { it.copy(currentUserId = currentUserId) }
+  }
+
+  private fun updateSelectedEventWithFreshData(eventId: String) {
+    // Find the updated event from the current allEvents list
+    val updatedEvent = _uiState.value.allEvents.find { it.id == eventId }
+    if (updatedEvent != null && _uiState.value.selectedEvent?.id == eventId) {
+      Log.d("ExploreViewModel", "Updating selected event with fresh data: ${updatedEvent.interestedUsers.size} interested users")
+      _uiState.update { it.copy(selectedEvent = updatedEvent) }
+    }
+  }
+
+  fun refreshCurrentUserId() {
+    updateCurrentUserId()
   }
 
   private fun observeLocationUpdates() {
@@ -71,6 +93,7 @@ constructor(
         Log.d("ExploreViewModel", "Loaded ${events.size} events for explore map")
         events.forEach { event ->
           Log.d("ExploreViewModel", "Event: ${event.matchDetails?.homeTeam ?: "No match"} vs ${event.matchDetails?.awayTeam ?: "No match"} at ${event.location.name} (${event.location.latitude}, ${event.location.longitude})")
+          Log.d("ExploreViewModel", "Event ${event.id} interested users: ${event.interestedUsers.size} - ${event.interestedUsers}")
         }
         _uiState.update { state ->
           state.copy(
@@ -85,7 +108,7 @@ constructor(
     }
   }
 
-  fun onMapClick(latLng: LatLng) {
+  fun onMapClick(@Suppress("UNUSED_PARAMETER") latLng: LatLng) {
     _uiState.update { it.copy(selectedEvent = null) }
   }
 
@@ -103,6 +126,7 @@ constructor(
 
   fun refreshEvents() {
     loadEvents()
+    updateCurrentUserId() // Also refresh the current user ID
   }
 
   fun onLocationPermissionGranted() {
@@ -110,19 +134,49 @@ constructor(
     updateNearbyEvents()
   }
 
-  fun addEventToInterested(event: Event) {
+  fun toggleEventInterest(event: Event) {
+    val currentUserId = auth.currentUser?.uid ?: return
+    
     viewModelScope.launch { 
-      // TODO: Get current user ID from authentication service
-      val currentUserId = "current_user_id" // Replace with actual user ID
-      eventRepository.addUserInterest(event.id, currentUserId) 
+      // Prevent users from showing interest in their own events
+      if (currentUserId == event.hostUserId) {
+        Log.d("ExploreViewModel", "User cannot show interest in their own event")
+        return@launch
+      }
+      
+      // Set loading state
+      _uiState.update { it.copy(isUpdatingInterest = true) }
+      
+      val isCurrentlyInterested = event.interestedUsers.contains(currentUserId)
+      Log.d("ExploreViewModel", "Toggling interest for event ${event.id}: currently interested = $isCurrentlyInterested")
+      
+      val result = if (isCurrentlyInterested) {
+        eventRepository.removeUserInterest(event.id, currentUserId)
+      } else {
+        eventRepository.addUserInterest(event.id, currentUserId)
+      }
+      
+      result.onSuccess {
+        Log.d("ExploreViewModel", "Interest toggled successfully")
+        // Refresh events to get updated interest data
+        loadEvents()
+        // Update the selected event with fresh data
+        updateSelectedEventWithFreshData(event.id)
+        // Clear loading state
+        _uiState.update { it.copy(isUpdatingInterest = false) }
+      }.onFailure { error ->
+        Log.e("ExploreViewModel", "Failed to toggle interest", error)
+        // Clear loading state on error
+        _uiState.update { it.copy(isUpdatingInterest = false) }
+      }
     }
   }
 
-  fun openGoogleMapsDirections(event: Event) {
+  fun openGoogleMapsDirections(event: Event): Intent {
     val uri = Uri.parse("google.navigation:q=${event.location.latitude},${event.location.longitude}")
-    val mapIntent =
-            Intent(Intent.ACTION_VIEW, uri).apply { setPackage("com.google.android.apps.maps") }
-    // Handle intent launch in the UI
+    return Intent(Intent.ACTION_VIEW, uri).apply { 
+      setPackage("com.google.android.apps.maps")
+    }
   }
 
   private fun updateNearbyEvents() {
@@ -174,7 +228,9 @@ data class ExploreUiState(
         val currentViewport: MapViewport? = null,
         val userLocation: LatLng? = null,
         val isLoading: Boolean = false,
-        val error: String? = null
+        val error: String? = null,
+        val currentUserId: String? = null,
+        val isUpdatingInterest: Boolean = false
 )
 
 data class MapViewport(val southWest: LatLng, val northEast: LatLng)

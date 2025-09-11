@@ -5,10 +5,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.mobilecomputingassignment.core.utils.ContentFilter
 import com.example.mobilecomputingassignment.data.repository.MatchRepository
+import com.example.mobilecomputingassignment.data.repository.TeamRepository
 import com.example.mobilecomputingassignment.domain.models.*
 import com.example.mobilecomputingassignment.domain.usecases.events.*
 import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.lifecycle.HiltViewModel
+import java.util.Calendar
 import java.util.Date
 import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -62,6 +64,9 @@ data class EventUiState(
 
         // Match selection
         val availableMatches: List<MatchDetails> = emptyList(), // Matches for selected date
+        val availableTeams: List<Team> = emptyList(), // Available AFL teams for custom match
+        val isLoadingTeams: Boolean = false, // Loading indicator for teams
+        val showCustomMatchDialog: Boolean = false, // Show custom match creation dialog
 
         // Map picker
         val showMapPicker: Boolean = false // Show map picker dialog
@@ -115,7 +120,8 @@ constructor(
         private val manageEventInterestUseCase: ManageEventInterestUseCase,
 
         // Repository: Data access
-        private val matchRepository: MatchRepository
+        private val matchRepository: MatchRepository,
+        private val teamRepository: TeamRepository
 ) : ViewModel() {
 
         // StateFlow: Reactive data streams for UI updates
@@ -128,8 +134,8 @@ constructor(
         private val _formData = MutableStateFlow(EventFormData())
         val formData: StateFlow<EventFormData> = _formData.asStateFlow()
 
-        // Current authenticated user
-        private val currentUser = FirebaseAuth.getInstance().currentUser
+        // Firebase Auth instance
+        private val auth = FirebaseAuth.getInstance()
 
         companion object {
                 private const val TAG = "EventViewModel" // For logging
@@ -143,8 +149,17 @@ constructor(
                 _uiState.value = _uiState.value.copy(selectedTab = tab)
         }
 
+        fun clearEventData() {
+                _uiState.value = EventUiState()
+                _formData.value = EventFormData()
+        }
+
+        fun refreshEvents() {
+                loadUserEvents()
+        }
+
         fun loadUserEvents() {
-                val userId = currentUser?.uid ?: return
+                val userId = auth.currentUser?.uid ?: return
 
                 viewModelScope.launch {
                         _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null)
@@ -294,12 +309,65 @@ constructor(
                 _formData.value = updatedFormData
         }
 
+        fun showCustomMatchDialog() {
+                _uiState.value = _uiState.value.copy(showCustomMatchDialog = true)
+                loadAflTeams()
+        }
+
+        fun hideCustomMatchDialog() {
+                _uiState.value = _uiState.value.copy(showCustomMatchDialog = false)
+        }
+
+        fun createCustomMatch(homeTeam: String, awayTeam: String) {
+                val customMatch = MatchDetails(
+                        id = "custom_${System.currentTimeMillis()}", // Generate unique ID
+                        homeTeam = homeTeam,
+                        awayTeam = awayTeam,
+                        competition = "AFL",
+                        venue = _formData.value.locationName.ifEmpty { "Custom Venue" },
+                        matchTime = _formData.value.date,
+                        round = "Custom Match",
+                        season = Calendar.getInstance().get(Calendar.YEAR)
+                )
+
+                val updatedFormData = _formData.value.copy(
+                        matchId = customMatch.id,
+                        selectedMatch = customMatch,
+                        locationName = if (_formData.value.locationName.isEmpty()) "Custom Venue"
+                        else _formData.value.locationName
+                )
+                _formData.value = updatedFormData
+                _uiState.value = _uiState.value.copy(showCustomMatchDialog = false)
+        }
+
+        private fun loadAflTeams() {
+                viewModelScope.launch {
+                        _uiState.value = _uiState.value.copy(isLoadingTeams = true)
+                        
+                        teamRepository.getAflTeams()
+                                .onSuccess { teams ->
+                                        _uiState.value = _uiState.value.copy(
+                                                availableTeams = teams,
+                                                isLoadingTeams = false
+                                        )
+                                }
+                                .onFailure { exception ->
+                                        Log.e(TAG, "Failed to load teams", exception)
+                                        _uiState.value = _uiState.value.copy(
+                                                isLoadingTeams = false,
+                                                availableTeams = emptyList(),
+                                                errorMessage = "Failed to load teams: ${exception.message}"
+                                        )
+                                }
+                }
+        }
+
         fun createEvent() {
-                val userId = currentUser?.uid ?: return
+                val userId = auth.currentUser?.uid ?: return
                 // TODO: use the profile to get the username
                 val username =
-                        currentUser?.displayName
-                                ?: currentUser?.email?.split("@")?.first() ?: "Unknown User"
+                        auth.currentUser?.displayName
+                                ?: auth.currentUser?.email?.split("@")?.first() ?: "Unknown User"
 
                 Log.d(TAG, "Creating event with userId: $userId, username: $username")
                 val form = _formData.value
@@ -489,7 +557,7 @@ constructor(
         }
 
         fun toggleEventInterest(eventId: String, isInterested: Boolean) {
-                val userId = currentUser?.uid ?: return
+                val userId = auth.currentUser?.uid ?: return
 
                 viewModelScope.launch {
                         val result =
@@ -516,7 +584,7 @@ constructor(
         }
 
         fun checkInToEvent(eventId: String) {
-                val userId = currentUser?.uid ?: return
+                val userId = auth.currentUser?.uid ?: return
 
                 viewModelScope.launch {
                         manageEventInterestUseCase
@@ -560,10 +628,4 @@ constructor(
                 hideMapPicker()
         }
 
-        // Clear cached event data when logout occurs
-        fun clearEventData() {
-                android.util.Log.d("EventViewModel", "Clearing event data")
-                _uiState.value = EventUiState()
-                _formData.value = EventFormData()
-        }
 }

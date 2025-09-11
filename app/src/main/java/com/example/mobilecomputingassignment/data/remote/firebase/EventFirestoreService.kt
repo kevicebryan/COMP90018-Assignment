@@ -96,6 +96,8 @@ class EventFirestoreService @Inject constructor(private val firestore: FirebaseF
 
     suspend fun getInterestedEvents(userId: String): Result<List<EventDto>> {
         return try {
+            Log.d(TAG, "Getting interested events for user: $userId")
+            
             val querySnapshot =
                 firestore
                     .collection(EVENTS_COLLECTION)
@@ -104,6 +106,11 @@ class EventFirestoreService @Inject constructor(private val firestore: FirebaseF
                     .orderBy("date", Query.Direction.ASCENDING)
                     .get()
                     .await()
+
+            Log.d(TAG, "Raw documents for interested user $userId:")
+            querySnapshot.documents.forEach { doc ->
+                Log.d(TAG, "Document ${doc.id}: interestedUsers=${doc.get("interestedUsers")}, isActive=${doc.getBoolean("isActive")}")
+            }
 
             val events = querySnapshot.documents.mapNotNull { it.toObject(EventDto::class.java) }
             Log.d(TAG, "Retrieved ${events.size} interested events for user: $userId")
