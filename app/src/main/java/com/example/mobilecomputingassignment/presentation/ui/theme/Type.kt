@@ -13,7 +13,7 @@ import com.example.mobilecomputingassignment.R
  * WatchMates Typography System
  *
  * Font Hierarchy:
- * - Headers/Titles: Racing Sans One (bold, sporty feel)
+ * - Headers/Titles: Space Mono (modern, monospace feel)
  * - Body/Labels: Noto Sans (clean, readable)
  *
  * Using Google Fonts API with proper error handling
@@ -27,15 +27,20 @@ val provider = GoogleFont.Provider(
 )
 
 // Google Font Definitions
-val racingSansOneFont = GoogleFont("Racing Sans One")
+val spaceMonoFont = GoogleFont("Space Mono")
 val notoSansFont = GoogleFont("Noto Sans")
 
 // Custom Font Families using Google Fonts with fallbacks
-val RacingFontFamily = FontFamily(
+val SpaceMonoFamily = FontFamily(
     Font(
-        googleFont = racingSansOneFont,
+        googleFont = spaceMonoFont,
         fontProvider = provider,
         weight = FontWeight.Normal
+    ),
+    Font(
+        googleFont = spaceMonoFont,
+        fontProvider = provider,
+        weight = FontWeight.Bold
     )
 )
 
@@ -51,22 +56,22 @@ val NotoSansFontFamily = FontFamily(
 val Typography = Typography(
     // DISPLAY STYLES - Largest text, used for hero sections
     displayLarge = TextStyle(
-        fontFamily = RacingFontFamily, // Racing font for impact
-        fontWeight = FontWeight.Normal,
+        fontFamily = SpaceMonoFamily, // Space Mono for modern tech feel
+        fontWeight = FontWeight.Bold,
         fontSize = 57.sp,
         lineHeight = 64.sp,
         letterSpacing = (-0.25).sp
     ),
     displayMedium = TextStyle(
-        fontFamily = RacingFontFamily,
-        fontWeight = FontWeight.Normal,
+        fontFamily = SpaceMonoFamily,
+        fontWeight = FontWeight.Bold,
         fontSize = 45.sp,
         lineHeight = 52.sp,
         letterSpacing = 0.sp
     ),
     displaySmall = TextStyle(
-        fontFamily = RacingFontFamily,
-        fontWeight = FontWeight.Normal,
+        fontFamily = SpaceMonoFamily,
+        fontWeight = FontWeight.Bold,
         fontSize = 36.sp,
         lineHeight = 44.sp,
         letterSpacing = 0.sp
@@ -74,22 +79,22 @@ val Typography = Typography(
 
     // HEADLINE STYLES - Page titles, section headers
     headlineLarge = TextStyle(
-        fontFamily = RacingFontFamily, // Racing font for headers
-        fontWeight = FontWeight.Normal,
+        fontFamily = SpaceMonoFamily, // Space Mono for headers
+        fontWeight = FontWeight.Bold,
         fontSize = 32.sp,
         lineHeight = 40.sp,
         letterSpacing = 0.sp
     ),
     headlineMedium = TextStyle(
-        fontFamily = RacingFontFamily,
-        fontWeight = FontWeight.Normal,
+        fontFamily = SpaceMonoFamily,
+        fontWeight = FontWeight.Bold,
         fontSize = 28.sp,
         lineHeight = 36.sp,
         letterSpacing = 0.sp
     ),
     headlineSmall = TextStyle(
-        fontFamily = RacingFontFamily,
-        fontWeight = FontWeight.Normal,
+        fontFamily = SpaceMonoFamily,
+        fontWeight = FontWeight.Bold,
         fontSize = 24.sp,
         lineHeight = 32.sp,
         letterSpacing = 0.sp
@@ -97,22 +102,22 @@ val Typography = Typography(
 
     // TITLE STYLES - Smaller headers, card titles
     titleLarge = TextStyle(
-        fontFamily = RacingFontFamily, // Racing font for titles
-        fontWeight = FontWeight.Normal,
+        fontFamily = SpaceMonoFamily, // Space Mono for titles
+        fontWeight = FontWeight.Bold,
         fontSize = 22.sp,
         lineHeight = 28.sp,
         letterSpacing = 0.sp
     ),
     titleMedium = TextStyle(
         fontFamily = NotoSansFontFamily, // Noto Sans for better readability
-        fontWeight = FontWeight.Medium,
+        fontWeight = FontWeight.Bold,
         fontSize = 18.sp,
         lineHeight = 24.sp,
         letterSpacing = 0.1.sp
     ),
     titleSmall = TextStyle(
         fontFamily = NotoSansFontFamily,
-        fontWeight = FontWeight.Medium,
+        fontWeight = FontWeight.Bold,
         fontSize = 14.sp,
         lineHeight = 20.sp,
         letterSpacing = 0.1.sp
@@ -168,7 +173,7 @@ val Typography = Typography(
 /**
  * USAGE GUIDELINES:
  *
- * Headers & Titles (Racing Sans One):
+ * Headers & Titles (Space Mono):
  * - App name, screen titles: headlineLarge/headlineMedium
  * - Section headers: headlineSmall, titleLarge
  * - Card titles: titleMedium (now uses Noto Sans for better readability)

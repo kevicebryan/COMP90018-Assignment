@@ -12,6 +12,10 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
+import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDialog
+import androidx.compose.material3.DatePickerDefaults
+import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.*
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
@@ -310,6 +314,7 @@ fun calculateAge(birthdateString: String): Int {
         }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SignupUsernameAndAgeStep(
         onNextClick: (String, String, Boolean) -> Unit,
@@ -384,15 +389,25 @@ fun SignupUsernameAndAgeStep(
 
                         OutlinedTextField(
                                 value = birthdate,
-                                onValueChange = { birthdate = it }, // Manual input, consider DatePicker for better UX
+                                onValueChange = {},
                                 label = { Text("Birthdate (DD/MM/YYYY)") },
                                 leadingIcon = { Icon(Icons.Default.DateRange, contentDescription = null) },
                                 placeholder = { Text("25/12/1990") },
-                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                                 modifier = Modifier.fillMaxWidth(),
+                                readOnly = true,
                                 singleLine = true,
-                                isError = birthdate.isNotEmpty() && !birthdate.matches(Regex("""\d{2}/\d{2}/\d{4}"""))
-                                // Add DatePickerDialog trigger if you want a visual picker
+                                isError = birthdate.isNotEmpty() && !birthdate.matches(Regex("""\d{2}/\d{2}/\d{4}""")),
+                                trailingIcon = {
+                                        IconButton(
+                                                onClick = { showDatePicker = true }
+                                        ) {
+                                                Icon(
+                                                        painter = painterResource(id = R.drawable.ic_calendar),
+                                                        contentDescription = "Select birthdate",
+                                                        tint = MaterialTheme.colorScheme.primary
+                                                )
+                                        }
+                                }
                         )
 
                         Row(
@@ -419,6 +434,83 @@ fun SignupUsernameAndAgeStep(
                                         style = MaterialTheme.typography.bodySmall
                                 )
                         }
+                }
+        }
+
+        // Date picker dialog
+        if (showDatePicker) {
+                val datePickerState = rememberDatePickerState(
+                        initialSelectedDateMillis = if (birthdate.isNotEmpty()) {
+                                try {
+                                        val parts = birthdate.split("/")
+                                        if (parts.size == 3) {
+                                                val day = parts[0].toInt()
+                                                val month = parts[1].toInt() - 1 // Calendar months are 0-based
+                                                val year = parts[2].toInt()
+                                                java.util.Calendar.getInstance().apply {
+                                                        set(year, month, day)
+                                                }.timeInMillis
+                                        } else null
+                                } catch (e: Exception) {
+                                        null
+                                }
+                        } else null
+                )
+
+                DatePickerDialog(
+                        onDismissRequest = { showDatePicker = false },
+                        confirmButton = {
+                                TextButton(
+                                        onClick = {
+                                                datePickerState.selectedDateMillis?.let { millis ->
+                                                        val calendar = java.util.Calendar.getInstance()
+                                                        calendar.timeInMillis = millis
+                                                        val day = calendar.get(java.util.Calendar.DAY_OF_MONTH)
+                                                        val month = calendar.get(java.util.Calendar.MONTH) + 1 // Convert back to 1-based
+                                                        val year = calendar.get(java.util.Calendar.YEAR)
+                                                        birthdate = String.format("%02d/%02d/%04d", day, month, year)
+                                                }
+                                                showDatePicker = false
+                                        },
+                                        colors = ButtonDefaults.textButtonColors(
+                                                contentColor = MaterialTheme.colorScheme.primary
+                                        )
+                                ) { Text("OK") }
+                        },
+                        dismissButton = {
+                                TextButton(
+                                        onClick = { showDatePicker = false },
+                                        colors = ButtonDefaults.textButtonColors(
+                                                contentColor = MaterialTheme.colorScheme.onSurfaceVariant
+                                        )
+                                ) { Text("Cancel") }
+                        },
+                        colors = DatePickerDefaults.colors(
+                                containerColor = MaterialTheme.colorScheme.surface,
+                                titleContentColor = MaterialTheme.colorScheme.onSurface,
+                                headlineContentColor = MaterialTheme.colorScheme.onSurface,
+                                weekdayContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                                subheadContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                                yearContentColor = MaterialTheme.colorScheme.onSurface,
+                                currentYearContentColor = MaterialTheme.colorScheme.primary,
+                                selectedYearContentColor = MaterialTheme.colorScheme.onPrimary,
+                                selectedYearContainerColor = MaterialTheme.colorScheme.primary,
+                                dayContentColor = MaterialTheme.colorScheme.onSurface,
+                                disabledDayContentColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f),
+                                selectedDayContentColor = MaterialTheme.colorScheme.onPrimary,
+                                disabledSelectedDayContentColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.38f),
+                                selectedDayContainerColor = MaterialTheme.colorScheme.primary,
+                                disabledSelectedDayContainerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f),
+                                todayContentColor = MaterialTheme.colorScheme.primary,
+                                todayDateBorderColor = MaterialTheme.colorScheme.primary,
+                                dayInSelectionRangeContentColor = MaterialTheme.colorScheme.onPrimary,
+                                dayInSelectionRangeContainerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)
+                        )
+                ) {
+                        DatePicker(
+                                state = datePickerState,
+                                showModeToggle = false
+                        )
                 }
         }
 }

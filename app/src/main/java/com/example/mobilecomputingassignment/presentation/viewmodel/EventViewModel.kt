@@ -4,8 +4,8 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.mobilecomputingassignment.core.utils.ContentFilter
+import com.example.mobilecomputingassignment.data.constants.TeamConstants
 import com.example.mobilecomputingassignment.data.repository.MatchRepository
-import com.example.mobilecomputingassignment.data.repository.TeamRepository
 import com.example.mobilecomputingassignment.domain.models.*
 import com.example.mobilecomputingassignment.domain.usecases.events.*
 import com.google.firebase.auth.FirebaseAuth
@@ -120,8 +120,7 @@ constructor(
         private val manageEventInterestUseCase: ManageEventInterestUseCase,
 
         // Repository: Data access
-        private val matchRepository: MatchRepository,
-        private val teamRepository: TeamRepository
+        private val matchRepository: MatchRepository
 ) : ViewModel() {
 
         // StateFlow: Reactive data streams for UI updates
@@ -341,25 +340,15 @@ constructor(
         }
 
         private fun loadAflTeams() {
-                viewModelScope.launch {
-                        _uiState.value = _uiState.value.copy(isLoadingTeams = true)
-                        
-                        teamRepository.getAflTeams()
-                                .onSuccess { teams ->
-                                        _uiState.value = _uiState.value.copy(
-                                                availableTeams = teams,
-                                                isLoadingTeams = false
-                                        )
-                                }
-                                .onFailure { exception ->
-                                        Log.e(TAG, "Failed to load teams", exception)
-                                        _uiState.value = _uiState.value.copy(
-                                                isLoadingTeams = false,
-                                                availableTeams = emptyList(),
-                                                errorMessage = "Failed to load teams: ${exception.message}"
-                                        )
-                                }
-                }
+                Log.d(TAG, "loadAflTeams called - using constant data")
+                // Since teams are now constant data, we can load them immediately without async calls
+                val teams = TeamConstants.getTeams("AFL")
+                Log.d(TAG, "Teams loaded from constants: ${teams.size} teams")
+                
+                _uiState.value = _uiState.value.copy(
+                        availableTeams = teams,
+                        isLoadingTeams = false
+                )
         }
 
         fun createEvent() {

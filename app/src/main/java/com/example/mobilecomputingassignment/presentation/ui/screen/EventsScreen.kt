@@ -33,8 +33,7 @@ fun EventsScreen(modifier: Modifier = Modifier, eventViewModel: EventViewModel =
     ) {
       Text(
               text = "Events",
-              style = MaterialTheme.typography.headlineMedium,
-//              fontWeight = FontWeight.Bold
+              style = MaterialTheme.typography.headlineMedium
       )
 
       // Add button (only show on hosted events tab)
@@ -171,7 +170,10 @@ private fun InterestedEventsContent(
       }
     }
   } else {
-    LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+    LazyColumn(
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+            contentPadding = PaddingValues(bottom = 80.dp) // Add padding for bottom navigation
+    ) {
       items(events) { event ->
         EventCard(
                 event = event,
@@ -211,7 +213,10 @@ private fun HostedEventsContent(
       }
     }
   } else {
-    LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+    LazyColumn(
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+            contentPadding = PaddingValues(bottom = 80.dp) // Add padding for bottom navigation
+    ) {
       items(events) { event ->
         EventCard(
                 event = event,

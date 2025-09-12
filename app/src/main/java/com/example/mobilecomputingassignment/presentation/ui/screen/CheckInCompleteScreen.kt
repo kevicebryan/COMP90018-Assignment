@@ -65,8 +65,7 @@ fun CheckInCompleteScreen(
 
             Text(
                 text = "Check In Complete!",
-                style = MaterialTheme.typography.headlineSmall,
-                fontWeight = FontWeight.Bold
+                style = MaterialTheme.typography.headlineSmall
             )
 
             Spacer(Modifier.height(12.dp))

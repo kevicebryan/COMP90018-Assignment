@@ -277,9 +277,7 @@ private fun ExploreHeader(
       )
       
       IconButton(
-        onClick = onFilterClick,
-        modifier = Modifier
-          .shadow(2.dp, CircleShape)
+        onClick = onFilterClick
       ) {
         Surface(
           shape = CircleShape,

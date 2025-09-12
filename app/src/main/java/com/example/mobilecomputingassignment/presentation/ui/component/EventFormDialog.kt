@@ -8,6 +8,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.*
+import androidx.compose.material3.TimePickerDefaults
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -257,7 +258,10 @@ fun EventFormDialog(
                                                                                                 }
                                                                                         showDatePicker =
                                                                                                 false
-                                                                                }
+                                                                                },
+                                                                                colors = ButtonDefaults.textButtonColors(
+                                                                                        contentColor = MaterialTheme.colorScheme.primary
+                                                                                )
                                                                         ) { Text("OK") }
                                                                 },
                                                                 dismissButton = {
@@ -265,9 +269,33 @@ fun EventFormDialog(
                                                                                 onClick = {
                                                                                         showDatePicker =
                                                                                                 false
-                                                                                }
+                                                                                },
+                                                                                colors = ButtonDefaults.textButtonColors(
+                                                                                        contentColor = MaterialTheme.colorScheme.onSurfaceVariant
+                                                                                )
                                                                         ) { Text("Cancel") }
-                                                                }
+                                                                },
+                                                                colors = DatePickerDefaults.colors(
+                                                                        containerColor = MaterialTheme.colorScheme.surface,
+                                                                        titleContentColor = MaterialTheme.colorScheme.onSurface,
+                                                                        headlineContentColor = MaterialTheme.colorScheme.onSurface,
+                                                                        weekdayContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                                                                        subheadContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                                                                        yearContentColor = MaterialTheme.colorScheme.onSurface,
+                                                                        currentYearContentColor = MaterialTheme.colorScheme.primary,
+                                                                        selectedYearContentColor = MaterialTheme.colorScheme.onPrimary,
+                                                                        selectedYearContainerColor = MaterialTheme.colorScheme.primary,
+                                                                        dayContentColor = MaterialTheme.colorScheme.onSurface,
+                                                                        disabledDayContentColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f),
+                                                                        selectedDayContentColor = MaterialTheme.colorScheme.onPrimary,
+                                                                        disabledSelectedDayContentColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.38f),
+                                                                        selectedDayContainerColor = MaterialTheme.colorScheme.primary,
+                                                                        disabledSelectedDayContainerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f),
+                                                                        todayContentColor = MaterialTheme.colorScheme.primary,
+                                                                        todayDateBorderColor = MaterialTheme.colorScheme.primary,
+                                                                        dayInSelectionRangeContentColor = MaterialTheme.colorScheme.onPrimary,
+                                                                        dayInSelectionRangeContainerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)
+                                                                )
                                                         ) {
                                                                 DatePicker(
                                                                         state = datePickerState,
@@ -298,12 +326,29 @@ fun EventFormDialog(
                                                                         showTimePicker = false
                                                                 },
                                                                 title = {
-                                                                        Text("Select Check-in Time")
+                                                                        Text(
+                                                                                "Select Check-in Time",
+                                                                                color = MaterialTheme.colorScheme.onSurface
+                                                                        )
                                                                 },
                                                                 text = {
                                                                         TimePicker(
-                                                                                state =
-                                                                                        timePickerState
+                                                                                state = timePickerState,
+                                                                                colors = TimePickerDefaults.colors(
+                                                                                        clockDialColor = MaterialTheme.colorScheme.surfaceVariant,
+                                                                                        clockDialSelectedContentColor = MaterialTheme.colorScheme.onPrimary,
+                                                                                        clockDialUnselectedContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                                                                                        selectorColor = MaterialTheme.colorScheme.primary,
+                                                                                        periodSelectorBorderColor = MaterialTheme.colorScheme.outline,
+                                                                                        periodSelectorSelectedContainerColor = MaterialTheme.colorScheme.primary,
+                                                                                        periodSelectorUnselectedContainerColor = MaterialTheme.colorScheme.surface,
+                                                                                        periodSelectorSelectedContentColor = MaterialTheme.colorScheme.onPrimary,
+                                                                                        periodSelectorUnselectedContentColor = MaterialTheme.colorScheme.onSurface,
+                                                                                        timeSelectorSelectedContainerColor = MaterialTheme.colorScheme.primary,
+                                                                                        timeSelectorUnselectedContainerColor = MaterialTheme.colorScheme.surface,
+                                                                                        timeSelectorSelectedContentColor = MaterialTheme.colorScheme.onPrimary,
+                                                                                        timeSelectorUnselectedContentColor = MaterialTheme.colorScheme.onSurface
+                                                                                )
                                                                         )
                                                                 },
                                                                 confirmButton = {
@@ -344,7 +389,10 @@ fun EventFormDialog(
                                                                                                 )
                                                                                         showTimePicker =
                                                                                                 false
-                                                                                }
+                                                                                },
+                                                                                colors = ButtonDefaults.textButtonColors(
+                                                                                        contentColor = MaterialTheme.colorScheme.primary
+                                                                                )
                                                                         ) { Text("OK") }
                                                                 },
                                                                 dismissButton = {
@@ -352,9 +400,15 @@ fun EventFormDialog(
                                                                                 onClick = {
                                                                                         showTimePicker =
                                                                                                 false
-                                                                                }
+                                                                                },
+                                                                                colors = ButtonDefaults.textButtonColors(
+                                                                                        contentColor = MaterialTheme.colorScheme.onSurfaceVariant
+                                                                                )
                                                                         ) { Text("Cancel") }
-                                                                }
+                                                                },
+                                                                containerColor = MaterialTheme.colorScheme.surface,
+                                                                titleContentColor = MaterialTheme.colorScheme.onSurface,
+                                                                textContentColor = MaterialTheme.colorScheme.onSurfaceVariant
                                                         )
                                                 }
                                         }
