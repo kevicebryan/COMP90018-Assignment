@@ -4,7 +4,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.mobilecomputingassignment.core.utils.ContentFilter
-import com.example.mobilecomputingassignment.data.repository.TeamRepository
+import com.example.mobilecomputingassignment.data.constants.TeamConstants
 import com.example.mobilecomputingassignment.domain.models.Team
 import com.example.mobilecomputingassignment.domain.usecases.auth.CheckEmailExistsUseCase
 import com.example.mobilecomputingassignment.domain.usecases.auth.CheckUsernameExistsUseCase
@@ -49,8 +49,7 @@ constructor(
         private val registerUseCase: RegisterUseCase,
         private val googleSignInUseCase: GoogleSignInUseCase,
         private val checkEmailExistsUseCase: CheckEmailExistsUseCase,
-        private val checkUsernameExistsUseCase: CheckUsernameExistsUseCase,
-        private val teamRepository: TeamRepository
+        private val checkUsernameExistsUseCase: CheckUsernameExistsUseCase
 ) : ViewModel() {
 
         private val _uiState = MutableStateFlow(AuthUiState())
@@ -440,39 +439,15 @@ constructor(
         }
 
         fun loadAflTeams() {
-                Log.d("AuthViewModel", "loadAflTeams called")
-                viewModelScope.launch {
-                        _uiState.value = _uiState.value.copy(isLoadingTeams = true)
-
-                        teamRepository
-                                .getAflTeams()
-                                .onSuccess { teams ->
-                                        Log.d(
-                                                "AuthViewModel",
-                                                "Teams loaded successfully: ${teams.size} teams"
-                                        )
-                                        teams.forEach { team ->
-                                                Log.d(
-                                                        "AuthViewModel",
-                                                        "Team: ${team.name}, Logo: ${team.logoUrl}"
-                                                )
-                                        }
-                                        _uiState.value =
-                                                _uiState.value.copy(
-                                                        availableTeams = teams,
-                                                        isLoadingTeams = false
-                                                )
-                                }
-                                .onFailure { exception ->
-                                        Log.e("AuthViewModel", "Failed to load teams", exception)
-                                        _uiState.value =
-                                                _uiState.value.copy(
-                                                        isLoadingTeams = false,
-                                                        errorMessage =
-                                                                "Failed to load teams: ${exception.message}"
-                                                )
-                                }
-                }
+                Log.d("AuthViewModel", "loadAflTeams called - using constant data")
+                // Since teams are now constant data, we can load them immediately without async calls
+                val teams = TeamConstants.getTeams("AFL")
+                Log.d("AuthViewModel", "Teams loaded from constants: ${teams.size} teams")
+                
+                _uiState.value = _uiState.value.copy(
+                        availableTeams = teams,
+                        isLoadingTeams = false
+                )
         }
 
         fun updateUserTeams(newTeamIds: List<String>) {

@@ -32,8 +32,9 @@ fun ProfileScreen(
     var showLogoutDialog by remember { mutableStateOf(false) }
 
     LazyColumn(
-            modifier = modifier.fillMaxSize().padding(32.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+            modifier = modifier.fillMaxSize().padding(horizontal = 16.dp, vertical = 8.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+            contentPadding = PaddingValues(bottom = 100.dp) // Add padding for bottom navigation
     ) {
         item {
             Text(
@@ -86,7 +87,7 @@ fun ProfileScreen(
             )
         }
 
-        item { Spacer(modifier = Modifier.height(48.dp)) }
+        item { Spacer(modifier = Modifier.height(24.dp)) }
 
         // Logout at bottom
         item {

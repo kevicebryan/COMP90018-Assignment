@@ -4,7 +4,8 @@ data class Team(
         val id: Int,
         val name: String,
         val abbreviation: String,
+        val league: String,
         val logoUrl: String? = null, // Keep for API compatibility
         val localLogoRes: Int? = null // Local drawable resource ID
 )
-//test
+// test

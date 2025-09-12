@@ -53,8 +53,7 @@ fun CheckInLanding(
                 }
                 Text(
                     text = "Check In",
-                    style = MaterialTheme.typography.headlineMedium,
-                    fontWeight = FontWeight.Bold
+                    style = MaterialTheme.typography.headlineMedium
                 )
             }
 

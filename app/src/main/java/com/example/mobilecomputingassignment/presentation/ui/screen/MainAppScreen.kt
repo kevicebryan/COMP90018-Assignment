@@ -214,6 +214,14 @@ fun MainAppScreen(onLogout: () -> Unit, viewModel: AuthViewModel = hiltViewModel
                 }
                 showTeamSelection -> {
                         val authUiState by viewModel.uiState.collectAsState()
+                        
+                        // Load teams when team selection screen is shown (now instant from constants)
+                        LaunchedEffect(showTeamSelection) {
+                                if (showTeamSelection) {
+                                        viewModel.loadAflTeams()
+                                }
+                        }
+                        
                         TeamSelectionScreen(
                                 availableTeams = authUiState.availableTeams,
                                 // Assuming signupData.teams from AuthViewModel holds current user's
@@ -271,8 +279,7 @@ fun MainAppScreen(onLogout: () -> Unit, viewModel: AuthViewModel = hiltViewModel
                 }
         ) { innerPadding ->
                 Box(
-                        modifier = Modifier.fillMaxSize().padding(innerPadding),
-                        contentAlignment = Alignment.Center
+                        modifier = Modifier.fillMaxSize().padding(innerPadding)
                 ) {
                         when (selectedTab) {
                                 0 ->

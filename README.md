@@ -12,6 +12,7 @@ A modern Android application for AFL watch parties built with Kotlin, Jetpack Co
 - **Clean Architecture**: MVVM pattern with dependency injection (Hilt)
 - **Custom Theme**: Racing Sans One typography with orange/yellow color scheme
 - **Profile Management**: User profile with points system and team selection
+- **Team Data**: Constant AFL team data with local logos (no API calls needed)
 - **QR Code Generation**: Personal QR codes for user identification
 - **Legal Documents**: Built-in Privacy Policy and Terms & Conditions viewer
 - **Custom Icons**: Professional visibility toggles and menu icons
@@ -46,6 +47,8 @@ This project follows **MVVM (Model-View-ViewModel)** architecture pattern with *
 ```
 app/src/main/java/com/example/mobilecomputingassignment/
 ├── data/                           # Data Layer
+│   ├── constants/                  # ✅ Constant data sources
+│   │   └── TeamConstants.kt        # AFL team data with local logos
 │   ├── local/                      # 🔲 Room Database (planned)
 │   ├── models/                     # ✅ Data transfer objects
 │   │   └── UserDto.kt              # User data model
@@ -117,6 +120,7 @@ Legend: ✅ Implemented | 🔲 Planned | 🔄 In Progress
 - **Firebase Authentication** - User authentication with Google Sign-In
 - **Cloud Firestore** - Real-time database for user data
 - **Firebase Storage** - File storage (configured)
+- **Team Constants** - Local AFL team data with logos (no API calls needed)
 
 ### Backend & APIs (Planned)
 
@@ -162,10 +166,18 @@ Legend: ✅ Implemented | 🔲 Planned | 🔄 In Progress
 3. **API Keys Setup**
 
    - Create `local.properties` file in root directory
-   - Add your API keys:
+   - Add your Google Maps API key:
      ```properties
-     MAPS_API_KEY="your_google_maps_api_key"
+     # Google Maps API Key (keep this secret!)
+     MAPS_API_KEY=your_google_maps_api_key_here
      ```
+
+   **⚠️ Important**: The Google Maps API key is required for the explore maps functionality.
+
+   - Get your API key from the [Google Cloud Console](https://console.cloud.google.com/)
+   - Enable the Maps SDK for Android API
+   - For detailed setup instructions and API key configuration, refer to the separate documentation repository
+   - **Never commit your API key to version control** - the `local.properties` file is already in `.gitignore`
 
 4. **Build and Run**
    ```bash

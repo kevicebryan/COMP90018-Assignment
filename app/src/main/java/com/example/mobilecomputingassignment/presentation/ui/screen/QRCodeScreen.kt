@@ -78,7 +78,7 @@ fun QRCodeScreen(
         ) {
             Text(
                 text = "Share Your Profile",
-                style = MaterialTheme.typography.headlineMedium,
+                style = MaterialTheme.typography.headlineLarge,
                 textAlign = TextAlign.Center
             )
             Spacer(Modifier.height(8.dp))
@@ -95,7 +95,10 @@ fun QRCodeScreen(
                     .size(320.dp)
                     .padding(16.dp),
                 elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
-                shape = RoundedCornerShape(16.dp)
+                shape = RoundedCornerShape(16.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.primary
+                )
             ) {
                 Column(
                     modifier = Modifier
@@ -138,7 +141,6 @@ fun QRCodeScreen(
                     Text(
                         text = "@${if (handle.isBlank()) "username" else handle}",
                         style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold,
                         textAlign = TextAlign.Center
                     )
                 }

@@ -51,8 +51,7 @@ fun PointsEarnedScreen(
 
             Text(
                 text = "🎉 Congrats!",
-                style = MaterialTheme.typography.headlineMedium,
-                fontWeight = FontWeight.Bold
+                style = MaterialTheme.typography.headlineMedium
             )
 
             Spacer(Modifier.height(8.dp))
