@@ -1,5 +1,7 @@
 package com.example.mobilecomputingassignment.presentation.viewmodel
 
+import android.content.Intent
+import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -8,6 +10,7 @@ import com.example.mobilecomputingassignment.data.constants.TeamConstants
 import com.example.mobilecomputingassignment.data.repository.MatchRepository
 import com.example.mobilecomputingassignment.domain.models.*
 import com.example.mobilecomputingassignment.domain.usecases.events.*
+import com.example.mobilecomputingassignment.domain.usecases.notifications.ManageEventUpdateNotificationsUseCase
 import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.lifecycle.HiltViewModel
 import java.util.Calendar
@@ -118,6 +121,7 @@ constructor(
         private val getUserEventsUseCase: GetUserEventsUseCase,
         private val updateEventUseCase: UpdateEventUseCase,
         private val manageEventInterestUseCase: ManageEventInterestUseCase,
+        private val manageEventUpdateNotificationsUseCase: ManageEventUpdateNotificationsUseCase,
 
         // Repository: Data access
         private val matchRepository: MatchRepository
@@ -142,6 +146,10 @@ constructor(
 
         init {
                 loadUserEvents()
+                // Initialize event update monitoring
+                viewModelScope.launch {
+                        manageEventUpdateNotificationsUseCase.initializeWithCurrentEvents()
+                }
         }
 
         fun setSelectedTab(tab: Int) {
@@ -318,37 +326,38 @@ constructor(
         }
 
         fun createCustomMatch(homeTeam: String, awayTeam: String) {
-                val customMatch = MatchDetails(
-                        id = "custom_${System.currentTimeMillis()}", // Generate unique ID
-                        homeTeam = homeTeam,
-                        awayTeam = awayTeam,
-                        competition = "AFL",
-                        venue = _formData.value.locationName.ifEmpty { "Custom Venue" },
-                        matchTime = _formData.value.date,
-                        round = "Custom Match",
-                        season = Calendar.getInstance().get(Calendar.YEAR)
-                )
+                val customMatch =
+                        MatchDetails(
+                                id = "custom_${System.currentTimeMillis()}", // Generate unique ID
+                                homeTeam = homeTeam,
+                                awayTeam = awayTeam,
+                                competition = "AFL",
+                                venue = _formData.value.locationName.ifEmpty { "Custom Venue" },
+                                matchTime = _formData.value.date,
+                                round = "Custom Match",
+                                season = Calendar.getInstance().get(Calendar.YEAR)
+                        )
 
-                val updatedFormData = _formData.value.copy(
-                        matchId = customMatch.id,
-                        selectedMatch = customMatch,
-                        locationName = if (_formData.value.locationName.isEmpty()) "Custom Venue"
-                        else _formData.value.locationName
-                )
+                val updatedFormData =
+                        _formData.value.copy(
+                                matchId = customMatch.id,
+                                selectedMatch = customMatch,
+                                locationName =
+                                        if (_formData.value.locationName.isEmpty()) "Custom Venue"
+                                        else _formData.value.locationName
+                        )
                 _formData.value = updatedFormData
                 _uiState.value = _uiState.value.copy(showCustomMatchDialog = false)
         }
 
         private fun loadAflTeams() {
                 Log.d(TAG, "loadAflTeams called - using constant data")
-                // Since teams are now constant data, we can load them immediately without async calls
+                // Since teams are now constant data, we can load them immediately without async
+                // calls
                 val teams = TeamConstants.getTeams("AFL")
                 Log.d(TAG, "Teams loaded from constants: ${teams.size} teams")
-                
-                _uiState.value = _uiState.value.copy(
-                        availableTeams = teams,
-                        isLoadingTeams = false
-                )
+
+                _uiState.value = _uiState.value.copy(availableTeams = teams, isLoadingTeams = false)
         }
 
         fun createEvent() {
@@ -501,6 +510,10 @@ constructor(
                                 .execute(updatedEvent)
                                 .onSuccess {
                                         Log.d(TAG, "Event updated successfully")
+                                        
+                                        // Notify interested users about the event update
+                                        manageEventUpdateNotificationsUseCase.notifyEventUpdated(updatedEvent)
+                                        
                                         _uiState.value =
                                                 _uiState.value.copy(
                                                         isLoading = false,
@@ -597,6 +610,16 @@ constructor(
                 _uiState.value = _uiState.value.copy(errorMessage = null)
         }
 
+        fun openGoogleMapsDirections(event: Event): Intent {
+                val uri =
+                        Uri.parse(
+                                "google.navigation:q=${event.location.latitude},${event.location.longitude}"
+                        )
+                return Intent(Intent.ACTION_VIEW, uri).apply {
+                        setPackage("com.google.android.apps.maps")
+                }
+        }
+
         // Map picker methods
         fun showMapPicker() {
                 _uiState.value = _uiState.value.copy(showMapPicker = true)
@@ -616,5 +639,4 @@ constructor(
                 _formData.value = updatedFormData
                 hideMapPicker()
         }
-
 }

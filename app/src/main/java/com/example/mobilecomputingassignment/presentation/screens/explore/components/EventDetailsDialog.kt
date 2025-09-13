@@ -20,9 +20,10 @@ import java.util.*
 @Composable
 fun EventDetailsDialog(
         event: Event,
+        currentUserId: String?,
         onDismiss: () -> Unit,
         onGetDirections: (Event) -> Unit,
-        onAddToInterested: (Event) -> Unit
+        onToggleInterest: (Event) -> Unit
 ) {
   Dialog(onDismissRequest = onDismiss) {
     Card(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
@@ -141,6 +142,9 @@ fun EventDetailsDialog(
         Spacer(modifier = Modifier.height(24.dp))
 
         // Action buttons
+        val isInterested = currentUserId?.let { event.interestedUsers.contains(it) } ?: false
+        val canInterest = currentUserId != null && currentUserId != event.hostUserId
+
         Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -153,13 +157,38 @@ fun EventDetailsDialog(
             Spacer(modifier = Modifier.width(8.dp))
             Text("Directions")
           }
-          Button(onClick = { onAddToInterested(event) }, modifier = Modifier.weight(1f)) {
+          Button(
+                  onClick = { if (canInterest) onToggleInterest(event) },
+                  modifier = Modifier.weight(1f),
+                  enabled = canInterest,
+                  colors =
+                          ButtonDefaults.buttonColors(
+                                  containerColor =
+                                          if (isInterested) {
+                                            MaterialTheme.colorScheme.primary
+                                          } else {
+                                            MaterialTheme.colorScheme.surface
+                                          },
+                                  contentColor =
+                                          if (isInterested) {
+                                            MaterialTheme.colorScheme.onPrimary
+                                          } else {
+                                            MaterialTheme.colorScheme.primary
+                                          }
+                          )
+          ) {
             Icon(
-                    painter = painterResource(id = R.drawable.ic_like),
-                    contentDescription = "Add to interested"
+                    painter =
+                            painterResource(
+                                    id =
+                                            if (isInterested) R.drawable.ic_like_filled
+                                            else R.drawable.ic_like
+                            ),
+                    contentDescription =
+                            if (isInterested) "Uninterest" else "Add to interested"
             )
             Spacer(modifier = Modifier.width(8.dp))
-            Text("Interested")
+            Text(if (isInterested) "Interested" else "Interest")
           }
         }
       }

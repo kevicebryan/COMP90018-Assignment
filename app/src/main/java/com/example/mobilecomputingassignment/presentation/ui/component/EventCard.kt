@@ -55,61 +55,65 @@ import java.util.Locale
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EventCard(
-    event: Event,
-    isHosted: Boolean = false,
-    onToggleInterest: (() -> Unit)? = null,
-    onCheckIn: (() -> Unit)? = null,
-    onEditEvent: (() -> Unit)? = null,
-    onDeleteEvent: (() -> Unit)? = null,
-    modifier: Modifier = Modifier
+        event: Event,
+        isHosted: Boolean = false,
+        onToggleInterest: (() -> Unit)? = null,
+        onCheckIn: (() -> Unit)? = null,
+        onGetDirections: (() -> Unit)? = null,
+        onEditEvent: (() -> Unit)? = null,
+        onDeleteEvent: (() -> Unit)? = null,
+        modifier: Modifier = Modifier
 ) {
     var showDeleteDialog by remember { mutableStateOf(false) }
 
     Card(
-        modifier = modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(20.dp),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.4f)),
-        colors =
-            CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surface,
-                contentColor = MaterialTheme.colorScheme.onSurface
-            )
+            modifier = modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(20.dp),
+            border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.4f)),
+            colors =
+                    CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.surface,
+                            contentColor = MaterialTheme.colorScheme.onSurface
+                    )
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             // Header with gradient background
             Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(
-                        color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f),
-                        shape = RoundedCornerShape(12.dp)
-                    )
-                    .padding(16.dp)
+                    modifier =
+                            Modifier.fillMaxWidth()
+                                    .background(
+                                            color =
+                                                    MaterialTheme.colorScheme.primaryContainer.copy(
+                                                            alpha = 0.3f
+                                                    ),
+                                            shape = RoundedCornerShape(12.dp)
+                                    )
+                                    .padding(16.dp)
             ) {
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.Top
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.Top
                 ) {
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
-                            text = event.title,
-                            style = MaterialTheme.typography.titleLarge,
-                            fontWeight = FontWeight.ExtraBold,
-                            maxLines = 2,
-                            overflow = TextOverflow.Ellipsis,
-                            color = MaterialTheme.colorScheme.primary
+                                text = event.title,
+                                style = MaterialTheme.typography.titleLarge,
+                                fontWeight = FontWeight.ExtraBold,
+                                maxLines = 2,
+                                overflow = TextOverflow.Ellipsis,
+                                color = MaterialTheme.colorScheme.primary
                         )
 
                         if (event.description.isNotBlank()) {
                             Spacer(modifier = Modifier.height(6.dp))
                             Text(
-                                text = event.description,
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f),
-                                maxLines = 2,
-                                overflow = TextOverflow.Ellipsis,
-                                fontWeight = FontWeight.Medium
+                                    text = event.description,
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f),
+                                    maxLines = 2,
+                                    overflow = TextOverflow.Ellipsis,
+                                    fontWeight = FontWeight.Medium
                             )
                         }
                     }
@@ -119,66 +123,63 @@ fun EventCard(
                         if (isHosted) {
                             // Edit button with circular background
                             Box(
-                                modifier = Modifier
-                                    .size(40.dp)
-                                    .background(
-                                        MaterialTheme.colorScheme.primaryContainer,
-                                        CircleShape
-                                    ),
-                                contentAlignment = Alignment.Center
+                                    modifier =
+                                            Modifier.size(40.dp)
+                                                    .background(
+                                                            MaterialTheme.colorScheme
+                                                                    .primaryContainer,
+                                                            CircleShape
+                                                    ),
+                                    contentAlignment = Alignment.Center
                             ) {
-                                IconButton(
-                                    onClick = { onEditEvent?.invoke() }
-                                ) {
+                                IconButton(onClick = { onEditEvent?.invoke() }) {
                                     Icon(
-                                        imageVector = Icons.Default.Edit,
-                                        contentDescription = "Edit Event",
-                                        tint = MaterialTheme.colorScheme.primary,
-                                        modifier = Modifier.size(20.dp)
+                                            imageVector = Icons.Default.Edit,
+                                            contentDescription = "Edit Event",
+                                            tint = MaterialTheme.colorScheme.primary,
+                                            modifier = Modifier.size(20.dp)
                                     )
                                 }
                             }
 
                             // Delete button with circular background
                             Box(
-                                modifier = Modifier
-                                    .size(40.dp)
-                                    .background(
-                                        MaterialTheme.colorScheme.errorContainer,
-                                        CircleShape
-                                    ),
-                                contentAlignment = Alignment.Center
+                                    modifier =
+                                            Modifier.size(40.dp)
+                                                    .background(
+                                                            MaterialTheme.colorScheme
+                                                                    .errorContainer,
+                                                            CircleShape
+                                                    ),
+                                    contentAlignment = Alignment.Center
                             ) {
-                                IconButton(
-                                    onClick = { showDeleteDialog = true }
-                                ) {
+                                IconButton(onClick = { showDeleteDialog = true }) {
                                     Icon(
-                                        imageVector = Icons.Default.Delete,
-                                        contentDescription = "Delete Event",
-                                        tint = MaterialTheme.colorScheme.error,
-                                        modifier = Modifier.size(20.dp)
+                                            imageVector = Icons.Default.Delete,
+                                            contentDescription = "Delete Event",
+                                            tint = MaterialTheme.colorScheme.error,
+                                            modifier = Modifier.size(20.dp)
                                     )
                                 }
                             }
                         } else {
                             // Interest button with circular background
                             Box(
-                                modifier = Modifier
-                                    .size(40.dp)
-                                    .background(
-                                        MaterialTheme.colorScheme.tertiaryContainer,
-                                        CircleShape
-                                    ),
-                                contentAlignment = Alignment.Center
+                                    modifier =
+                                            Modifier.size(40.dp)
+                                                    .background(
+                                                            MaterialTheme.colorScheme
+                                                                    .tertiaryContainer,
+                                                            CircleShape
+                                                    ),
+                                    contentAlignment = Alignment.Center
                             ) {
-                                IconButton(
-                                    onClick = { onToggleInterest?.invoke() }
-                                ) {
+                                IconButton(onClick = { onToggleInterest?.invoke() }) {
                                     Icon(
-                                        imageVector = Icons.Default.Favorite,
-                                        contentDescription = "Toggle Interest",
-                                        tint = MaterialTheme.colorScheme.tertiary,
-                                        modifier = Modifier.size(20.dp)
+                                            imageVector = Icons.Default.Favorite,
+                                            contentDescription = "Toggle Interest",
+                                            tint = MaterialTheme.colorScheme.tertiary,
+                                            modifier = Modifier.size(20.dp)
                                     )
                                 }
                             }
@@ -191,56 +192,57 @@ fun EventCard(
 
             // Event details in nested card
             Card(
-                modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
-                ),
-                shape = RoundedCornerShape(12.dp)
+                    modifier = Modifier.fillMaxWidth(),
+                    colors =
+                            CardDefaults.cardColors(
+                                    containerColor =
+                                            MaterialTheme.colorScheme.surfaceVariant.copy(
+                                                    alpha = 0.3f
+                                            )
+                            ),
+                    shape = RoundedCornerShape(12.dp)
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
                     EventDetailRow(
-                        icon = Icons.Default.DateRange,
-                        label = "Date",
-                        value = SimpleDateFormat(
-                            "MMM dd, yyyy",
-                            Locale.getDefault()
-                        ).format(event.date)
+                            icon = Icons.Default.DateRange,
+                            label = "Date",
+                            value =
+                                    SimpleDateFormat("MMM dd, yyyy", Locale.getDefault())
+                                            .format(event.date)
                     )
 
                     EventDetailRow(
-                        icon = Icons.Default.Info,
-                        label = "Check-in",
-                        value = SimpleDateFormat(
-                            "HH:mm",
-                            Locale.getDefault()
-                        ).format(event.checkInTime)
+                            icon = Icons.Default.Info,
+                            label = "Check-in",
+                            value =
+                                    SimpleDateFormat("HH:mm", Locale.getDefault())
+                                            .format(event.checkInTime)
                     )
 
                     EventDetailRow(
-                        icon = Icons.Default.LocationOn,
-                        label = "Location",
-                        value = event.location.name
+                            icon = Icons.Default.LocationOn,
+                            label = "Location",
+                            value = event.location.name
                     )
 
                     if (event.location.address.isNotBlank()) {
                         EventDetailRow(
-                            icon = Icons.Default.Place,
-                            label = "Address",
-                            value = event.location.address
+                                icon = Icons.Default.Place,
+                                label = "Address",
+                                value = event.location.address
                         )
                     }
 
-
                     EventDetailRow(
-                        icon = Icons.Default.Person,
-                        label = "Capacity",
-                        value = "${event.attendeesCount}/${event.capacity}"
+                            icon = Icons.Default.Person,
+                            label = "Capacity",
+                            value = "${event.attendeesCount}/${event.capacity}"
                     )
                     if (event.contactNumber.isNotBlank()) {
                         EventDetailRow(
-                            icon = Icons.Default.Phone,
-                            label = "Contact",
-                            value = event.contactNumber
+                                icon = Icons.Default.Phone,
+                                label = "Contact",
+                                value = event.contactNumber
                         )
                     }
                 }
@@ -248,16 +250,16 @@ fun EventCard(
 
             // Amenities and accessibility indicators
             if (event.amenities.isIndoor ||
-                event.amenities.isOutdoor ||
-                event.amenities.isChildFriendly ||
-                event.amenities.isPetFriendly
+                            event.amenities.isOutdoor ||
+                            event.amenities.isChildFriendly ||
+                            event.amenities.isPetFriendly
             ) {
 
                 Spacer(modifier = Modifier.height(8.dp))
 
                 Row(
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    modifier = Modifier.fillMaxWidth()
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        modifier = Modifier.fillMaxWidth()
                 ) {
                     if (event.amenities.isIndoor) {
                         AmenityChip("Indoor")
@@ -279,88 +281,87 @@ fun EventCard(
                 Spacer(modifier = Modifier.height(12.dp))
 
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     OutlinedButton(
-                        onClick = { onToggleInterest?.invoke() },
-                        modifier = Modifier.weight(1f)
-                    ) {
-                        Text("Remove Interest")
-                    }
+                            onClick = { onToggleInterest?.invoke() },
+                            modifier = Modifier.weight(1f)
+                    ) { Text("Remove Interest") }
 
-                    Button(onClick = { onCheckIn?.invoke() }, modifier = Modifier.weight(1f)) {
-                        Text("Check In")
-                    }
+                    Button(
+                            onClick = { onGetDirections?.invoke() ?: onCheckIn?.invoke() },
+                            modifier = Modifier.weight(1f)
+                    ) { Text(if (onGetDirections != null) "Directions" else "Check In") }
                 }
             }
         }
     }
 
-// Delete confirmation dialog
+    // Delete confirmation dialog
     if (showDeleteDialog) {
         AlertDialog(
-            onDismissRequest = { showDeleteDialog = false },
-            title = { Text("Delete Event") },
-            text = {
-                Text("Are you sure you want to delete this event? This action cannot be undone.")
-            },
-            confirmButton = {
-                Button(
-                    onClick = {
-                        showDeleteDialog = false
-                        onDeleteEvent?.invoke()
-                    },
-                    colors =
-                        ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.error
-                        )
-                ) { Text("Delete") }
-            },
-            dismissButton = {
-                TextButton(onClick = { showDeleteDialog = false }) { Text("Cancel") }
-            }
+                onDismissRequest = { showDeleteDialog = false },
+                title = { Text("Delete Event") },
+                text = {
+                    Text(
+                            "Are you sure you want to delete this event? This action cannot be undone."
+                    )
+                },
+                confirmButton = {
+                    Button(
+                            onClick = {
+                                showDeleteDialog = false
+                                onDeleteEvent?.invoke()
+                            },
+                            colors =
+                                    ButtonDefaults.buttonColors(
+                                            containerColor = MaterialTheme.colorScheme.error
+                                    )
+                    ) { Text("Delete") }
+                },
+                dismissButton = {
+                    TextButton(onClick = { showDeleteDialog = false }) { Text("Cancel") }
+                }
         )
     }
 }
 
 @Composable
 private fun EventDetailRow(
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
-    label: String,
-    value: String,
-    modifier: Modifier = Modifier
+        icon: androidx.compose.ui.graphics.vector.ImageVector,
+        label: String,
+        value: String,
+        modifier: Modifier = Modifier
 ) {
     Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(vertical = 2.dp),
-        verticalAlignment = Alignment.CenterVertically
+            modifier = modifier.fillMaxWidth().padding(vertical = 2.dp),
+            verticalAlignment = Alignment.CenterVertically
     ) {
         Box(
-            modifier = Modifier
-                .size(32.dp)
-                .background(
-                    MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
-                    CircleShape
-                ),
-            contentAlignment = Alignment.Center
+                modifier =
+                        Modifier.size(32.dp)
+                                .background(
+                                        MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
+                                        CircleShape
+                                ),
+                contentAlignment = Alignment.Center
         ) {
             Icon(
-                imageVector = icon,
-                contentDescription = null,
-                modifier = Modifier.size(18.dp),
-                tint = MaterialTheme.colorScheme.primary
+                    imageVector = icon,
+                    contentDescription = null,
+                    modifier = Modifier.size(18.dp),
+                    tint = MaterialTheme.colorScheme.primary
             )
         }
 
         Spacer(modifier = Modifier.width(12.dp))
 
         Text(
-            text = value,
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurface,
-            fontWeight = FontWeight.Medium
+                text = value,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurface,
+                fontWeight = FontWeight.Medium
         )
     }
 }
@@ -368,13 +369,13 @@ private fun EventDetailRow(
 @Composable
 private fun AmenityChip(text: String, modifier: Modifier = Modifier) {
     AssistChip(
-        onClick = {},
-        label = { Text(text = text, style = MaterialTheme.typography.labelSmall) },
-        modifier = modifier,
-        colors =
-            AssistChipDefaults.assistChipColors(
-                containerColor = MaterialTheme.colorScheme.primaryContainer,
-                labelColor = MaterialTheme.colorScheme.onPrimaryContainer
-            )
+            onClick = {},
+            label = { Text(text = text, style = MaterialTheme.typography.labelSmall) },
+            modifier = modifier,
+            colors =
+                    AssistChipDefaults.assistChipColors(
+                            containerColor = MaterialTheme.colorScheme.primaryContainer,
+                            labelColor = MaterialTheme.colorScheme.onPrimaryContainer
+                    )
     )
 }

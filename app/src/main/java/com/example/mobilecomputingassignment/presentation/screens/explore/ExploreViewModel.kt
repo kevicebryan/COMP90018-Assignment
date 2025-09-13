@@ -2,19 +2,22 @@ package com.example.mobilecomputingassignment.presentation.screens.explore
 
 import android.content.Intent
 import android.net.Uri
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import android.util.Log
 import com.example.mobilecomputingassignment.domain.models.Event
 import com.example.mobilecomputingassignment.domain.repository.IEventRepository
 import com.example.mobilecomputingassignment.domain.repository.LocationRepository
+import com.example.mobilecomputingassignment.domain.usecases.network.CheckNetworkConnectivityUseCase
+import com.example.mobilecomputingassignment.domain.usecases.notifications.ManageEventNotificationsUseCase
+import com.example.mobilecomputingassignment.domain.usecases.notifications.ManageFavoriteTeamNotificationsUseCase
 import com.google.android.gms.maps.model.LatLng
+import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlin.math.*
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-import com.google.firebase.auth.FirebaseAuth
 
 @HiltViewModel
 class ExploreViewModel
@@ -22,7 +25,10 @@ class ExploreViewModel
 constructor(
         private val eventRepository: IEventRepository,
         private val locationRepository: LocationRepository,
-        private val auth: FirebaseAuth
+        private val auth: FirebaseAuth,
+        private val manageEventNotificationsUseCase: ManageEventNotificationsUseCase,
+        private val manageFavoriteTeamNotificationsUseCase: ManageFavoriteTeamNotificationsUseCase,
+        private val checkNetworkConnectivityUseCase: CheckNetworkConnectivityUseCase
 ) : ViewModel() {
 
   private val _uiState = MutableStateFlow(ExploreUiState())
@@ -45,7 +51,10 @@ constructor(
     // Find the updated event from the current allEvents list
     val updatedEvent = _uiState.value.allEvents.find { it.id == eventId }
     if (updatedEvent != null && _uiState.value.selectedEvent?.id == eventId) {
-      Log.d("ExploreViewModel", "Updating selected event with fresh data: ${updatedEvent.interestedUsers.size} interested users")
+      Log.d(
+              "ExploreViewModel",
+              "Updating selected event with fresh data: ${updatedEvent.interestedUsers.size} interested users"
+      )
       _uiState.update { it.copy(selectedEvent = updatedEvent) }
     }
   }
@@ -56,15 +65,24 @@ constructor(
 
   private fun observeLocationUpdates() {
     viewModelScope.launch {
-      locationRepository.getLocationUpdates()
-        .collect { location ->
-          _uiState.update { state ->
-            state.copy(
-              userLocation = LatLng(location.latitude, location.longitude),
-              nearbyEvents = filterNearbyEvents(state.allEvents, location)
-            )
-          }
+      locationRepository.getLocationUpdates().collect { location ->
+        _uiState.update { state ->
+          state.copy(
+                  userLocation = LatLng(location.latitude, location.longitude),
+                  nearbyEvents = filterNearbyEvents(state.allEvents, location)
+          )
         }
+
+        // Check for favorite team events when location changes
+        val currentUserId = _uiState.value.currentUserId
+        if (currentUserId != null) {
+          manageFavoriteTeamNotificationsUseCase.onLocationChanged(
+                  currentUserId,
+                  location.latitude,
+                  location.longitude
+          )
+        }
+      }
     }
   }
 
@@ -73,8 +91,12 @@ constructor(
           location: android.location.Location
   ): List<Event> {
     return events.filter { event ->
-      calculateDistance(location.latitude, location.longitude, event.location.latitude, event.location.longitude) <=
-              3000 // 3km in meters
+      calculateDistance(
+              location.latitude,
+              location.longitude,
+              event.location.latitude,
+              event.location.longitude
+      ) <= 3000 // 3km in meters
     }
   }
 
@@ -89,22 +111,60 @@ constructor(
   private fun loadEvents() {
     viewModelScope.launch {
       Log.d("ExploreViewModel", "Loading events...")
-      eventRepository.getAllActiveEvents().onSuccess { events ->
-        Log.d("ExploreViewModel", "Loaded ${events.size} events for explore map")
-        events.forEach { event ->
-          Log.d("ExploreViewModel", "Event: ${event.matchDetails?.homeTeam ?: "No match"} vs ${event.matchDetails?.awayTeam ?: "No match"} at ${event.location.name} (${event.location.latitude}, ${event.location.longitude})")
-          Log.d("ExploreViewModel", "Event ${event.id} interested users: ${event.interestedUsers.size} - ${event.interestedUsers}")
+
+      // Check network connectivity first
+      if (!checkNetworkConnectivityUseCase.hasInternetConnectivity()) {
+        Log.e("ExploreViewModel", "No internet connectivity")
+        _uiState.update {
+          it.copy(error = checkNetworkConnectivityUseCase.getConnectivityErrorMessage())
         }
-        _uiState.update { state ->
-          state.copy(
-                  allEvents = events,
-                  visibleEvents = filterEventsInViewport(events, state.currentViewport)
-          )
-        }
-        updateNearbyEvents()
-      }.onFailure { error ->
-        Log.e("ExploreViewModel", "Failed to load events", error)
+        return@launch
       }
+
+      eventRepository
+              .getAllActiveEvents()
+              .onSuccess { events ->
+                Log.d("ExploreViewModel", "Loaded ${events.size} events for explore map")
+                events.forEach { event ->
+                  Log.d(
+                          "ExploreViewModel",
+                          "Event: ${event.matchDetails?.homeTeam ?: "No match"} vs ${event.matchDetails?.awayTeam ?: "No match"} at ${event.location.name} (${event.location.latitude}, ${event.location.longitude})"
+                  )
+                  Log.d(
+                          "ExploreViewModel",
+                          "Event ${event.id} interested users: ${event.interestedUsers.size} - ${event.interestedUsers}"
+                  )
+                }
+                _uiState.update { state ->
+                  state.copy(
+                          allEvents = events,
+                          visibleEvents = filterEventsInViewport(events, state.currentViewport),
+                          error = null // Clear any previous errors
+                  )
+                }
+                updateNearbyEvents()
+
+                // Check for favorite team events after loading
+                val currentUserId = _uiState.value.currentUserId
+                val userLocation = _uiState.value.userLocation
+                if (currentUserId != null && userLocation != null) {
+                  manageFavoriteTeamNotificationsUseCase.checkFavoriteTeamEvents(
+                          currentUserId,
+                          userLocation.latitude,
+                          userLocation.longitude
+                  )
+                }
+              }
+              .onFailure { error ->
+                Log.e("ExploreViewModel", "Failed to load events", error)
+                val errorMessage =
+                        if (checkNetworkConnectivityUseCase.isNetworkAvailable()) {
+                          "Unable to connect to servers. Please try again."
+                        } else {
+                          checkNetworkConnectivityUseCase.getConnectivityErrorMessage()
+                        }
+                _uiState.update { it.copy(error = errorMessage) }
+              }
     }
   }
 
@@ -136,47 +196,96 @@ constructor(
 
   fun toggleEventInterest(event: Event) {
     val currentUserId = auth.currentUser?.uid ?: return
-    
-    viewModelScope.launch { 
+
+    viewModelScope.launch {
       // Prevent users from showing interest in their own events
       if (currentUserId == event.hostUserId) {
         Log.d("ExploreViewModel", "User cannot show interest in their own event")
         return@launch
       }
-      
+
+      val isCurrentlyInterested = event.interestedUsers.contains(currentUserId)
+      Log.d(
+              "ExploreViewModel",
+              "Toggling interest for event ${event.id}: currently interested = $isCurrentlyInterested"
+      )
+
+      // Optimistic UI update - immediately update the UI
+      updateEventInterestOptimistically(event, currentUserId, !isCurrentlyInterested)
+
       // Set loading state
       _uiState.update { it.copy(isUpdatingInterest = true) }
-      
-      val isCurrentlyInterested = event.interestedUsers.contains(currentUserId)
-      Log.d("ExploreViewModel", "Toggling interest for event ${event.id}: currently interested = $isCurrentlyInterested")
-      
-      val result = if (isCurrentlyInterested) {
-        eventRepository.removeUserInterest(event.id, currentUserId)
-      } else {
-        eventRepository.addUserInterest(event.id, currentUserId)
-      }
-      
-      result.onSuccess {
-        Log.d("ExploreViewModel", "Interest toggled successfully")
-        // Refresh events to get updated interest data
-        loadEvents()
-        // Update the selected event with fresh data
-        updateSelectedEventWithFreshData(event.id)
-        // Clear loading state
-        _uiState.update { it.copy(isUpdatingInterest = false) }
-      }.onFailure { error ->
-        Log.e("ExploreViewModel", "Failed to toggle interest", error)
-        // Clear loading state on error
-        _uiState.update { it.copy(isUpdatingInterest = false) }
-      }
+
+      val result =
+              if (isCurrentlyInterested) {
+                eventRepository.removeUserInterest(event.id, currentUserId)
+              } else {
+                eventRepository.addUserInterest(event.id, currentUserId)
+              }
+
+      result
+              .onSuccess {
+                Log.d("ExploreViewModel", "Interest toggled successfully")
+
+                // Schedule or cancel notifications based on interest
+                if (!isCurrentlyInterested) {
+                  // User just became interested - schedule notifications
+                  manageEventNotificationsUseCase.scheduleNotificationsForEvent(event)
+                  Log.d("ExploreViewModel", "Scheduled notifications for event: ${event.id}")
+                } else {
+                  // User just removed interest - cancel notifications
+                  manageEventNotificationsUseCase.cancelNotificationsForEvent(event.id)
+                  Log.d("ExploreViewModel", "Cancelled notifications for event: ${event.id}")
+                }
+
+                // Refresh events to get updated interest data from server
+                loadEvents()
+                // Update the selected event with fresh data
+                updateSelectedEventWithFreshData(event.id)
+                // Clear loading state
+                _uiState.update { it.copy(isUpdatingInterest = false) }
+              }
+              .onFailure { error ->
+                Log.e("ExploreViewModel", "Failed to toggle interest", error)
+                // Revert optimistic update on error
+                updateEventInterestOptimistically(event, currentUserId, isCurrentlyInterested)
+                // Clear loading state
+                _uiState.update { it.copy(isUpdatingInterest = false) }
+              }
+    }
+  }
+
+  private fun updateEventInterestOptimistically(
+          event: Event,
+          userId: String,
+          shouldBeInterested: Boolean
+  ) {
+    val updatedEvent =
+            if (shouldBeInterested) {
+              // Add user to interested list if not already present
+              event.copy(interestedUsers = event.interestedUsers + userId)
+            } else {
+              // Remove user from interested list
+              event.copy(interestedUsers = event.interestedUsers.filter { it != userId })
+            }
+
+    // Update all events list
+    _uiState.update { state ->
+      state.copy(
+              allEvents = state.allEvents.map { if (it.id == event.id) updatedEvent else it },
+              visibleEvents =
+                      state.visibleEvents.map { if (it.id == event.id) updatedEvent else it },
+              nearbyEvents = state.nearbyEvents.map { if (it.id == event.id) updatedEvent else it },
+              selectedEvent =
+                      if (state.selectedEvent?.id == event.id) updatedEvent else state.selectedEvent
+      )
     }
   }
 
   fun openGoogleMapsDirections(event: Event): Intent {
-    val uri = Uri.parse("google.navigation:q=${event.location.latitude},${event.location.longitude}")
-    return Intent(Intent.ACTION_VIEW, uri).apply { 
-      setPackage("com.google.android.apps.maps")
-    }
+    val uri =
+            Uri.parse("google.navigation:q=${event.location.latitude},${event.location.longitude}")
+    return Intent(Intent.ACTION_VIEW, uri).apply { setPackage("com.google.android.apps.maps") }
   }
 
   private fun updateNearbyEvents() {

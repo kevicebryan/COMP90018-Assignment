@@ -9,7 +9,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.mobilecomputingassignment.domain.models.Event
@@ -31,10 +30,7 @@ fun EventsScreen(modifier: Modifier = Modifier, eventViewModel: EventViewModel =
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
     ) {
-      Text(
-              text = "Events",
-              style = MaterialTheme.typography.headlineMedium
-      )
+      Text(text = "Events", style = MaterialTheme.typography.headlineMedium)
 
       // Add button (only show on hosted events tab)
       if (uiState.selectedTab == 1) {
@@ -97,7 +93,7 @@ fun EventsScreen(modifier: Modifier = Modifier, eventViewModel: EventViewModel =
                       onToggleInterest = { eventId, isInterested ->
                         eventViewModel.toggleEventInterest(eventId, isInterested)
                       },
-                      onCheckIn = { eventId -> eventViewModel.checkInToEvent(eventId) }
+                      onGetDirections = { event -> eventViewModel.openGoogleMapsDirections(event) }
               )
       1 ->
               HostedEventsContent(
@@ -148,7 +144,7 @@ private fun InterestedEventsContent(
         events: List<Event>,
         isLoading: Boolean,
         onToggleInterest: (String, Boolean) -> Unit,
-        onCheckIn: (String) -> Unit
+        onGetDirections: (Event) -> Unit
 ) {
   if (isLoading) {
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -179,7 +175,7 @@ private fun InterestedEventsContent(
                 event = event,
                 isHosted = false,
                 onToggleInterest = { onToggleInterest(event.id, true) },
-                onCheckIn = { onCheckIn(event.id) }
+                onGetDirections = { onGetDirections(event) }
         )
       }
     }
