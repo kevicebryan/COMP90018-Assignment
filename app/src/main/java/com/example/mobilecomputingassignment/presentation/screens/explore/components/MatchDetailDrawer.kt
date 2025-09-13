@@ -227,7 +227,7 @@ fun MatchDetailDrawer(
                         } else {
                             Icon(
                                 imageVector = if (isInterested) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
-                                contentDescription = if (isInterested) "Remove interest" else "Add interest",
+                                contentDescription = if (isInterested) "Uninterest" else "Add interest",
                                 modifier = Modifier.size(18.dp)
                             )
                         }

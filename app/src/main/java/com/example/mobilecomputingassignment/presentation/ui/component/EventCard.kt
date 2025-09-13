@@ -287,7 +287,7 @@ fun EventCard(
                     OutlinedButton(
                             onClick = { onToggleInterest?.invoke() },
                             modifier = Modifier.weight(1f)
-                    ) { Text("Remove Interest") }
+                    ) { Text("Uninterest") }
 
                     Button(
                             onClick = { onGetDirections?.invoke() ?: onCheckIn?.invoke() },
