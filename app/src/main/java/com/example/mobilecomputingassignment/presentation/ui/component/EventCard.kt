@@ -3,6 +3,7 @@ package com.example.mobilecomputingassignment.presentation.ui.component
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.ui.draw.alpha
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -49,6 +50,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.example.mobilecomputingassignment.domain.models.Event
+import com.example.mobilecomputingassignment.presentation.utils.EventDateUtils
 import java.text.SimpleDateFormat
 import java.util.Locale
 
@@ -65,9 +67,15 @@ fun EventCard(
         modifier: Modifier = Modifier
 ) {
     var showDeleteDialog by remember { mutableStateOf(false) }
+    
+    // Check if event is in the past for opacity styling
+    val isEventInPast = EventDateUtils.isEventInPast(event)
+    val cardAlpha = if (isEventInPast) 0.33f else 1.0f
 
     Card(
-            modifier = modifier.fillMaxWidth(),
+            modifier = modifier
+                .fillMaxWidth()
+                .alpha(cardAlpha),
             shape = RoundedCornerShape(20.dp),
             border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.4f)),
             colors =
@@ -276,8 +284,8 @@ fun EventCard(
                 }
             }
 
-            // Action buttons at bottom
-            if (!isHosted) {
+            // Action buttons at bottom - only show for future events
+            if (!isHosted && !isEventInPast) {
                 Spacer(modifier = Modifier.height(12.dp))
 
                 Row(

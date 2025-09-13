@@ -1,6 +1,8 @@
 package com.example.mobilecomputingassignment.presentation.screens.explore
 
+import android.content.Context
 import android.content.Intent
+import android.location.Geocoder
 import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.ViewModel
@@ -11,6 +13,7 @@ import com.example.mobilecomputingassignment.domain.repository.LocationRepositor
 import com.example.mobilecomputingassignment.domain.usecases.network.CheckNetworkConnectivityUseCase
 import com.example.mobilecomputingassignment.domain.usecases.notifications.ManageEventNotificationsUseCase
 import com.example.mobilecomputingassignment.domain.usecases.notifications.ManageFavoriteTeamNotificationsUseCase
+import com.example.mobilecomputingassignment.presentation.utils.EventDateUtils
 import com.google.android.gms.maps.model.LatLng
 import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -125,7 +128,12 @@ constructor(
               .getAllActiveEvents()
               .onSuccess { events ->
                 Log.d("ExploreViewModel", "Loaded ${events.size} events for explore map")
-                events.forEach { event ->
+                
+                // Filter out past events - only show today onwards
+                val futureEvents = EventDateUtils.filterFutureEvents(events)
+                Log.d("ExploreViewModel", "Filtered to ${futureEvents.size} future events (removed ${events.size - futureEvents.size} past events)")
+                
+                futureEvents.forEach { event ->
                   Log.d(
                           "ExploreViewModel",
                           "Event: ${event.matchDetails?.homeTeam ?: "No match"} vs ${event.matchDetails?.awayTeam ?: "No match"} at ${event.location.name} (${event.location.latitude}, ${event.location.longitude})"
@@ -137,8 +145,8 @@ constructor(
                 }
                 _uiState.update { state ->
                   state.copy(
-                          allEvents = events,
-                          visibleEvents = filterEventsInViewport(events, state.currentViewport),
+                          allEvents = futureEvents,
+                          visibleEvents = filterEventsInViewport(futureEvents, state.currentViewport),
                           error = null // Clear any previous errors
                   )
                 }
@@ -286,6 +294,35 @@ constructor(
     val uri =
             Uri.parse("google.navigation:q=${event.location.latitude},${event.location.longitude}")
     return Intent(Intent.ACTION_VIEW, uri).apply { setPackage("com.google.android.apps.maps") }
+  }
+
+  fun searchLocation(query: String, context: Context, cameraPositionState: com.google.maps.android.compose.CameraPositionState) {
+    viewModelScope.launch {
+      try {
+        if (Geocoder.isPresent()) {
+          val geocoder = Geocoder(context)
+          val addresses = geocoder.getFromLocationName(query, 1)
+          
+          if (addresses?.isNotEmpty() == true) {
+            val address = addresses[0]
+            val latLng = LatLng(address.latitude, address.longitude)
+            
+            Log.d("ExploreViewModel", "Found location: ${address.getAddressLine(0)} at $latLng")
+            
+            // Animate camera to the searched location
+            cameraPositionState.animate(
+              update = com.google.android.gms.maps.CameraUpdateFactory.newLatLngZoom(latLng, 15f)
+            )
+          } else {
+            Log.w("ExploreViewModel", "No results found for query: $query")
+          }
+        } else {
+          Log.e("ExploreViewModel", "Geocoder not available")
+        }
+      } catch (e: Exception) {
+        Log.e("ExploreViewModel", "Error searching location: $query", e)
+      }
+    }
   }
 
   private fun updateNearbyEvents() {

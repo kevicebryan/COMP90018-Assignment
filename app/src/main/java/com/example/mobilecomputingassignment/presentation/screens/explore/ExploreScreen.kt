@@ -7,6 +7,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -15,6 +17,7 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import android.Manifest
 import android.content.pm.PackageManager
@@ -26,6 +29,7 @@ import com.example.mobilecomputingassignment.data.service.LocationService
 import com.example.mobilecomputingassignment.presentation.screens.explore.components.EventDetailsDialog
 import com.example.mobilecomputingassignment.presentation.screens.explore.components.MatchDetailDrawer
 import com.example.mobilecomputingassignment.presentation.screens.explore.components.NearbyEventsBottomSheet
+import com.example.mobilecomputingassignment.presentation.utils.CustomMarkerIconGenerator
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
@@ -42,14 +46,9 @@ fun ExploreScreen(
   val context = LocalContext.current
   val locationService = remember { LocationService(context) }
   val scope = rememberCoroutineScope()
-  val defaultLocation = LatLng(-37.7963, 144.9614) // Melbourne location
+  val defaultLocation = LatLng(-37.7963, 144.9614) // Melbourne location as fallback
   val cameraPositionState = rememberCameraPositionState {
     position = CameraPosition.fromLatLngZoom(defaultLocation, 13f)
-  }
-
-  // Refresh current user ID when screen is opened
-  LaunchedEffect(Unit) {
-    viewModel.refreshCurrentUserId()
   }
 
   // Location permission state
@@ -60,6 +59,24 @@ fun ExploreScreen(
         Manifest.permission.ACCESS_FINE_LOCATION
       ) == PackageManager.PERMISSION_GRANTED
     )
+  }
+
+  // Refresh current user ID when screen is opened
+  LaunchedEffect(Unit) {
+    viewModel.refreshCurrentUserId()
+  }
+
+  // Try to get current location on startup
+  LaunchedEffect(hasLocationPermission) {
+    if (hasLocationPermission) {
+      val currentLocation = locationService.getCurrentLocation()
+      currentLocation?.let { location ->
+        val newLatLng = LatLng(location.latitude, location.longitude)
+        cameraPositionState.animate(
+          update = CameraUpdateFactory.newLatLngZoom(newLatLng, 15f)
+        )
+      }
+    }
   }
 
   // Permission launcher
@@ -159,6 +176,7 @@ fun ExploreScreen(
             state = MarkerState(position = LatLng(event.location.latitude, event.location.longitude)),
             title = event.matchDetails?.let { "${it.homeTeam} vs ${it.awayTeam}" } ?: "Watch Along Event",
             snippet = event.location.name,
+            icon = CustomMarkerIconGenerator.generateMarkerIcon(context, event),
             onClick = {
               viewModel.onMarkerClick(event)
               true
@@ -172,6 +190,7 @@ fun ExploreScreen(
             state = MarkerState(position = LatLng(event.location.latitude, event.location.longitude)),
             title = event.matchDetails?.let { "${it.homeTeam} vs ${it.awayTeam}" } ?: "Watch Along Event",
             snippet = "${event.location.name} (All Events)",
+            icon = CustomMarkerIconGenerator.generateMarkerIcon(context, event),
             onClick = {
               viewModel.onMarkerClick(event)
               true
@@ -182,8 +201,8 @@ fun ExploreScreen(
 
       // Header overlay (top)
       ExploreHeader(
-        onFilterClick = { 
-          // TODO: Implement filter functionality
+        onSearchLocation = { locationQuery ->
+          viewModel.searchLocation(locationQuery, context, cameraPositionState)
         },
         modifier = Modifier.align(Alignment.TopCenter)
       )
@@ -232,6 +251,47 @@ fun ExploreScreen(
             contentDescription = "Go to current location"
           )
         }
+        
+        // Zoom in button
+        FloatingActionButton(
+          onClick = {
+            scope.launch {
+              val currentZoom = cameraPositionState.position.zoom
+              val newZoom = (currentZoom + 1f).coerceAtMost(20f) // Max zoom level
+              cameraPositionState.animate(
+                update = CameraUpdateFactory.zoomTo(newZoom)
+              )
+            }
+          },
+          containerColor = MaterialTheme.colorScheme.surface,
+          contentColor = MaterialTheme.colorScheme.primary
+        ) {
+          Icon(
+            imageVector = Icons.Default.Add,
+            contentDescription = "Zoom in"
+          )
+        }
+        
+        // Zoom out button
+        FloatingActionButton(
+          onClick = {
+            scope.launch {
+              val currentZoom = cameraPositionState.position.zoom
+              val newZoom = (currentZoom - 1f).coerceAtLeast(3f) // Min zoom level
+              cameraPositionState.animate(
+                update = CameraUpdateFactory.zoomTo(newZoom)
+              )
+            }
+          },
+          containerColor = MaterialTheme.colorScheme.surface,
+          contentColor = MaterialTheme.colorScheme.primary
+        ) {
+          Text(
+            text = "−",
+            style = MaterialTheme.typography.headlineMedium,
+            fontWeight = FontWeight.Bold
+          )
+        }
       }
     }
   }
@@ -255,48 +315,87 @@ fun ExploreScreen(
 
 @Composable
 private fun ExploreHeader(
-  onFilterClick: () -> Unit,
+  onSearchLocation: (String) -> Unit,
   modifier: Modifier = Modifier
 ) {
+  var searchQuery by remember { mutableStateOf("") }
+  
   Surface(
     modifier = modifier.fillMaxWidth(),
     color = Color.White,
     shadowElevation = 4.dp
   ) {
-    Row(
+    Column(
       modifier = Modifier
         .fillMaxWidth()
-        .padding(horizontal = 16.dp, vertical = 12.dp),
-      horizontalArrangement = Arrangement.SpaceBetween,
-      verticalAlignment = Alignment.CenterVertically
+        .padding(horizontal = 16.dp, vertical = 12.dp)
     ) {
-      Text(
-        text = "Explore",
-        style = MaterialTheme.typography.headlineMedium,
-        color = MaterialTheme.colorScheme.onSurface
-      )
-      
-      IconButton(
-        onClick = onFilterClick
+      Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
       ) {
-        Surface(
-          shape = CircleShape,
-          color = MaterialTheme.colorScheme.surface,
-          modifier = Modifier.size(40.dp)
+        Text(
+          text = "Explore",
+          style = MaterialTheme.typography.headlineMedium,
+          color = MaterialTheme.colorScheme.onSurface
+        )
+        
+        // Commented out filter button for now
+        /*
+        IconButton(
+          onClick = onFilterClick
         ) {
-          Box(
-            contentAlignment = Alignment.Center,
-            modifier = Modifier.fillMaxSize()
+          Surface(
+            shape = CircleShape,
+            color = MaterialTheme.colorScheme.surface,
+            modifier = Modifier.size(40.dp)
           ) {
-            Icon(
-              painter = painterResource(id = R.drawable.ic_filter),
-              contentDescription = "Filter",
-              tint = MaterialTheme.colorScheme.primary,
-              modifier = Modifier.size(20.dp)
-            )
+            Box(
+              contentAlignment = Alignment.Center,
+              modifier = Modifier.fillMaxSize()
+            ) {
+              Icon(
+                painter = painterResource(id = R.drawable.ic_filter),
+                contentDescription = "Filter",
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(20.dp)
+              )
+            }
           }
         }
+        */
       }
+      
+      Spacer(modifier = Modifier.height(12.dp))
+      
+      // Search input field
+      OutlinedTextField(
+        value = searchQuery,
+        onValueChange = { searchQuery = it },
+        placeholder = { Text("Search location (e.g., Melbourne CBD)") },
+        modifier = Modifier.fillMaxWidth(),
+        singleLine = true,
+        trailingIcon = {
+          IconButton(
+            onClick = {
+              if (searchQuery.isNotBlank()) {
+                onSearchLocation(searchQuery)
+              }
+            }
+          ) {
+            Icon(
+              imageVector = Icons.Default.Search,
+              contentDescription = "Search",
+              tint = MaterialTheme.colorScheme.primary
+            )
+          }
+        },
+        colors = OutlinedTextFieldDefaults.colors(
+          focusedBorderColor = MaterialTheme.colorScheme.primary,
+          unfocusedBorderColor = MaterialTheme.colorScheme.outline
+        )
+      )
     }
   }
 }
