@@ -7,11 +7,14 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.mobilecomputingassignment.core.utils.ContentFilter
 import com.example.mobilecomputingassignment.data.constants.TeamConstants
+import com.example.mobilecomputingassignment.data.models.MatchDetailsDto
 import com.example.mobilecomputingassignment.data.repository.MatchRepository
 import com.example.mobilecomputingassignment.domain.models.*
 import com.example.mobilecomputingassignment.domain.usecases.events.*
 import com.example.mobilecomputingassignment.domain.usecases.notifications.ManageEventUpdateNotificationsUseCase
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.tasks.await
 import dagger.hilt.android.lifecycle.HiltViewModel
 import java.util.Calendar
 import java.util.Date
@@ -124,7 +127,10 @@ constructor(
         private val manageEventUpdateNotificationsUseCase: ManageEventUpdateNotificationsUseCase,
 
         // Repository: Data access
-        private val matchRepository: MatchRepository
+        private val matchRepository: MatchRepository,
+        
+        // Firebase
+        private val firestore: FirebaseFirestore
 ) : ViewModel() {
 
         // StateFlow: Reactive data streams for UI updates
@@ -326,6 +332,10 @@ constructor(
         }
 
         fun createCustomMatch(homeTeam: String, awayTeam: String) {
+                val calendar = Calendar.getInstance()
+                calendar.time = _formData.value.date
+                val season = calendar.get(Calendar.YEAR)
+                
                 val customMatch =
                         MatchDetails(
                                 id = "custom_${System.currentTimeMillis()}", // Generate unique ID
@@ -335,7 +345,7 @@ constructor(
                                 venue = _formData.value.locationName.ifEmpty { "Custom Venue" },
                                 matchTime = _formData.value.date,
                                 round = "Custom Match",
-                                season = Calendar.getInstance().get(Calendar.YEAR)
+                                season = season
                         )
 
                 val updatedFormData =
@@ -348,6 +358,28 @@ constructor(
                         )
                 _formData.value = updatedFormData
                 _uiState.value = _uiState.value.copy(showCustomMatchDialog = false)
+                
+                // Save custom match to Firebase for future use
+                saveCustomMatchToFirebase(customMatch)
+        }
+        
+        private fun saveCustomMatchToFirebase(matchDetails: MatchDetails) {
+                viewModelScope.launch {
+                        try {
+                                // Convert to DTO for Firebase
+                                val matchDetailsDto = MatchDetailsDto.fromDomain(matchDetails)
+                                
+                                // Save to a custom matches collection
+                                firestore.collection("custom_matches")
+                                        .document(matchDetails.id)
+                                        .set(matchDetailsDto)
+                                        .await()
+                                        
+                                Log.d(TAG, "Custom match saved to Firebase: ${matchDetails.id}")
+                        } catch (e: Exception) {
+                                Log.e(TAG, "Failed to save custom match to Firebase", e)
+                        }
+                }
         }
 
         private fun loadAflTeams() {

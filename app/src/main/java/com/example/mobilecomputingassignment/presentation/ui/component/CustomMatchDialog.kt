@@ -1,9 +1,12 @@
 package com.example.mobilecomputingassignment.presentation.ui.component
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.*
@@ -23,10 +26,24 @@ fun CustomMatchDialog(
     availableTeams: List<Team>,
     isLoadingTeams: Boolean,
     onDismiss: () -> Unit,
-    onCreateMatch: (homeTeam: String, awayTeam: String) -> Unit
+    onCreateMatch: (homeTeam: String, awayTeam: String) -> Unit,
+    currentHomeTeam: String? = null,
+    currentAwayTeam: String? = null
 ) {
-    var selectedHomeTeam by remember { mutableStateOf<Team?>(null) }
-    var selectedAwayTeam by remember { mutableStateOf<Team?>(null) }
+    var selectedHomeTeam by remember { 
+        mutableStateOf<Team?>(
+            currentHomeTeam?.let { homeTeamName ->
+                availableTeams.find { it.name == homeTeamName }
+            }
+        )
+    }
+    var selectedAwayTeam by remember { 
+        mutableStateOf<Team?>(
+            currentAwayTeam?.let { awayTeamName ->
+                availableTeams.find { it.name == awayTeamName }
+            }
+        )
+    }
     var expandedHomeTeam by remember { mutableStateOf(false) }
     var expandedAwayTeam by remember { mutableStateOf(false) }
 
@@ -40,12 +57,13 @@ fun CustomMatchDialog(
     ) {
         Card(
             modifier = Modifier
-                .fillMaxWidth(0.9f)
-                .fillMaxHeight(0.8f),
-            shape = RoundedCornerShape(16.dp),
+                .fillMaxWidth(0.95f)
+                .heightIn(max = 600.dp),
+            shape = RoundedCornerShape(20.dp),
             colors = CardDefaults.cardColors(
                 containerColor = MaterialTheme.colorScheme.surface
-            )
+            ),
+            elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
         ) {
             Column(
                 modifier = Modifier.fillMaxSize()
@@ -54,20 +72,27 @@ fun CustomMatchDialog(
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(16.dp),
+                        .padding(24.dp),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
                         text = "Create Custom Match",
-                        style = MaterialTheme.typography.headlineSmall,
-                        fontWeight = FontWeight.Bold
+                        style = MaterialTheme.typography.headlineMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                     
-                    IconButton(onClick = onDismiss) {
+                    IconButton(
+                        onClick = onDismiss,
+                        colors = IconButtonDefaults.iconButtonColors(
+                            contentColor = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    ) {
                         Icon(
                             imageVector = Icons.Default.Close,
-                            contentDescription = "Close"
+                            contentDescription = "Close",
+                            modifier = Modifier.size(24.dp)
                         )
                     }
                 }
@@ -77,13 +102,15 @@ fun CustomMatchDialog(
                 // Content
                 Column(
                     modifier = Modifier
-                        .fillMaxSize()
-                        .padding(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                        .weight(1f)
+                        .verticalScroll(rememberScrollState())
+                        .padding(24.dp),
+                    verticalArrangement = Arrangement.spacedBy(20.dp)
                 ) {
                     Text(
                         text = "Select the teams for your custom match:",
-                        style = MaterialTheme.typography.bodyLarge
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
 
                     if (isLoadingTeams) {
@@ -103,153 +130,267 @@ fun CustomMatchDialog(
                             }
                         }
                     } else {
-                        // Home Team Selection
-                        Card(
-                            modifier = Modifier.fillMaxWidth(),
-                            colors = CardDefaults.cardColors(
-                                containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
-                            )
-                        ) {
-                            Column(
-                                modifier = Modifier.padding(16.dp)
+                        if (selectedHomeTeam != null && selectedAwayTeam != null) {
+                            // Show selected teams with logos
+                            Card(
+                                modifier = Modifier.fillMaxWidth(),
+                                colors = CardDefaults.cardColors(
+                                    containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
+                                ),
+                                shape = RoundedCornerShape(16.dp),
+                                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
                             ) {
-                                Text(
-                                    text = "Home Team",
-                                    style = MaterialTheme.typography.titleMedium,
-                                    fontWeight = FontWeight.Bold,
-                                    modifier = Modifier.padding(bottom = 8.dp)
-                                )
-                                
-                                ExposedDropdownMenuBox(
-                                    expanded = expandedHomeTeam,
-                                    onExpandedChange = { expandedHomeTeam = !expandedHomeTeam }
+                                Column(
+                                    modifier = Modifier.padding(24.dp),
+                                    horizontalAlignment = Alignment.CenterHorizontally
                                 ) {
-                                    OutlinedTextField(
-                                        value = selectedHomeTeam?.name ?: "Select home team",
-                                        onValueChange = {},
-                                        readOnly = true,
-                                        trailingIcon = {
-                                            ExposedDropdownMenuDefaults.TrailingIcon(
-                                                expanded = expandedHomeTeam
-                                            )
-                                        },
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .menuAnchor()
+                                    Text(
+                                        text = "Custom Match",
+                                        style = MaterialTheme.typography.titleLarge,
+                                        fontWeight = FontWeight.Bold,
+                                        color = MaterialTheme.colorScheme.onSurface,
+                                        modifier = Modifier.padding(bottom = 20.dp)
                                     )
-
-                                    ExposedDropdownMenu(
-                                        expanded = expandedHomeTeam,
-                                        onDismissRequest = { expandedHomeTeam = false }
+                                    
+                                    // Teams display
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.SpaceEvenly,
+                                        verticalAlignment = Alignment.CenterVertically
                                     ) {
-                                        availableTeams.forEach { team ->
-                                            DropdownMenuItem(
-                                                text = {
-                                                    Row(
-                                                        verticalAlignment = Alignment.CenterVertically
-                                                    ) {
-                                                        // Team logo
-                                                        team.localLogoRes?.let { logoRes ->
-                                                            Icon(
-                                                                painter = painterResource(id = logoRes),
-                                                                contentDescription = team.name,
-                                                                modifier = Modifier.size(24.dp)
-                                                            )
-                                                            Spacer(modifier = Modifier.width(8.dp))
-                                                        }
-                                                        
-                                                        Text(
-                                                            text = team.name,
-                                                            style = MaterialTheme.typography.bodyMedium
-                                                        )
-                                                    }
-                                                },
-                                                onClick = {
-                                                    selectedHomeTeam = team
-                                                    expandedHomeTeam = false
-                                                }
+                                        // Home Team
+                                        Column(
+                                            horizontalAlignment = Alignment.CenterHorizontally,
+                                            modifier = Modifier.weight(1f)
+                                        ) {
+                                            selectedHomeTeam?.localLogoRes?.let { logoRes ->
+                                                Image(
+                                                    painter = painterResource(id = logoRes),
+                                                    contentDescription = selectedHomeTeam?.name,
+                                                    modifier = Modifier.size(60.dp)
+                                                )
+                                            }
+                                            Spacer(modifier = Modifier.height(8.dp))
+                                            Text(
+                                                text = selectedHomeTeam?.name ?: "",
+                                                style = MaterialTheme.typography.titleMedium,
+                                                fontWeight = FontWeight.Bold,
+                                                color = MaterialTheme.colorScheme.onSurface,
+                                                textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                                            )
+                                        }
+                                        
+                                        // VS
+                                        Text(
+                                            text = "VS",
+                                            style = MaterialTheme.typography.headlineMedium,
+                                            fontWeight = FontWeight.Bold,
+                                            color = MaterialTheme.colorScheme.primary,
+                                            modifier = Modifier.padding(horizontal = 16.dp)
+                                        )
+                                        
+                                        // Away Team
+                                        Column(
+                                            horizontalAlignment = Alignment.CenterHorizontally,
+                                            modifier = Modifier.weight(1f)
+                                        ) {
+                                            selectedAwayTeam?.localLogoRes?.let { logoRes ->
+                                                Image(
+                                                    painter = painterResource(id = logoRes),
+                                                    contentDescription = selectedAwayTeam?.name,
+                                                    modifier = Modifier.size(60.dp)
+                                                )
+                                            }
+                                            Spacer(modifier = Modifier.height(8.dp))
+                                            Text(
+                                                text = selectedAwayTeam?.name ?: "",
+                                                style = MaterialTheme.typography.titleMedium,
+                                                fontWeight = FontWeight.Bold,
+                                                color = MaterialTheme.colorScheme.onSurface,
+                                                textAlign = androidx.compose.ui.text.style.TextAlign.Center
                                             )
                                         }
                                     }
+                                    
+                                    // Change Teams Button
+                                    Spacer(modifier = Modifier.height(16.dp))
+                                    OutlinedButton(
+                                        onClick = {
+                                            selectedHomeTeam = null
+                                            selectedAwayTeam = null
+                                        },
+                                        colors = ButtonDefaults.outlinedButtonColors(
+                                            contentColor = MaterialTheme.colorScheme.primary
+                                        ),
+                                        shape = RoundedCornerShape(8.dp)
+                                    ) {
+                                        Text("Change Teams")
+                                    }
                                 }
                             }
-                        }
-
-                        // VS Text
-                        Text(
-                            text = "VS",
-                            style = MaterialTheme.typography.headlineMedium,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.align(Alignment.CenterHorizontally)
-                        )
-
-                        // Away Team Selection
-                        Card(
-                            modifier = Modifier.fillMaxWidth(),
-                            colors = CardDefaults.cardColors(
-                                containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
-                            )
-                        ) {
+                        } else {
+                            // Team Selection Interface
                             Column(
-                                modifier = Modifier.padding(16.dp)
+                                verticalArrangement = Arrangement.spacedBy(16.dp)
                             ) {
-                                Text(
-                                    text = "Away Team",
-                                    style = MaterialTheme.typography.titleMedium,
-                                    fontWeight = FontWeight.Bold,
-                                    modifier = Modifier.padding(bottom = 8.dp)
-                                )
-                                
-                                ExposedDropdownMenuBox(
-                                    expanded = expandedAwayTeam,
-                                    onExpandedChange = { expandedAwayTeam = !expandedAwayTeam }
+                                // Home Team Selection
+                                Card(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    colors = CardDefaults.cardColors(
+                                        containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+                                    ),
+                                    shape = RoundedCornerShape(12.dp),
+                                    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
                                 ) {
-                                    OutlinedTextField(
-                                        value = selectedAwayTeam?.name ?: "Select away team",
-                                        onValueChange = {},
-                                        readOnly = true,
-                                        trailingIcon = {
-                                            ExposedDropdownMenuDefaults.TrailingIcon(
-                                                expanded = expandedAwayTeam
-                                            )
-                                        },
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .menuAnchor()
-                                    )
-
-                                    ExposedDropdownMenu(
-                                        expanded = expandedAwayTeam,
-                                        onDismissRequest = { expandedAwayTeam = false }
+                                    Column(
+                                        modifier = Modifier.padding(20.dp)
                                     ) {
-                                        availableTeams.filter { it != selectedHomeTeam }.forEach { team ->
-                                            DropdownMenuItem(
-                                                text = {
-                                                    Row(
-                                                        verticalAlignment = Alignment.CenterVertically
-                                                    ) {
-                                                        // Team logo
-                                                        team.localLogoRes?.let { logoRes ->
-                                                            Icon(
-                                                                painter = painterResource(id = logoRes),
-                                                                contentDescription = team.name,
-                                                                modifier = Modifier.size(24.dp)
-                                                            )
-                                                            Spacer(modifier = Modifier.width(8.dp))
-                                                        }
-                                                        
-                                                        Text(
-                                                            text = team.name,
-                                                            style = MaterialTheme.typography.bodyMedium
-                                                        )
-                                                    }
+                                        Text(
+                                            text = "Home Team",
+                                            style = MaterialTheme.typography.titleMedium,
+                                            fontWeight = FontWeight.Bold,
+                                            color = MaterialTheme.colorScheme.onSurface,
+                                            modifier = Modifier.padding(bottom = 12.dp)
+                                        )
+                                        
+                                        ExposedDropdownMenuBox(
+                                            expanded = expandedHomeTeam,
+                                            onExpandedChange = { expandedHomeTeam = !expandedHomeTeam }
+                                        ) {
+                                            OutlinedTextField(
+                                                value = selectedHomeTeam?.name ?: "Select home team",
+                                                onValueChange = {},
+                                                readOnly = true,
+                                                trailingIcon = {
+                                                    ExposedDropdownMenuDefaults.TrailingIcon(
+                                                        expanded = expandedHomeTeam
+                                                    )
                                                 },
-                                                onClick = {
-                                                    selectedAwayTeam = team
-                                                    expandedAwayTeam = false
-                                                }
+                                                colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(
+                                                    focusedBorderColor = MaterialTheme.colorScheme.primary,
+                                                    unfocusedBorderColor = MaterialTheme.colorScheme.outline,
+                                                    focusedLabelColor = MaterialTheme.colorScheme.primary,
+                                                    focusedTextColor = MaterialTheme.colorScheme.onSurface
+                                                ),
+                                                modifier = Modifier
+                                                    .fillMaxWidth()
+                                                    .menuAnchor()
                                             )
+
+                                            ExposedDropdownMenu(
+                                                expanded = expandedHomeTeam,
+                                                onDismissRequest = { expandedHomeTeam = false }
+                                            ) {
+                                                availableTeams.forEach { team ->
+                                                    DropdownMenuItem(
+                                                        text = {
+                                                            Row(
+                                                                verticalAlignment = Alignment.CenterVertically
+                                                            ) {
+                                                                // Team logo
+                                                                team.localLogoRes?.let { logoRes ->
+                                                                    Image(
+                                                                        painter = painterResource(id = logoRes),
+                                                                        contentDescription = team.name,
+                                                                        modifier = Modifier.size(24.dp)
+                                                                    )
+                                                                    Spacer(modifier = Modifier.width(8.dp))
+                                                                }
+                                                                
+                                                                Text(
+                                                                    text = team.name,
+                                                                    style = MaterialTheme.typography.bodyMedium
+                                                                )
+                                                            }
+                                                        },
+                                                        onClick = {
+                                                            selectedHomeTeam = team
+                                                            expandedHomeTeam = false
+                                                        }
+                                                    )
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+
+                                // Away Team Selection
+                                Card(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    colors = CardDefaults.cardColors(
+                                        containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+                                    ),
+                                    shape = RoundedCornerShape(12.dp),
+                                    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+                                ) {
+                                    Column(
+                                        modifier = Modifier.padding(20.dp)
+                                    ) {
+                                        Text(
+                                            text = "Away Team",
+                                            style = MaterialTheme.typography.titleMedium,
+                                            fontWeight = FontWeight.Bold,
+                                            color = MaterialTheme.colorScheme.onSurface,
+                                            modifier = Modifier.padding(bottom = 12.dp)
+                                        )
+                                        
+                                        ExposedDropdownMenuBox(
+                                            expanded = expandedAwayTeam,
+                                            onExpandedChange = { expandedAwayTeam = !expandedAwayTeam }
+                                        ) {
+                                            OutlinedTextField(
+                                                value = selectedAwayTeam?.name ?: "Select away team",
+                                                onValueChange = {},
+                                                readOnly = true,
+                                                trailingIcon = {
+                                                    ExposedDropdownMenuDefaults.TrailingIcon(
+                                                        expanded = expandedAwayTeam
+                                                    )
+                                                },
+                                                colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(
+                                                    focusedBorderColor = MaterialTheme.colorScheme.primary,
+                                                    unfocusedBorderColor = MaterialTheme.colorScheme.outline,
+                                                    focusedLabelColor = MaterialTheme.colorScheme.primary,
+                                                    focusedTextColor = MaterialTheme.colorScheme.onSurface
+                                                ),
+                                                modifier = Modifier
+                                                    .fillMaxWidth()
+                                                    .menuAnchor()
+                                            )
+
+                                            ExposedDropdownMenu(
+                                                expanded = expandedAwayTeam,
+                                                onDismissRequest = { expandedAwayTeam = false }
+                                            ) {
+                                                availableTeams.filter { it != selectedHomeTeam }.forEach { team ->
+                                                    DropdownMenuItem(
+                                                        text = {
+                                                            Row(
+                                                                verticalAlignment = Alignment.CenterVertically
+                                                            ) {
+                                                                // Team logo
+                                                                team.localLogoRes?.let { logoRes ->
+                                                                    Image(
+                                                                        painter = painterResource(id = logoRes),
+                                                                        contentDescription = team.name,
+                                                                        modifier = Modifier.size(24.dp)
+                                                                    )
+                                                                    Spacer(modifier = Modifier.width(8.dp))
+                                                                }
+                                                                
+                                                                Text(
+                                                                    text = team.name,
+                                                                    style = MaterialTheme.typography.bodyMedium
+                                                                )
+                                                            }
+                                                        },
+                                                        onClick = {
+                                                            selectedAwayTeam = team
+                                                            expandedAwayTeam = false
+                                                        }
+                                                    )
+                                                }
+                                            }
                                         }
                                     }
                                 }
@@ -258,18 +399,31 @@ fun CustomMatchDialog(
                     }
                 }
 
-                // Action buttons
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                // Action buttons - Fixed at bottom
+                Surface(
+                    modifier = Modifier.fillMaxWidth(),
+                    color = MaterialTheme.colorScheme.surface,
+                    shadowElevation = 4.dp
                 ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(24.dp),
+                        horizontalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
                     OutlinedButton(
                         onClick = onDismiss,
-                        modifier = Modifier.weight(1f)
+                        modifier = Modifier.weight(1f),
+                        colors = ButtonDefaults.outlinedButtonColors(
+                            contentColor = MaterialTheme.colorScheme.primary
+                        ),
+                        shape = RoundedCornerShape(12.dp)
                     ) {
-                        Text("Cancel")
+                        Text(
+                            "Cancel",
+                            style = MaterialTheme.typography.bodyLarge,
+                            fontWeight = FontWeight.Medium
+                        )
                     }
                     
                     Button(
@@ -281,9 +435,21 @@ fun CustomMatchDialog(
                             }
                         },
                         enabled = selectedHomeTeam != null && selectedAwayTeam != null,
-                        modifier = Modifier.weight(1f)
+                        modifier = Modifier.weight(1f),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.primary,
+                            contentColor = MaterialTheme.colorScheme.onPrimary,
+                            disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                            disabledContentColor = MaterialTheme.colorScheme.onSurfaceVariant
+                        ),
+                        shape = RoundedCornerShape(12.dp)
                     ) {
-                        Text("Create Match")
+                        Text(
+                            "Save Match",
+                            style = MaterialTheme.typography.bodyLarge,
+                            fontWeight = FontWeight.Medium
+                        )
+                    }
                     }
                 }
             }

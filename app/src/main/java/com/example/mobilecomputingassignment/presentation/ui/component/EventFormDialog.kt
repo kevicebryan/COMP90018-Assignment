@@ -1,5 +1,6 @@
 package com.example.mobilecomputingassignment.presentation.ui.component
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -440,7 +441,7 @@ fun EventFormDialog(
                                                                 )
                                                                 Text("Loading matches...")
                                                         }
-                                                } else if (uiState.availableMatches.isEmpty()) {
+                                                } else if (uiState.availableMatches.isEmpty() && formData.selectedMatch == null) {
                                                         Column(
                                                                 verticalArrangement = Arrangement.spacedBy(12.dp)
                                                         ) {
@@ -455,6 +456,86 @@ fun EventFormDialog(
                                                                         modifier = Modifier.fillMaxWidth()
                                                                 ) {
                                                                         Text("Create Custom Match")
+                                                                }
+                                                        }
+                                                } else if (formData.selectedMatch != null) {
+                                                        // Show selected custom match - minimalist design
+                                                        Column(
+                                                                verticalArrangement = Arrangement.spacedBy(12.dp)
+                                                        ) {
+                                                                // Teams display with logos
+                                                                Row(
+                                                                        modifier = Modifier.fillMaxWidth(),
+                                                                        horizontalArrangement = Arrangement.Center,
+                                                                        verticalAlignment = Alignment.CenterVertically
+                                                                ) {
+                                                                        // Home Team with logo
+                                                                        Row(
+                                                                                verticalAlignment = Alignment.CenterVertically
+                                                                        ) {
+                                                                                // Team logo
+                                                                                formData.selectedMatch?.homeTeam?.let { teamName ->
+                                                                                        val team = uiState.availableTeams.find { it.name == teamName }
+                                                                                        team?.localLogoRes?.let { logoRes ->
+                                                                                                Image(
+                                                                                                        painter = painterResource(id = logoRes),
+                                                                                                        contentDescription = teamName,
+                                                                                                        modifier = Modifier.size(24.dp)
+                                                                                                )
+                                                                                        }
+                                                                                }
+                                                                                Spacer(modifier = Modifier.width(8.dp))
+                                                                                Text(
+                                                                                        text = formData.selectedMatch?.homeTeam ?: "",
+                                                                                        style = MaterialTheme.typography.titleMedium,
+                                                                                        fontWeight = FontWeight.Medium,
+                                                                                        color = MaterialTheme.colorScheme.onSurface
+                                                                                )
+                                                                        }
+                                                                        
+                                                                        // VS
+                                                                        Text(
+                                                                                text = " VS ",
+                                                                                style = MaterialTheme.typography.titleMedium,
+                                                                                fontWeight = FontWeight.Medium,
+                                                                                color = MaterialTheme.colorScheme.primary,
+                                                                                modifier = Modifier.padding(horizontal = 16.dp)
+                                                                        )
+                                                                        
+                                                                        // Away Team with logo
+                                                                        Row(
+                                                                                verticalAlignment = Alignment.CenterVertically
+                                                                        ) {
+                                                                                Text(
+                                                                                        text = formData.selectedMatch?.awayTeam ?: "",
+                                                                                        style = MaterialTheme.typography.titleMedium,
+                                                                                        fontWeight = FontWeight.Medium,
+                                                                                        color = MaterialTheme.colorScheme.onSurface
+                                                                                )
+                                                                                Spacer(modifier = Modifier.width(8.dp))
+                                                                                // Team logo
+                                                                                formData.selectedMatch?.awayTeam?.let { teamName ->
+                                                                                        val team = uiState.availableTeams.find { it.name == teamName }
+                                                                                        team?.localLogoRes?.let { logoRes ->
+                                                                                                Image(
+                                                                                                        painter = painterResource(id = logoRes),
+                                                                                                        contentDescription = teamName,
+                                                                                                        modifier = Modifier.size(24.dp)
+                                                                                                )
+                                                                                        }
+                                                                                }
+                                                                        }
+                                                                }
+                                                                
+                                                                Button(
+                                                                        onClick = { eventViewModel.showCustomMatchDialog() },
+                                                                        modifier = Modifier.fillMaxWidth(),
+                                                                        colors = ButtonDefaults.buttonColors(
+                                                                                containerColor = MaterialTheme.colorScheme.primary,
+                                                                                contentColor = MaterialTheme.colorScheme.onPrimary
+                                                                        )
+                                                                ) {
+                                                                        Text("Edit Teams")
                                                                 }
                                                         }
                                                 } else {
@@ -933,7 +1014,9 @@ fun EventFormDialog(
                         onDismiss = { eventViewModel.hideCustomMatchDialog() },
                         onCreateMatch = { homeTeam, awayTeam ->
                                 eventViewModel.createCustomMatch(homeTeam, awayTeam)
-                        }
+                        },
+                        currentHomeTeam = formData.selectedMatch?.homeTeam,
+                        currentAwayTeam = formData.selectedMatch?.awayTeam
                 )
         }
 }
