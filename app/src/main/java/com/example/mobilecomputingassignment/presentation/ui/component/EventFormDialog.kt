@@ -1,6 +1,7 @@
 package com.example.mobilecomputingassignment.presentation.ui.component
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -13,6 +14,7 @@ import androidx.compose.material3.TimePickerDefaults
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.focusModifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -23,6 +25,11 @@ import com.example.mobilecomputingassignment.R
 import com.example.mobilecomputingassignment.presentation.ui.component.CustomMatchDialog
 import com.example.mobilecomputingassignment.presentation.viewmodel.EventViewModel
 import java.text.SimpleDateFormat
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowRight
+import androidx.compose.foundation.clickable // <<< ADD THIS LINE
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import java.util.*
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -110,120 +117,50 @@ fun EventFormDialog(
 
                                         // Date and Time
                                         EventFormSection(title = "Date & Time") {
-                                                var showDatePicker by remember {
-                                                        mutableStateOf(false)
-                                                }
-                                                var showTimePicker by remember {
-                                                        mutableStateOf(false)
-                                                }
+                                                var showDatePicker by remember { mutableStateOf(false) }
+                                                var showTimePicker by remember { mutableStateOf(false) }
 
-                                                // Date picker
-                                                OutlinedTextField(
-                                                        value =
-                                                                SimpleDateFormat(
-                                                                                "yyyy-MM-dd",
-                                                                                Locale.getDefault()
-                                                                        )
-                                                                        .format(formData.date),
-                                                        onValueChange = {},
-                                                        label = { Text("Event Date *") },
+                                                Row(
                                                         modifier = Modifier.fillMaxWidth(),
-                                                        readOnly = true,
-                                                        leadingIcon = {
-                                                                Icon(
-                                                                        painter =
-                                                                                painterResource(
-                                                                                        id =
-                                                                                                R.drawable
-                                                                                                        .ic_calendar
-                                                                                ),
-                                                                        contentDescription =
-                                                                                "Select date",
-                                                                        tint =
-                                                                                MaterialTheme
-                                                                                        .colorScheme
-                                                                                        .primary
-                                                                )
-                                                        },
-                                                        trailingIcon = {
-                                                                IconButton(
-                                                                        onClick = {
-                                                                                showDatePicker =
-                                                                                        true
-                                                                        }
-                                                                ) {
-                                                                        Icon(
-                                                                                painter =
-                                                                                        painterResource(
-                                                                                                id =
-                                                                                                        R.drawable
-                                                                                                                .ic_calendar
-                                                                                        ),
-                                                                                contentDescription =
-                                                                                        "Select date",
-                                                                                tint =
-                                                                                        MaterialTheme
-                                                                                                .colorScheme
-                                                                                                .primary
-                                                                        )
-                                                                }
-                                                        }
-                                                )
+                                                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                                ) {
 
-                                                // Time picker
-                                                OutlinedTextField(
-                                                        value =
-                                                                SimpleDateFormat(
-                                                                                "HH:mm",
-                                                                                Locale.getDefault()
-                                                                        )
-                                                                        .format(
-                                                                                formData.checkInTime
-                                                                        ),
-                                                        onValueChange = {},
-                                                        label = { Text("Check-in Time *") },
-                                                        modifier = Modifier.fillMaxWidth(),
-                                                        readOnly = true,
-                                                        leadingIcon = {
-                                                                Icon(
-                                                                        painter =
-                                                                                painterResource(
-                                                                                        id =
-                                                                                                R.drawable
-                                                                                                        .ic_clock
-                                                                                ),
-                                                                        contentDescription =
-                                                                                "Select time",
-                                                                        tint =
-                                                                                MaterialTheme
-                                                                                        .colorScheme
-                                                                                        .primary
-                                                                )
-                                                        },
-                                                        trailingIcon = {
-                                                                IconButton(
-                                                                        onClick = {
-                                                                                showTimePicker =
-                                                                                        true
+                                                        // Date picker
+                                                        OutlinedTextField(
+                                                                value = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(formData.date),
+                                                                onValueChange = {},
+                                                                label = { Text("Event Date *") },
+                                                                modifier = Modifier.weight(1f),
+                                                                readOnly = true,
+                                                                trailingIcon = {
+                                                                        IconButton(onClick = { showDatePicker = true }) {
+                                                                                Icon(
+                                                                                        painter = painterResource(id = R.drawable.ic_calendar),
+                                                                                        contentDescription = "Select date",
+                                                                                        tint = MaterialTheme.colorScheme.primary
+                                                                                )
                                                                         }
-                                                                ) {
-                                                                        Icon(
-                                                                                painter =
-                                                                                        painterResource(
-                                                                                                id =
-                                                                                                        R.drawable
-                                                                                                                .ic_clock
-                                                                                        ),
-                                                                                contentDescription =
-                                                                                        "Select time",
-                                                                                tint =
-                                                                                        MaterialTheme
-                                                                                                .colorScheme
-                                                                                                .primary
-                                                                        )
                                                                 }
-                                                        }
-                                                )
+                                                        )
+
+                                                        // Time picker
+                                                        OutlinedTextField(
+                                                                value = SimpleDateFormat("HH:mm", Locale.getDefault()).format(formData.checkInTime),
+                                                                onValueChange = {},
+                                                                label = { Text("Match Time *") },
+                                                                modifier = Modifier.weight(1f),
+                                                                readOnly = true,
+                                                                trailingIcon = {
+                                                                        IconButton(onClick = { showTimePicker = true }) {
+                                                                                Icon(
+                                                                                        painter = painterResource(id = R.drawable.ic_clock),
+                                                                                        contentDescription = "Select time",
+                                                                                        tint = MaterialTheme.colorScheme.primary
+                                                                                )
+                                                                        }
+                                                                }
+                                                        )
+                                                }
 
                                                 // Date picker dialog
                                                 if (showDatePicker) {
@@ -415,7 +352,7 @@ fun EventFormDialog(
                                         }
 
                                         // Match Selection
-                                        EventFormSection(title = "Match Showing") {
+                                        EventFormSection(title = "Match") {
                                                 // Match dropdown
                                                 if (uiState.isLoadingMatches) {
                                                         Row(
@@ -446,7 +383,7 @@ fun EventFormDialog(
                                                                 verticalArrangement = Arrangement.spacedBy(12.dp)
                                                         ) {
                                                                 Text(
-                                                                        text = "No matches available for selected date",
+                                                                        text = "There are no live matches on the selected date",
                                                                         style = MaterialTheme.typography.bodyMedium,
                                                                         color = MaterialTheme.colorScheme.onSurfaceVariant
                                                                 )
@@ -558,7 +495,7 @@ fun EventFormDialog(
                                                                                                 ->
                                                                                                 "${match.homeTeam} vs ${match.awayTeam} - ${match.venue}"
                                                                                         }
-                                                                                        ?: "Select a match *",
+                                                                                        ?: "Select a live match *",
                                                                         onValueChange = {},
                                                                         readOnly = true,
                                                                         label = { Text("Match *") },
@@ -784,9 +721,14 @@ fun EventFormDialog(
                                                                 )
                                                 )
                                         }
+                                        var amenitiesExpanded by remember { mutableStateOf(false) } // Default to collapsed
 
                                         // Amenities
-                                        EventFormSection(title = "Amenities") {
+                                        EventFormSection(
+                                                title = "Amenities",
+                                                isExpanded = amenitiesExpanded,
+                                                onHeaderClick = { amenitiesExpanded = !amenitiesExpanded}
+                                        ){
                                                 CheckboxRow(
                                                         checked = formData.amenities.isIndoor,
                                                         onCheckedChange = {
@@ -870,7 +812,7 @@ fun EventFormDialog(
                                                                         )
                                                                 )
                                                         },
-                                                        text = "Has Parking"
+                                                        text = "Parking"
                                                 )
 
                                                 CheckboxRow(
@@ -887,7 +829,7 @@ fun EventFormDialog(
                                                                         )
                                                                 )
                                                         },
-                                                        text = "Has Food"
+                                                        text = "Food"
                                                 )
 
                                                 CheckboxRow(
@@ -904,7 +846,7 @@ fun EventFormDialog(
                                                                         )
                                                                 )
                                                         },
-                                                        text = "Has Toilet"
+                                                        text = "Toilet"
                                                 )
 
                                                 CheckboxRow(
@@ -921,28 +863,21 @@ fun EventFormDialog(
                                                                         )
                                                                 )
                                                         },
-                                                        text = "Has WiFi"
+                                                        text = "WiFi"
                                                 )
                                         }
 
+                                        var accessibilityExpanded by remember { mutableStateOf(false) }
+
                                         // Accessibility
-                                        EventFormSection(title = "Accessibility") {
+                                        EventFormSection(
+                                                title = "Accessibility",
+                                                isExpanded = accessibilityExpanded,
+                                                onHeaderClick = { accessibilityExpanded = !accessibilityExpanded}
+                                        ){
                                                 CheckboxRow(
-                                                        checked =
-                                                                formData.accessibility
-                                                                        .isWheelchairAccessible,
-                                                        onCheckedChange = {
-                                                                eventViewModel.updateFormData(
-                                                                        formData.copy(
-                                                                                accessibility =
-                                                                                        formData.accessibility
-                                                                                                .copy(
-                                                                                                        isWheelchairAccessible =
-                                                                                                                it
-                                                                                                )
-                                                                        )
-                                                                )
-                                                        },
+                                                        checked = formData.accessibility.isWheelchairAccessible,
+                                                        onCheckedChange = { eventViewModel.updateFormData(formData.copy(accessibility = formData.accessibility.copy(isWheelchairAccessible = it)))},
                                                         text = "Wheelchair Accessible"
                                                 )
 
@@ -1022,17 +957,61 @@ fun EventFormDialog(
 }
 
 @Composable
-private fun EventFormSection(title: String, content: @Composable ColumnScope.() -> Unit) {
+private fun EventFormSection(
+        title: String,
+        content: @Composable ColumnScope.() -> Unit // Original simple signature
+) {
         Column {
                 Text(
                         text = title,
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.SemiBold,
                         color = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.padding(bottom = 8.dp)
+                        modifier = Modifier.padding(bottom = 8.dp) // Standard padding for title
                 )
+                Column(
+                        verticalArrangement = Arrangement.spacedBy(6.dp), // Spacing for content items
+                        content = content
+                )
+        }
+}
 
-                Column(verticalArrangement = Arrangement.spacedBy(6.dp), content = content)
+@Composable
+private fun EventFormSection(title: String, isExpanded: Boolean, onHeaderClick:() -> Unit, content: @Composable ColumnScope.() -> Unit) {
+        Column {
+                //Clickable Header Row
+                Row(
+                        modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable(
+                                interactionSource = remember { MutableInteractionSource() },
+                                indication = null
+                        ) { onHeaderClick() }
+                                .padding(vertical = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                ) {
+                        Icon(
+                                imageVector = if (isExpanded) Icons.Filled.KeyboardArrowDown else Icons.Filled.KeyboardArrowRight,
+                                contentDescription = if (isExpanded) "Collapse $title" else "Expand $title",
+                                tint = MaterialTheme.colorScheme.primary
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                                text = title,
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.SemiBold,
+                                color = MaterialTheme.colorScheme.primary
+                        )
+                }
+
+                // Conditionally display content based on expansion state
+                if (isExpanded) {
+                        Column(
+                                modifier = Modifier.padding(top = 8.dp), // Add some space above content
+                                verticalArrangement = Arrangement.spacedBy(6.dp),
+                                content = content
+                        )
+                }
         }
 }
 
