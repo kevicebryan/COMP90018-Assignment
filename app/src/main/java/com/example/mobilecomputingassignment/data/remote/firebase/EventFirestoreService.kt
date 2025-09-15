@@ -8,6 +8,8 @@ import com.google.firebase.firestore.Query
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.tasks.await
+import com.google.firebase.Timestamp
+import java.util.Date
 
 
 @Singleton
@@ -15,6 +17,76 @@ class EventFirestoreService @Inject constructor(private val firestore: FirebaseF
     companion object {
         private const val EVENTS_COLLECTION = "events"
         private const val TAG = "EventFirestoreService"
+        // noise snapshots subcollection
+        private const val NOISE_SNAPSHOTS = "noiseSnapshots"
+    }
+
+    // === NEW: noise snapshot write ===
+    suspend fun addNoiseSnapshot(eventId: String, userId: String, dbfs: Double): Result<Unit> {
+        return try {
+            val snapRef = firestore
+                .collection(EVENTS_COLLECTION)
+                .document(eventId)
+                .collection(NOISE_SNAPSHOTS)
+                .document()
+
+            val data = mapOf(
+                "userId" to userId,
+                "dbfs" to dbfs,
+                "capturedAt" to FieldValue.serverTimestamp()
+            )
+
+            snapRef.set(data).await()
+            Log.d(TAG, "Noise snapshot added: event=$eventId user=$userId dbfs=$dbfs")
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Log.e(TAG, "Error adding noise snapshot", e)
+            Result.failure(e)
+        }
+    }
+
+    // === NEW: compute 20-min avg & store on event ===
+    suspend fun computeAndUpdateRecentNoiseAverage(
+        eventId: String,
+        windowMinutes: Long = 20L
+    ): Result<Double> {
+        return try {
+            val cutoff = Timestamp(Date(System.currentTimeMillis() - windowMinutes * 60_000))
+            val col = firestore
+                .collection(EVENTS_COLLECTION)
+                .document(eventId)
+                .collection(NOISE_SNAPSHOTS)
+
+            // last 20 minutes ordered by time
+            val snaps = col
+                .whereGreaterThanOrEqualTo("capturedAt", cutoff)
+                .orderBy("capturedAt")
+                .get()
+                .await()
+
+            val values = snaps.documents.mapNotNull { it.getDouble("dbfs") }
+            val avg = if (values.isNotEmpty()) values.average() else Double.NaN
+
+            // Store on the event for quick reads (optional but handy)
+            firestore.collection(EVENTS_COLLECTION)
+                .document(eventId)
+                .update(
+                    mapOf(
+                        "recentNoiseDbfs" to avg,
+                        "recentNoiseUpdatedAt" to FieldValue.serverTimestamp()
+                    )
+                )
+                .await()
+
+            Log.d(
+                TAG,
+                "Updated recentNoiseDbfs for event=$eventId avg=${if (avg.isNaN()) "NaN" else avg}"
+            )
+            Result.success(avg)
+        } catch (e: Exception) {
+            Log.e(TAG, "Error computing/updating recent noise average", e)
+            Result.failure(e)
+        }
     }
 
     suspend fun createEvent(event: EventDto): Result<String> {

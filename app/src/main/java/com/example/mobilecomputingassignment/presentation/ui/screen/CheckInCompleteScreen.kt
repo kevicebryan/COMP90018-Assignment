@@ -1,20 +1,32 @@
 package com.example.mobilecomputingassignment.presentation.ui.screen
 
+import android.Manifest
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
 import com.example.mobilecomputingassignment.R
 import com.example.mobilecomputingassignment.presentation.ui.component.ShakeToReveal
 import com.example.mobilecomputingassignment.presentation.ui.component.rememberVibrate
+
+// NEW: imports to talk to ViewModel + do background sampling
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.mobilecomputingassignment.presentation.viewmodel.CheckInViewModel
+import com.example.mobilecomputingassignment.util.NoiseSampler
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -23,6 +35,39 @@ fun CheckInCompleteScreen(
     eventId: String,
     onRevealPointsClick: () -> Unit // NEW
 ) {
+    // microphone permission
+    val context = LocalContext.current
+    var hasMicPermission by remember { mutableStateOf(false) }
+
+    val micPermLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { granted ->
+        hasMicPermission = granted
+    }
+
+    LaunchedEffect(Unit) {
+        hasMicPermission = ContextCompat.checkSelfPermission(
+            context, Manifest.permission.RECORD_AUDIO
+        ) == android.content.pm.PackageManager.PERMISSION_GRANTED
+
+        if (!hasMicPermission) {
+            micPermLauncher.launch(Manifest.permission.RECORD_AUDIO)
+        }
+    }
+
+    // NEW: get the VM and, once permission is granted, sample & upload one snapshot
+    val checkInVm: CheckInViewModel = hiltViewModel()
+    LaunchedEffect(hasMicPermission) {
+        if (hasMicPermission) {
+            // Sample the microphone off the main thread
+            val sample = withContext(Dispatchers.Default) { NoiseSampler.sampleDbFs() }
+            sample?.let { result ->
+                // Send snapshot and update rolling 20-min average
+                checkInVm.captureNoiseSnapshot(eventId, result.dbfs)
+            }
+        }
+    }
+
     val vibrate = rememberVibrate()
     Scaffold(
         topBar = {
@@ -82,7 +127,6 @@ fun CheckInCompleteScreen(
                     onRevealPointsClick()
                     vibrate()
                 },
-
                 modifier = Modifier
                     .width(178.dp)
                     .height(40.dp)
@@ -100,4 +144,5 @@ fun CheckInCompleteScreen(
         }
     }
 }
+
 

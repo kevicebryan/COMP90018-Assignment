@@ -12,6 +12,14 @@ class EventRepository
 @Inject
 constructor(private val eventFirestoreService: EventFirestoreService) : IEventRepository {
 
+  override suspend fun addNoiseSnapshot(eventId: String, userId: String, dbfs: Double): Result<Unit> {
+    return eventFirestoreService.addNoiseSnapshot(eventId, userId, dbfs)
+  }
+
+  override suspend fun computeRecentNoiseAverage(eventId: String, windowMinutes: Long): Result<Double> {
+    return eventFirestoreService.computeAndUpdateRecentNoiseAverage(eventId, windowMinutes)
+  }
+
   override suspend fun createEvent(event: Event): Result<String> {
     val eventDto = EventDto.fromDomain(event)
     return eventFirestoreService.createEvent(eventDto)
