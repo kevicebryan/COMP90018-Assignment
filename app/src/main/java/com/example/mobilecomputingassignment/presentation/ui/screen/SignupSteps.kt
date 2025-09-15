@@ -404,7 +404,7 @@ fun SignupUsernameAndAgeStep(
                         )
                     }
                 },
-                placeholder = { Text("01/01/2000") },
+//                placeholder = { Text("01/01/2000") },
                 modifier = Modifier.fillMaxWidth(),
                 readOnly = false, // ✅ CHANGED: Now allows typing
                 singleLine = true,
