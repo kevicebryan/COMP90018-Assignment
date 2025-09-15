@@ -550,6 +550,20 @@ fun EventFormDialog(
                                                         mutableStateOf(uiState.availableMatches.isNotEmpty())
                                                 }
 
+                                                val availableTeams = uiState.availableTeams
+
+
+                                                var selectedHomeTeam by remember(
+                                                        availableTeams
+                                                ) {
+                                                        mutableStateOf<Team?>(null)
+                                                }
+                                                var selectedAwayTeam by remember(
+                                                        availableTeams
+                                                ) {
+                                                        mutableStateOf<Team?>(null)
+                                                }
+
                                                 LaunchedEffect(uiState.availableMatches) {
                                                         if (uiState.availableMatches.isEmpty()) {
                                                                 isLiveMatchMode = false
@@ -750,23 +764,13 @@ fun EventFormDialog(
                                                         }
                                                 } // --- Custom Matches ---
                                                 else {
-                                                        val availableTeams = uiState.availableTeams
 
                                                         // Add this LaunchedEffect to load teams when entering custom mode
                                                         LaunchedEffect(Unit) {
                                                                 eventViewModel.loadAflTeams() // You need to make this method public
                                                         }
 
-                                                        var selectedHomeTeam by remember(
-                                                                availableTeams
-                                                        ) {
-                                                                mutableStateOf<Team?>(null)
-                                                        }
-                                                        var selectedAwayTeam by remember(
-                                                                availableTeams
-                                                        ) {
-                                                                mutableStateOf<Team?>(null)
-                                                        }
+
 
                                                         var expandedHomeTeam by remember {
                                                                 mutableStateOf(
@@ -867,14 +871,6 @@ fun EventFormDialog(
                                                                                                                                 team
                                                                                                                         expandedHomeTeam =
                                                                                                                                 false
-
-                                                                                                                        // If both teams are selected, create the custom match
-                                                                                                                        selectedAwayTeam?.let { awayTeam ->
-                                                                                                                                eventViewModel.createCustomMatch(
-                                                                                                                                        team.name,
-                                                                                                                                        awayTeam.name
-                                                                                                                                )
-                                                                                                                        }
                                                                                                                 }
                                                                                                         )
                                                                                                 }
@@ -952,14 +948,6 @@ fun EventFormDialog(
                                                                                                                                 team
                                                                                                                         expandedAwayTeam =
                                                                                                                                 false
-
-                                                                                                                        // If both teams are selected, create the custom match
-                                                                                                                        selectedHomeTeam?.let { homeTeam ->
-                                                                                                                                eventViewModel.createCustomMatch(
-                                                                                                                                        homeTeam.name,
-                                                                                                                                        team.name
-                                                                                                                                )
-                                                                                                                        }
                                                                                                                 }
                                                                                                         )
                                                                                                 }
@@ -1357,26 +1345,32 @@ fun EventFormDialog(
                                                                 ) { Text("Cancel") }
 
                                                                 Button(
-                                                                        onClick = onSave,
-                                                                        modifier = Modifier.weight(
-                                                                                1f
-                                                                        ),
-                                                                        enabled =
-                                                                                !uiState.isLoading &&
-                                                                                        formData.selectedMatch != null &&
-                                                                                        formData.locationName
-                                                                                                .isNotBlank() &&
-                                                                                        formData.locationAddress
-                                                                                                .isNotBlank()
+                                                                        onClick = {
+                                                                                if (!isLiveMatchMode && selectedHomeTeam != null && selectedAwayTeam != null) {
+                                                                                        eventViewModel.createCustomMatch(
+                                                                                                selectedHomeTeam!!.name,
+                                                                                                selectedAwayTeam!!.name
+                                                                                        )
+                                                                                }
+                                                                                onSave()
+                                                                        },
+                                                                        modifier = Modifier.weight(1f),
+                                                                        enabled = when {
+                                                                                uiState.isLoading -> false
+                                                                                isLiveMatchMode -> formData.selectedMatch != null &&
+                                                                                        formData.locationName.isNotBlank() &&
+                                                                                        formData.locationAddress.isNotBlank()
+                                                                                else -> selectedHomeTeam != null && selectedAwayTeam != null && // Check local state for custom matches
+                                                                                        formData.locationName.isNotBlank() &&
+                                                                                        formData.locationAddress.isNotBlank()
+                                                                        }
                                                                 ) {
                                                                         if (uiState.isLoading) {
                                                                                 CircularProgressIndicator(
                                                                                         modifier = Modifier.size(
                                                                                                 16.dp
                                                                                         ),
-                                                                                        color =
-                                                                                                MaterialTheme.colorScheme
-                                                                                                        .onPrimary
+                                                                                        color = MaterialTheme.colorScheme.onPrimary
                                                                                 )
                                                                         } else {
                                                                                 Text(if (isEditing) "Update" else "Create")
