@@ -607,20 +607,12 @@ fun EventFormDialog(
                                                                 )
                                                 ) {
                                                         Icon(
-                                                                painter =
-                                                                        painterResource(
-                                                                                id =
-                                                                                        R.drawable
-                                                                                                .ic_my_location
-                                                                        ),
-                                                                contentDescription =
-                                                                        "Select location on map",
-                                                                tint =
-                                                                        MaterialTheme.colorScheme
-                                                                                .onPrimary
+                                                                painter = painterResource(id = R.drawable.ic_location),
+                                                                contentDescription = "Select location on map",
+                                                                tint = MaterialTheme.colorScheme.onPrimary
                                                         )
                                                         Spacer(modifier = Modifier.width(8.dp))
-                                                        Text("Select Location on Map")
+                                                        Text("Select Map Location")
                                                 }
 
                                                 // Show selected coordinates if available
@@ -711,7 +703,7 @@ fun EventFormDialog(
                                                                 )
                                                         },
                                                         label = {
-                                                                Text("Contact Number (Optional)")
+                                                                Text("Contact Number")
                                                         },
                                                         modifier = Modifier.fillMaxWidth(),
                                                         keyboardOptions =
