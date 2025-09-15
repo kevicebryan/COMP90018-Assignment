@@ -15,4 +15,10 @@ interface IEventRepository {
   suspend fun addAttendee(eventId: String, userId: String): Result<Unit>
   suspend fun removeAttendee(eventId: String, userId: String): Result<Unit>
   suspend fun isUserAttending(eventId: String, userId: String): Result<Boolean>
+
+  suspend fun addNoiseSnapshot(eventId: String, userId: String, dbfs: Double): Result<Unit>
+
+  suspend fun computeRecentNoiseAverage(eventId: String, windowMinutes: Long = 20): Result<Double>
+
+
 }
