@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -50,7 +49,7 @@ fun LoginStep(
                                 val account = task.getResult(ApiException::class.java)
                                 account.idToken?.let { idToken -> onGoogleSignInClick(idToken) }
                         } catch (e: ApiException) {
-                                // Handle error
+                                // Handle error silently or log if needed
                         }
                 }
 
@@ -109,7 +108,6 @@ fun LoginStep(
 
                         Spacer(modifier = Modifier.height(16.dp))
 
-                        // Divider with "or" text
                         Row(
                                 modifier = Modifier.fillMaxWidth(),
                                 verticalAlignment = Alignment.CenterVertically
@@ -169,4 +167,3 @@ fun LoginStep(
                 )
         }
 }
-
