@@ -283,10 +283,21 @@ fun EventFormDialog(
 
                                         // Date and Time
                                         EventFormSection(title = "Date & Time") {
-                                                var showDatePicker by remember { mutableStateOf(false) }
-                                                var showTimePicker by remember { mutableStateOf(false) }
+                                                var showDatePicker by remember {
+                                                        mutableStateOf(
+                                                                false
+                                                        )
+                                                }
+                                                var showTimePicker by remember {
+                                                        mutableStateOf(
+                                                                false
+                                                        )
+                                                }
                                                 Row(
-                                                        modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                                        modifier = Modifier.fillMaxWidth(),
+                                                        horizontalArrangement = Arrangement.spacedBy(
+                                                                8.dp
+                                                        )
                                                 ) {
 
                                                         // Date picker
@@ -666,10 +677,10 @@ fun EventFormDialog(
                                                                                                                 ?: ""
                                                                                                 "$home vs $away$venueInfo" // ...display its details.
                                                                                         }
-                                                                                        ?: "Select an available live match *", // Default if formData.selectedMatch is null
+                                                                                        ?: "Select a live match *", // Default if formData.selectedMatch is null
                                                                                 onValueChange = {}, // Not directly editable
                                                                                 readOnly = true,
-                                                                                label = { Text("Selected Match / Available Live Matches *") }, // Updated label
+                                                                                label = { Text("Selected Live Match *") }, // Updated label
                                                                                 trailingIcon = {
                                                                                         ExposedDropdownMenuDefaults.TrailingIcon(
                                                                                                 expanded = expanded
@@ -744,94 +755,240 @@ fun EventFormDialog(
                                                                                 )
                                                                 )
                                                         }
-                                                        // Custom Matches
-                                                } else {
-                                                        // --- Custom Match Selector with Form Boxes ---
-                                                        var homeTeam by remember(uiState.availableTeams) { mutableStateOf(uiState.availableTeams.firstOrNull()) }
-                                                        var awayTeam by remember(uiState.availableTeams) { mutableStateOf(uiState.availableTeams.getOrNull(1)) }
-                                                        var expandedHomeTeam by remember { mutableStateOf(false) }
-                                                        var expandedAwayTeam by remember { mutableStateOf(false) }
+                                                } // --- Custom Matches ---
+                                                else {
+                                                        val availableTeams = uiState.availableTeams
+
+                                                        // Add this LaunchedEffect to load teams when entering custom mode
+                                                        LaunchedEffect(Unit) {
+                                                                eventViewModel.loadAflTeams() // You need to make this method public
+                                                        }
+
+                                                        var selectedHomeTeam by remember(
+                                                                availableTeams
+                                                        ) {
+                                                                mutableStateOf<Team?>(null)
+                                                        }
+                                                        var selectedAwayTeam by remember(
+                                                                availableTeams
+                                                        ) {
+                                                                mutableStateOf<Team?>(null)
+                                                        }
+
+                                                        var expandedHomeTeam by remember {
+                                                                mutableStateOf(
+                                                                        false
+                                                                )
+                                                        }
+                                                        var expandedAwayTeam by remember {
+                                                                mutableStateOf(
+                                                                        false
+                                                                )
+                                                        }
 
                                                         Column(
                                                                 modifier = Modifier
                                                                         .fillMaxWidth()
                                                                         .padding(vertical = 8.dp),
-                                                                        verticalArrangement = Arrangement.spacedBy(16.dp)
-                                                                ) {
-                                                                        // Home Team Dropdown
+                                                                horizontalAlignment = Alignment.CenterHorizontally,
+                                                                verticalArrangement = Arrangement.spacedBy(
+                                                                        12.dp
+                                                                )
+                                                        ) {
+                                                                // --- Home Team Dropdown ---
+                                                                Column(modifier = Modifier.fillMaxWidth()) {
+                                                                        Text(
+                                                                                text = "Home Team",
+                                                                                style = MaterialTheme.typography.titleMedium,
+                                                                                fontWeight = FontWeight.Bold,
+                                                                                modifier = Modifier.padding(
+                                                                                        bottom = 8.dp
+                                                                                )
+                                                                        )
+
                                                                         ExposedDropdownMenuBox(
                                                                                 expanded = expandedHomeTeam,
-                                                                                onExpandedChange = { expandedHomeTeam = !expandedHomeTeam }
+                                                                                onExpandedChange = {
+                                                                                        expandedHomeTeam =
+                                                                                                !expandedHomeTeam
+                                                                                }
                                                                         ) {
                                                                                 OutlinedTextField(
-                                                                                        value = homeTeam?.name ?: "",
+                                                                                        value = selectedHomeTeam?.name
+                                                                                                ?: "Select home team",
                                                                                         onValueChange = {},
                                                                                         readOnly = true,
-                                                                                        label = { Text("Home Team") },
-                                                                                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expandedHomeTeam) },
+                                                                                        trailingIcon = {
+                                                                                                ExposedDropdownMenuDefaults.TrailingIcon(
+                                                                                                        expandedHomeTeam
+                                                                                                )
+                                                                                        },
                                                                                         modifier = Modifier.fillMaxWidth()
+                                                                                                .menuAnchor()
                                                                                 )
 
                                                                                 ExposedDropdownMenu(
                                                                                         expanded = expandedHomeTeam,
-                                                                                        onDismissRequest = { expandedHomeTeam = false }
+                                                                                        onDismissRequest = {
+                                                                                                expandedHomeTeam =
+                                                                                                        false
+                                                                                        }
                                                                                 ) {
-                                                                                        uiState.availableTeams.forEach { team ->
+                                                                                        if (availableTeams.isEmpty()) {
                                                                                                 DropdownMenuItem(
-                                                                                                        text = { Text(team.name) },
-                                                                                                        onClick = {
-                                                                                                                homeTeam = team
-                                                                                                                // If the away team is the same as selected home, reset it
-                                                                                                                if (awayTeam == team) awayTeam = null
-                                                                                                                expandedHomeTeam = false
-                                                                                                        }
+                                                                                                        text = {
+                                                                                                                Text(
+                                                                                                                        "No teams available"
+                                                                                                                )
+                                                                                                        },
+                                                                                                        onClick = { }
                                                                                                 )
+
+                                                                                        } else {
+                                                                                                availableTeams.forEach { team ->
+                                                                                                        DropdownMenuItem(
+                                                                                                                text = {
+                                                                                                                        Row(verticalAlignment = Alignment.CenterVertically) {
+                                                                                                                                team.localLogoRes?.let { logoRes ->
+                                                                                                                                        Image(
+                                                                                                                                                painter = painterResource(
+                                                                                                                                                        id = logoRes
+                                                                                                                                                ),
+                                                                                                                                                contentDescription = team.name,
+                                                                                                                                                modifier = Modifier.size(
+                                                                                                                                                        24.dp
+                                                                                                                                                )
+                                                                                                                                        )
+                                                                                                                                        Spacer(
+                                                                                                                                                modifier = Modifier.width(
+                                                                                                                                                        8.dp
+                                                                                                                                                )
+                                                                                                                                        )
+                                                                                                                                }
+                                                                                                                                Text(team.name)
+                                                                                                                        }
+                                                                                                                },
+                                                                                                                // In the home team onClick:
+                                                                                                                onClick = {
+                                                                                                                        selectedHomeTeam =
+                                                                                                                                team
+                                                                                                                        expandedHomeTeam =
+                                                                                                                                false
+
+                                                                                                                        // If both teams are selected, create the custom match
+                                                                                                                        selectedAwayTeam?.let { awayTeam ->
+                                                                                                                                eventViewModel.createCustomMatch(
+                                                                                                                                        team.name,
+                                                                                                                                        awayTeam.name
+                                                                                                                                )
+                                                                                                                        }
+                                                                                                                }
+                                                                                                        )
+                                                                                                }
                                                                                         }
                                                                                 }
                                                                         }
+                                                                }
 
-                                                                        // Away Team Dropdown
+                                                                // --- Away Team Dropdown ---
+                                                                Column(modifier = Modifier.fillMaxWidth()) {
+                                                                        Text(
+                                                                                text = "Away Team",
+                                                                                style = MaterialTheme.typography.titleMedium,
+                                                                                fontWeight = FontWeight.Bold,
+                                                                                modifier = Modifier.padding(
+                                                                                        bottom = 8.dp
+                                                                                )
+                                                                        )
+
                                                                         ExposedDropdownMenuBox(
                                                                                 expanded = expandedAwayTeam,
-                                                                                onExpandedChange = { expandedAwayTeam = !expandedAwayTeam }
+                                                                                onExpandedChange = {
+                                                                                        expandedAwayTeam =
+                                                                                                !expandedAwayTeam
+                                                                                }
                                                                         ) {
                                                                                 OutlinedTextField(
-                                                                                        value = awayTeam?.name ?: "",
+                                                                                        value = selectedAwayTeam?.name
+                                                                                                ?: "Select away team",
                                                                                         onValueChange = {},
                                                                                         readOnly = true,
-                                                                                        label = { Text("Away Team") },
-                                                                                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expandedAwayTeam) },
+                                                                                        trailingIcon = {
+                                                                                                ExposedDropdownMenuDefaults.TrailingIcon(
+                                                                                                        expandedAwayTeam
+                                                                                                )
+                                                                                        },
                                                                                         modifier = Modifier.fillMaxWidth()
+                                                                                                .menuAnchor()
                                                                                 )
 
                                                                                 ExposedDropdownMenu(
                                                                                         expanded = expandedAwayTeam,
-                                                                                        onDismissRequest = { expandedAwayTeam = false }
-                                                                                ) {
-                                                                                        uiState.availableTeams.filter { it != homeTeam }.forEach { team ->
-                                                                                                DropdownMenuItem(
-                                                                                                        text = { Text(team.name) },
-                                                                                                        onClick = {
-                                                                                                                awayTeam = team
-                                                                                                                expandedAwayTeam = false
-                                                                                                        }
-                                                                                                )
+                                                                                        onDismissRequest = {
+                                                                                                expandedAwayTeam =
+                                                                                                        false
                                                                                         }
-                                                                                }
-                                                                        }
+                                                                                ) {
+                                                                                        availableTeams.filter { it != selectedHomeTeam }
+                                                                                                .forEach { team ->
+                                                                                                        DropdownMenuItem(
+                                                                                                                text = {
+                                                                                                                        Row(verticalAlignment = Alignment.CenterVertically) {
+                                                                                                                                team.localLogoRes?.let { logoRes ->
+                                                                                                                                        Image(
+                                                                                                                                                painter = painterResource(
+                                                                                                                                                        id = logoRes
+                                                                                                                                                ),
+                                                                                                                                                contentDescription = team.name,
+                                                                                                                                                modifier = Modifier.size(
+                                                                                                                                                        24.dp
+                                                                                                                                                )
+                                                                                                                                        )
+                                                                                                                                        Spacer(
+                                                                                                                                                modifier = Modifier.width(
+                                                                                                                                                        8.dp
+                                                                                                                                                )
+                                                                                                                                        )
+                                                                                                                                }
+                                                                                                                                Text(team.name)
+                                                                                                                        }
+                                                                                                                },
+                                                                                                                // In the away team onClick:
+                                                                                                                onClick = {
+                                                                                                                        selectedAwayTeam =
+                                                                                                                                team
+                                                                                                                        expandedAwayTeam =
+                                                                                                                                false
 
-                                                                        // Optional Preview
-                                                                        if (homeTeam != null && awayTeam != null) {
-                                                                                Spacer(modifier = Modifier.height(16.dp))
-                                                                                Text(
-                                                                                        text = "Preview: ${homeTeam!!.name} vs ${awayTeam!!.name}",
-                                                                                        style = MaterialTheme.typography.titleSmall,
-                                                                                        fontWeight = FontWeight.SemiBold
-                                                                                )
+                                                                                                                        // If both teams are selected, create the custom match
+                                                                                                                        selectedHomeTeam?.let { homeTeam ->
+                                                                                                                                eventViewModel.createCustomMatch(
+                                                                                                                                        homeTeam.name,
+                                                                                                                                        team.name
+                                                                                                                                )
+                                                                                                                        }
+                                                                                                                }
+                                                                                                        )
+                                                                                                }
+                                                                                }
                                                                         }
                                                                 }
 
+                                                                // --- Preview of selected match ---
+                                                                if (selectedHomeTeam != null && selectedAwayTeam != null) {
+                                                                        Spacer(
+                                                                                modifier = Modifier.height(
+                                                                                        16.dp
+                                                                                )
+                                                                        )
+                                                                        TeamVsTeamDisplay(
+                                                                                homeTeamName = selectedHomeTeam!!.name,
+                                                                                awayTeamName = selectedAwayTeam!!.name
+                                                                        )
+                                                                }
+                                                        }
                                                 }
+
 
                                                 val showEventInfoSection =
                                                         (!isLiveMatchMode) || (isLiveMatchMode && uiState.availableMatches.isNotEmpty());
@@ -849,6 +1006,7 @@ fun EventFormDialog(
                                                                                 )
                                                                         },
                                                                         label = { Text("Location Name *") },
+                                                                        placeholder = { Text("Enter location name") },
                                                                         modifier = Modifier.fillMaxWidth(),
                                                                         singleLine = true
                                                                 )
@@ -938,21 +1096,34 @@ fun EventFormDialog(
 
                                                         // Capacity and Contact
                                                         EventFormSection(title = "Details") {
-                                                                var capacityText by remember { mutableStateOf(formData.capacity.toString()) }
+                                                                var capacityText by remember {
+                                                                        mutableStateOf(
+                                                                                formData.capacity.toString()
+                                                                        )
+                                                                }
                                                                 OutlinedTextField(
                                                                         value = capacityText,
                                                                         onValueChange = { newText ->
                                                                                 // Allow empty string for deletion
                                                                                 if (newText.isEmpty() || newText.all { it.isDigit() }) {
-                                                                                        capacityText = newText
+                                                                                        capacityText =
+                                                                                                newText
                                                                                         // Update numeric capacity, default 0 if empty
-                                                                                        val capacityInt = newText.toIntOrNull() ?: 0
-                                                                                        eventViewModel.updateFormData(formData.copy(capacity = capacityInt))
+                                                                                        val capacityInt =
+                                                                                                newText.toIntOrNull()
+                                                                                                        ?: 0
+                                                                                        eventViewModel.updateFormData(
+                                                                                                formData.copy(
+                                                                                                        capacity = capacityInt
+                                                                                                )
+                                                                                        )
                                                                                 }
                                                                         },
                                                                         label = { Text("Capacity *") },
                                                                         modifier = Modifier.fillMaxWidth(),
-                                                                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                                                                        keyboardOptions = KeyboardOptions(
+                                                                                keyboardType = KeyboardType.Number
+                                                                        )
                                                                 )
 
                                                                 OutlinedTextField(
@@ -1176,12 +1347,12 @@ fun EventFormDialog(
                                                                         text = "Accessible Toilets"
                                                                 )
                                                         }
+
                                                         // Footer buttons
                                                         HorizontalDivider()
 
                                                         Row(
-                                                                modifier = Modifier
-                                                                        .fillMaxWidth()
+                                                                modifier = Modifier.fillMaxWidth()
                                                                         .padding(16.dp),
                                                                 horizontalArrangement = Arrangement.spacedBy(
                                                                         8.dp
@@ -1223,29 +1394,14 @@ fun EventFormDialog(
                                                         }
                                                 }
                                         }
-
-
-                                        // Custom Match Dialog
-                                        if (uiState.showCustomMatchDialog) {
-                                                CustomMatchDialog(
-                                                        availableTeams = uiState.availableTeams,
-                                                        isLoadingTeams = uiState.isLoadingTeams,
-                                                        onDismiss = { eventViewModel.hideCustomMatchDialog() },
-                                                        onCreateMatch = { homeTeam, awayTeam ->
-                                                                eventViewModel.createCustomMatch(
-                                                                        homeTeam,
-                                                                        awayTeam
-                                                                )
-                                                        },
-                                                        currentHomeTeam = formData.selectedMatch?.homeTeam,
-                                                        currentAwayTeam = formData.selectedMatch?.awayTeam
-                                                )
-                                        }
                                 }
                         }
                 }
         }
 }
+
+
+
 
 
 
