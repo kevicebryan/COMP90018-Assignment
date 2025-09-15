@@ -388,26 +388,31 @@ fun SignupUsernameAndAgeStep(
 
             OutlinedTextField(
                 value = birthdate,
-                onValueChange = {},
+                onValueChange = { newValue ->
+                    // Allow typing but validate the format
+                    if (newValue.length <= 10) { // Limit to DD/MM/YYYY format length
+                        birthdate = newValue
+                    }
+                },
                 label = { Text("Birthdate (DD/MM/YYYY)") },
-                leadingIcon = { Icon(Icons.Default.DateRange, contentDescription = null) },
-                placeholder = { Text("25/12/1990") },
-                modifier = Modifier.fillMaxWidth(),
-                readOnly = true,
-                singleLine = true,
-                isError = birthdate.isNotEmpty() && !birthdate.matches(Regex("""\d{2}/\d{2}/\d{4}""")),
-                trailingIcon = {
-                    IconButton(
-                        onClick = { showDatePicker = true }
-                    ) {
+                leadingIcon = {
+                    IconButton(onClick = { showDatePicker = true }) {
                         Icon(
-                            painter = painterResource(id = R.drawable.ic_calendar),
+                            Icons.Default.DateRange,
                             contentDescription = "Select birthdate",
                             tint = MaterialTheme.colorScheme.primary
                         )
                     }
-                }
+                },
+                placeholder = { Text("01/01/2000") },
+                modifier = Modifier.fillMaxWidth(),
+                readOnly = false, // ✅ CHANGED: Now allows typing
+                singleLine = true,
+                isError = birthdate.isNotEmpty() && !birthdate.matches(Regex("""\d{2}/\d{2}/\d{4}"""))
+                // No trailingIcon - only the clickable leading icon
             )
+
+
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
