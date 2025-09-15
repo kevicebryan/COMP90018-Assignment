@@ -54,30 +54,19 @@ fun LoginStep(
                         }
                 }
 
-        Column(modifier = Modifier.fillMaxSize().padding(24.dp)) {
-                // Header with back button and title
-                Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                ) {
-                        IconButton(onClick = onBackClick) {
-                                Icon(
-                                        Icons.AutoMirrored.Filled.ArrowBack,
-                                        contentDescription = "Back"
-                                )
-                        }
-                        Text(text = "Log in", style = MaterialTheme.typography.headlineMedium)
-                        Spacer(modifier = Modifier.width(48.dp))
-                }
-
-                Spacer(modifier = Modifier.height(48.dp))
-
-                // Form content
-                Column(
-                        modifier = Modifier.weight(1f),
-                        verticalArrangement = Arrangement.spacedBy(20.dp)
-                ) {
+        SignupLayout(
+                title = "Welcome back",
+                subtitle = "Sign in to your WatchMates account",
+                onBackClick = onBackClick,
+                currentStep = 0,
+                totalSteps = 0,
+                buttonText = "Log in",
+                buttonEnabled = !isLoading && email.isNotEmpty() && password.isNotEmpty(),
+                isLoading = isLoading,
+                onButtonClick = { onLoginClick(email, password) },
+                errorMessage = errorMessage
+        ) {
+                Column(verticalArrangement = Arrangement.spacedBy(20.dp)) {
                         OutlinedTextField(
                                 value = email,
                                 onValueChange = { email = it },
@@ -86,8 +75,7 @@ fun LoginStep(
                                 leadingIcon = {
                                         Icon(Icons.Default.Email, contentDescription = null)
                                 },
-                                keyboardOptions =
-                                        KeyboardOptions(keyboardType = KeyboardType.Email),
+                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
                                 modifier = Modifier.fillMaxWidth(),
                                 singleLine = true,
                                 isError = errorMessage != null && email.isEmpty()
@@ -102,70 +90,24 @@ fun LoginStep(
                                         Icon(Icons.Default.Lock, contentDescription = null)
                                 },
                                 trailingIcon = {
-                                        IconButton(
-                                                onClick = { passwordVisible = !passwordVisible }
-                                        ) {
+                                        IconButton(onClick = { passwordVisible = !passwordVisible }) {
                                                 Icon(
-                                                        painter =
-                                                                painterResource(
-                                                                        if (passwordVisible)
-                                                                                R.drawable
-                                                                                        .visibility_icon
-                                                                        else
-                                                                                R.drawable
-                                                                                        .visibility_off_icon
-                                                                ),
-                                                        contentDescription =
-                                                                if (passwordVisible) "Hide password"
-                                                                else "Show password"
+                                                        painter = painterResource(
+                                                                if (passwordVisible) R.drawable.visibility_icon
+                                                                else R.drawable.visibility_off_icon
+                                                        ),
+                                                        contentDescription = if (passwordVisible) "Hide password" else "Show password"
                                                 )
                                         }
                                 },
-                                visualTransformation =
-                                        if (passwordVisible) VisualTransformation.None
-                                        else PasswordVisualTransformation(),
-                                keyboardOptions =
-                                        KeyboardOptions(keyboardType = KeyboardType.Password),
+                                visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                                 modifier = Modifier.fillMaxWidth(),
                                 singleLine = true,
                                 isError = errorMessage != null && password.isEmpty()
                         )
 
-                        // Error message
-                        if (errorMessage != null) {
-                                Text(
-                                        text = errorMessage,
-                                        color = MaterialTheme.colorScheme.error,
-                                        style = MaterialTheme.typography.bodyMedium,
-                                        modifier = Modifier.padding(horizontal = 4.dp)
-                                )
-                        }
-                }
-
-                // Bottom section with buttons
-                Column(
-                        modifier = Modifier.padding(bottom = 32.dp),
-                        verticalArrangement = Arrangement.spacedBy(16.dp)
-                ) {
-                        Button(
-                                onClick = { onLoginClick(email, password) },
-                                modifier = Modifier.fillMaxWidth().height(40.dp),
-                                enabled = !isLoading && email.isNotEmpty() && password.isNotEmpty(),
-                                shape = RoundedCornerShape(16.dp)
-                        ) {
-                                if (isLoading) {
-                                        CircularProgressIndicator(
-                                                modifier = Modifier.size(20.dp),
-                                                color = MaterialTheme.colorScheme.onPrimary
-                                        )
-                                } else {
-                                        Text(
-                                                "Log in",
-                                                style = MaterialTheme.typography.labelLarge,
-                                                fontSize = 16.sp
-                                        )
-                                }
-                        }
+                        Spacer(modifier = Modifier.height(16.dp))
 
                         // Divider with "or" text
                         Row(
@@ -184,24 +126,12 @@ fun LoginStep(
 
                         OutlinedButton(
                                 onClick = {
-                                        val gso =
-                                                GoogleSignInOptions.Builder(
-                                                                GoogleSignInOptions.DEFAULT_SIGN_IN
-                                                        )
-                                                        .requestIdToken(
-                                                                context.getString(
-                                                                        com.example
-                                                                                .mobilecomputingassignment
-                                                                                .R
-                                                                                .string
-                                                                                .default_web_client_id
-                                                                )
-                                                        )
-                                                        .requestEmail()
-                                                        .build()
+                                        val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                                                .requestIdToken(context.getString(R.string.default_web_client_id))
+                                                .requestEmail()
+                                                .build()
 
-                                        val googleSignInClient =
-                                                GoogleSignIn.getClient(context, gso)
+                                        val googleSignInClient = GoogleSignIn.getClient(context, gso)
                                         googleSignInLauncher.launch(googleSignInClient.signInIntent)
                                 },
                                 modifier = Modifier.fillMaxWidth().height(40.dp),
@@ -228,7 +158,6 @@ fun LoginStep(
                 }
         }
 
-        // Forgot Password Dialog
         if (showForgotPasswordDialog) {
                 ForgotPasswordDialog(
                         onSendResetEmail = { resetEmail ->
@@ -240,3 +169,4 @@ fun LoginStep(
                 )
         }
 }
+

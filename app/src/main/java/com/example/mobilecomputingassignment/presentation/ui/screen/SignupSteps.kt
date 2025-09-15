@@ -38,6 +38,8 @@ import java.util.Calendar
 import androidx.compose.material3.ExperimentalMaterial3Api // Add this
 import androidx.compose.material3.Scaffold // Add this
 import androidx.compose.material3.TopAppBar // Add this
+import androidx.compose.foundation.layout.statusBarsPadding
+
 
 enum class PasswordStrength {
         WEAK,
@@ -527,7 +529,6 @@ fun SignupLeagueStep(
         onSaveLeagues: ((List<String>) -> Unit)? = null
 ) {
         // ----- START: ALL THE NEW CODE IS BELOW -----
-
         var selectedLeagues by remember { mutableStateOf(initialSelectedLeagues) }
 
         val actualButtonText = if (isEditingMode) "Save Changes" else "Next"
@@ -807,7 +808,7 @@ fun SignupTeamStep(
 }
 
 @Composable
-private fun SignupLayout(
+fun SignupLayout(
         title: String,
         subtitle: String,
         onBackClick: () -> Unit,
@@ -907,26 +908,29 @@ private fun SignupLayout(
 }
 
 @Composable
-private fun SignupHeader(
+fun SignupHeader(
         onBackClick: () -> Unit,
         currentStep: Int,
         totalSteps: Int,
-        isEditingMode: Boolean = false // <-- NEW PARAMETER
+        isEditingMode: Boolean = false
 ) {
         Column(
-                modifier = Modifier.padding(vertical = 16.dp),
+                modifier = Modifier
+                        .padding(vertical = 16.dp)
+                        .statusBarsPadding(), // ← ADD THIS LINE
                 verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
                 Row(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                 ) {
                         IconButton(onClick = onBackClick) {
                                 Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                         }
-                        // Only show "X of Y" if not in editing mode and steps are valid
+
+                        // Show step counter with proper spacing
                         if (!isEditingMode && currentStep > 0 && totalSteps > 0) {
+                                Spacer(modifier = Modifier.weight(1f))
                                 Text(
                                         text = "$currentStep of $totalSteps",
                                         style = MaterialTheme.typography.bodyMedium,
@@ -934,6 +938,7 @@ private fun SignupHeader(
                                 )
                         }
                 }
+
                 // Only show progress bar if not in editing mode and steps are valid
                 if (!isEditingMode && currentStep > 0 && totalSteps > 0) {
                         LinearProgressIndicator(
@@ -944,3 +949,4 @@ private fun SignupHeader(
                 }
         }
 }
+
