@@ -42,6 +42,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.example.mobilecomputingassignment.domain.models.Team
+import androidx.compose.foundation.layout.statusBarsPadding
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -57,16 +59,17 @@ fun TeamSelectionScreen(
             remember(initiallySelectedTeamNames) { mutableStateOf(initiallySelectedTeamNames) }
 
     Scaffold(
-            topBar = {
-                TopAppBar(
-                        title = { Text("Edit Favourite Teams") },
-                        navigationIcon = {
-                            IconButton(onClick = onBackClick) {
-                                Icon(Icons.Default.ArrowBack, contentDescription = "Back")
-                            }
-                        }
-                )
-            },
+        topBar = {
+            TopAppBar(
+                title = { Text("Edit Favourite Teams") },
+                navigationIcon = {
+                    IconButton(onClick = onBackClick) {
+                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                    }
+                },
+                modifier = Modifier.statusBarsPadding() // ADD THIS LINE
+            )
+        },
             bottomBar = {
                 Button(
                         onClick = { onSaveClick(localSelectedTeamNames) },

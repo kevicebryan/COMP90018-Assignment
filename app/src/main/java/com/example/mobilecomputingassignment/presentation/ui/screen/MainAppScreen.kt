@@ -18,6 +18,8 @@ import com.example.mobilecomputingassignment.presentation.viewmodel.PointsViewMo
 import com.example.mobilecomputingassignment.presentation.viewmodel.ProfileUiState
 import com.example.mobilecomputingassignment.presentation.viewmodel.ProfileViewModel
 import kotlinx.coroutines.launch
+import com.example.mobilecomputingassignment.presentation.ui.screen.ProfileLeagueSelectionScreen
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -241,31 +243,23 @@ fun MainAppScreen(onLogout: () -> Unit, viewModel: AuthViewModel = hiltViewModel
                         return
                 }
 
-                // --- VVVVV NEW BRANCH FOR LEAGUE SELECTION VVVVV ---
+                // --- LEAGUE SELECTION USING PROFILE STYLING ---
                 showLeagueSelection -> {
                         // Get the current user's leagues from ProfileViewModel's uiState
                         val currentUserLeagues = uiState.user?.leagues?.toSet() ?: emptySet()
 
-                        SignupLeagueStep(
+                        ProfileLeagueSelectionScreen(
                                 initialSelectedLeagues = currentUserLeagues,
-                                isEditingMode = true,
-                                onSaveLeagues = { updatedLeagues ->
-                                        profileViewModel.updateUserLeagues(
-                                                updatedLeagues
-                                        ) // Call ProfileViewModel to save
-                                        showLeagueSelection = false // Close the screen
-                                },
-                                // These are for the original signature of SignupLeagueStep, adapt
-                                // behavior:
-                                onNextClick = { /* No-op in editing mode, handled by onSaveLeagues */
-                                },
-                                onSkipClick = { showLeagueSelection = false }, // Acts as "Cancel"
-                                onBackClick = {
+                                isLoading = uiState.isLoading,
+                                onBackClick = { showLeagueSelection = false },
+                                onSaveClick = { updatedLeagues ->
+                                        profileViewModel.updateUserLeagues(updatedLeagues)
                                         showLeagueSelection = false
-                                } // Acts as "Back" or "Cancel"
+                                }
                         )
                         return
                 }
+
         }
 
         // ----- Normal tab shell -----
