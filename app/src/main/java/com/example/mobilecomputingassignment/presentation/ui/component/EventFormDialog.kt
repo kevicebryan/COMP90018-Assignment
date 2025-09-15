@@ -270,15 +270,6 @@ fun EventFormDialog(
                                         // Load matches when date changes
                                         LaunchedEffect(formData.date) {
                                                 eventViewModel.loadMatchesForDate(formData.date)
-
-                                                eventViewModel.updateFormData(
-                                                        formData.copy(
-                                                                selectedMatch = null,       // clear selected match
-                                                                locationName = "",          // clear location name
-                                                                locationAddress = "",       // clear address
-                                                                capacity = 0             // clear capacity if you have this field
-                                                        )
-                                                )
                                         }
 
                                         // Date and Time
@@ -376,13 +367,15 @@ fun EventFormDialog(
                                                                                                                 Date(
                                                                                                                         millis
                                                                                                                 )
-                                                                                                        eventViewModel
-                                                                                                                .updateFormData(
+                                                                                                        if (newDate != formData.date) {
+                                                                                                                // Only reset selectedMatch when the user actually picked a different date
+                                                                                                                eventViewModel.updateFormData(
                                                                                                                         formData.copy(
-                                                                                                                                date =
-                                                                                                                                        newDate
+                                                                                                                                date = newDate,
+                                                                                                                                selectedMatch = null
                                                                                                                         )
                                                                                                                 )
+                                                                                                        }
                                                                                                 }
                                                                                         showDatePicker =
                                                                                                 false
@@ -989,7 +982,6 @@ fun EventFormDialog(
                                                         }
                                                 }
 
-
                                                 val showEventInfoSection =
                                                         (!isLiveMatchMode) || (isLiveMatchMode && uiState.availableMatches.isNotEmpty());
 
@@ -1006,7 +998,6 @@ fun EventFormDialog(
                                                                                 )
                                                                         },
                                                                         label = { Text("Location Name *") },
-                                                                        placeholder = { Text("Enter location name") },
                                                                         modifier = Modifier.fillMaxWidth(),
                                                                         singleLine = true
                                                                 )
@@ -1399,22 +1390,3 @@ fun EventFormDialog(
                 }
         }
 }
-
-
-
-
-
-
-
-
-
-
-// Make sure your UiStateType and Team data class are defined
-// data class YourUiStateType( /* ..., */ val availableTeams: List<Team> = emptyList(), /* ... */ )
-// data class Team(val name: String, val localLogoRes: Int? = null) // Example
-// data class Match( /* ..., */ val homeTeam: String?, val awayTeam: String?, val isLiveMatch: Boolean = false)
-
-
-
-
-
