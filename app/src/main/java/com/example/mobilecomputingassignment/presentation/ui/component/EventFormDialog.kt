@@ -109,6 +109,37 @@ fun TeamVsTeamDisplay(
         awayTeamName: String?
 ) {
         if (homeTeamName == null && awayTeamName == null) return
+        if (homeTeamName == null || awayTeamName == null) return // need both logos
+
+        Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+        ) {
+                // Home Team Logo
+                TeamLogo(teamName = homeTeamName)
+
+                // VS
+                Text(
+                        text = "VS",
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.padding(horizontal = 16.dp)
+                )
+
+                // Away Team Logo
+                TeamLogo(teamName = awayTeamName)
+        }
+}
+
+/*
+@Composable
+fun TeamVsTeamDisplay(
+        homeTeamName: String?,
+        awayTeamName: String?
+) {
+        if (homeTeamName == null && awayTeamName == null) return
 
         val bothTeamsPresent = homeTeamName != null && awayTeamName != null
 
@@ -157,6 +188,7 @@ fun TeamVsTeamDisplay(
                 }
         }
 }
+ */
 
 @Composable
 private fun CheckboxRow(
