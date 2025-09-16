@@ -824,165 +824,173 @@ fun EventFormDialog(
                                                                         12.dp
                                                                 )
                                                         ) {
-                                                                // --- Home Team Dropdown ---
-                                                                Column(modifier = Modifier.fillMaxWidth()) {
-                                                                        Text(
-                                                                                text = "Home Team",
-                                                                                style = MaterialTheme.typography.titleMedium,
-                                                                                fontWeight = FontWeight.Bold,
-                                                                                modifier = Modifier.padding(
-                                                                                        bottom = 8.dp
-                                                                                )
-                                                                        )
-
-                                                                        ExposedDropdownMenuBox(
-                                                                                expanded = expandedHomeTeam,
-                                                                                onExpandedChange = {
-                                                                                        expandedHomeTeam =
-                                                                                                !expandedHomeTeam
-                                                                                }
+                                                                Row(
+                                                                        modifier = Modifier.fillMaxWidth(),
+                                                                        horizontalArrangement = Arrangement.spacedBy(16.dp), // gap between fields
+                                                                        verticalAlignment = Alignment.Top
+                                                                ) {
+                                                                        // --- Home Team Dropdown ---
+                                                                        Column(modifier = Modifier.weight(1f)
                                                                         ) {
-                                                                                OutlinedTextField(
-                                                                                        value = selectedHomeTeam?.name
-                                                                                                ?: "Select home team",
-                                                                                        onValueChange = {},
-                                                                                        readOnly = true,
-                                                                                        trailingIcon = {
-                                                                                                ExposedDropdownMenuDefaults.TrailingIcon(
-                                                                                                        expandedHomeTeam
-                                                                                                )
-                                                                                        },
-                                                                                        modifier = Modifier.fillMaxWidth()
-                                                                                                .menuAnchor()
+                                                                                Text(
+                                                                                        text = "Home Team *",
+                                                                                        style = MaterialTheme.typography.titleMedium,
+                                                                                        fontWeight = FontWeight.Bold,
+                                                                                        modifier = Modifier.padding(
+                                                                                                bottom = 8.dp
+                                                                                        )
                                                                                 )
 
-                                                                                ExposedDropdownMenu(
+                                                                                ExposedDropdownMenuBox(
                                                                                         expanded = expandedHomeTeam,
-                                                                                        onDismissRequest = {
+                                                                                        onExpandedChange = {
                                                                                                 expandedHomeTeam =
-                                                                                                        false
+                                                                                                        !expandedHomeTeam
                                                                                         }
                                                                                 ) {
-                                                                                        if (availableTeams.isEmpty()) {
-                                                                                                DropdownMenuItem(
-                                                                                                        text = {
-                                                                                                                Text(
-                                                                                                                        "No teams available"
-                                                                                                                )
-                                                                                                        },
-                                                                                                        onClick = { }
-                                                                                                )
+                                                                                        OutlinedTextField(
+                                                                                                value = selectedHomeTeam?.name
+                                                                                                        ?: "Home team",
+                                                                                                onValueChange = {},
+                                                                                                readOnly = true,
+                                                                                                trailingIcon = {
+                                                                                                        ExposedDropdownMenuDefaults.TrailingIcon(
+                                                                                                                expandedHomeTeam
+                                                                                                        )
+                                                                                                },
+                                                                                                modifier = Modifier.fillMaxWidth()
+                                                                                                        .menuAnchor()
+                                                                                        )
 
-                                                                                        } else {
-                                                                                                availableTeams.forEach { team ->
+                                                                                        ExposedDropdownMenu(
+                                                                                                expanded = expandedHomeTeam,
+                                                                                                onDismissRequest = {
+                                                                                                        expandedHomeTeam =
+                                                                                                                false
+                                                                                                }
+                                                                                        ) {
+                                                                                                if (availableTeams.isEmpty()) {
                                                                                                         DropdownMenuItem(
                                                                                                                 text = {
-                                                                                                                        Row(verticalAlignment = Alignment.CenterVertically) {
-                                                                                                                                team.localLogoRes?.let { logoRes ->
-                                                                                                                                        Image(
-                                                                                                                                                painter = painterResource(
-                                                                                                                                                        id = logoRes
-                                                                                                                                                ),
-                                                                                                                                                contentDescription = team.name,
-                                                                                                                                                modifier = Modifier.size(
-                                                                                                                                                        24.dp
-                                                                                                                                                )
-                                                                                                                                        )
-                                                                                                                                        Spacer(
-                                                                                                                                                modifier = Modifier.width(
-                                                                                                                                                        8.dp
-                                                                                                                                                )
-                                                                                                                                        )
-                                                                                                                                }
-                                                                                                                                Text(team.name)
-                                                                                                                        }
+                                                                                                                        Text(
+                                                                                                                                "No teams available"
+                                                                                                                        )
                                                                                                                 },
-                                                                                                                // In the home team onClick:
-                                                                                                                onClick = {
-                                                                                                                        selectedHomeTeam =
-                                                                                                                                team
-                                                                                                                        expandedHomeTeam =
-                                                                                                                                false
-                                                                                                                }
+                                                                                                                onClick = { }
                                                                                                         )
+
+                                                                                                } else {
+                                                                                                        availableTeams.forEach { team ->
+                                                                                                                DropdownMenuItem(
+                                                                                                                        text = {
+                                                                                                                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                                                                                                                        team.localLogoRes?.let { logoRes ->
+                                                                                                                                                Image(
+                                                                                                                                                        painter = painterResource(
+                                                                                                                                                                id = logoRes
+                                                                                                                                                        ),
+                                                                                                                                                        contentDescription = team.name,
+                                                                                                                                                        modifier = Modifier.size(
+                                                                                                                                                                24.dp
+                                                                                                                                                        )
+                                                                                                                                                )
+                                                                                                                                                Spacer(
+                                                                                                                                                        modifier = Modifier.width(
+                                                                                                                                                                8.dp
+                                                                                                                                                        )
+                                                                                                                                                )
+                                                                                                                                        }
+                                                                                                                                        Text(team.name)
+                                                                                                                                }
+                                                                                                                        },
+                                                                                                                        // In the home team onClick:
+                                                                                                                        onClick = {
+                                                                                                                                selectedHomeTeam =
+                                                                                                                                        team
+                                                                                                                                expandedHomeTeam =
+                                                                                                                                        false
+                                                                                                                        }
+                                                                                                                )
+                                                                                                        }
                                                                                                 }
                                                                                         }
                                                                                 }
                                                                         }
-                                                                }
 
-                                                                // --- Away Team Dropdown ---
-                                                                Column(modifier = Modifier.fillMaxWidth()) {
-                                                                        Text(
-                                                                                text = "Away Team",
-                                                                                style = MaterialTheme.typography.titleMedium,
-                                                                                fontWeight = FontWeight.Bold,
-                                                                                modifier = Modifier.padding(
-                                                                                        bottom = 8.dp
-                                                                                )
-                                                                        )
-
-                                                                        ExposedDropdownMenuBox(
-                                                                                expanded = expandedAwayTeam,
-                                                                                onExpandedChange = {
-                                                                                        expandedAwayTeam =
-                                                                                                !expandedAwayTeam
-                                                                                }
+                                                                        // --- Away Team Dropdown ---
+                                                                        Column(modifier = Modifier.weight(1f)
                                                                         ) {
-                                                                                OutlinedTextField(
-                                                                                        value = selectedAwayTeam?.name
-                                                                                                ?: "Select away team",
-                                                                                        onValueChange = {},
-                                                                                        readOnly = true,
-                                                                                        trailingIcon = {
-                                                                                                ExposedDropdownMenuDefaults.TrailingIcon(
-                                                                                                        expandedAwayTeam
-                                                                                                )
-                                                                                        },
-                                                                                        modifier = Modifier.fillMaxWidth()
-                                                                                                .menuAnchor()
+                                                                                Text(
+                                                                                        text = "Away Team *",
+                                                                                        style = MaterialTheme.typography.titleMedium,
+                                                                                        fontWeight = FontWeight.Bold,
+                                                                                        modifier = Modifier.padding(
+                                                                                                bottom = 8.dp
+                                                                                        )
                                                                                 )
 
-                                                                                ExposedDropdownMenu(
+                                                                                ExposedDropdownMenuBox(
                                                                                         expanded = expandedAwayTeam,
-                                                                                        onDismissRequest = {
+                                                                                        onExpandedChange = {
                                                                                                 expandedAwayTeam =
-                                                                                                        false
+                                                                                                        !expandedAwayTeam
                                                                                         }
                                                                                 ) {
-                                                                                        availableTeams.filter { it != selectedHomeTeam }
-                                                                                                .forEach { team ->
-                                                                                                        DropdownMenuItem(
-                                                                                                                text = {
-                                                                                                                        Row(verticalAlignment = Alignment.CenterVertically) {
-                                                                                                                                team.localLogoRes?.let { logoRes ->
-                                                                                                                                        Image(
-                                                                                                                                                painter = painterResource(
-                                                                                                                                                        id = logoRes
-                                                                                                                                                ),
-                                                                                                                                                contentDescription = team.name,
-                                                                                                                                                modifier = Modifier.size(
-                                                                                                                                                        24.dp
-                                                                                                                                                )
-                                                                                                                                        )
-                                                                                                                                        Spacer(
-                                                                                                                                                modifier = Modifier.width(
-                                                                                                                                                        8.dp
-                                                                                                                                                )
-                                                                                                                                        )
-                                                                                                                                }
-                                                                                                                                Text(team.name)
-                                                                                                                        }
-                                                                                                                },
-                                                                                                                // In the away team onClick:
-                                                                                                                onClick = {
-                                                                                                                        selectedAwayTeam =
-                                                                                                                                team
-                                                                                                                        expandedAwayTeam =
-                                                                                                                                false
-                                                                                                                }
+                                                                                        OutlinedTextField(
+                                                                                                value = selectedAwayTeam?.name
+                                                                                                        ?: "Away team",
+                                                                                                onValueChange = {},
+                                                                                                readOnly = true,
+                                                                                                trailingIcon = {
+                                                                                                        ExposedDropdownMenuDefaults.TrailingIcon(
+                                                                                                                expandedAwayTeam
                                                                                                         )
+                                                                                                },
+                                                                                                modifier = Modifier.fillMaxWidth()
+                                                                                                        .menuAnchor()
+                                                                                        )
+
+                                                                                        ExposedDropdownMenu(
+                                                                                                expanded = expandedAwayTeam,
+                                                                                                onDismissRequest = {
+                                                                                                        expandedAwayTeam =
+                                                                                                                false
                                                                                                 }
+                                                                                        ) {
+                                                                                                availableTeams.filter { it != selectedHomeTeam }
+                                                                                                        .forEach { team ->
+                                                                                                                DropdownMenuItem(
+                                                                                                                        text = {
+                                                                                                                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                                                                                                                        team.localLogoRes?.let { logoRes ->
+                                                                                                                                                Image(
+                                                                                                                                                        painter = painterResource(
+                                                                                                                                                                id = logoRes
+                                                                                                                                                        ),
+                                                                                                                                                        contentDescription = team.name,
+                                                                                                                                                        modifier = Modifier.size(
+                                                                                                                                                                24.dp
+                                                                                                                                                        )
+                                                                                                                                                )
+                                                                                                                                                Spacer(
+                                                                                                                                                        modifier = Modifier.width(
+                                                                                                                                                                8.dp
+                                                                                                                                                        )
+                                                                                                                                                )
+                                                                                                                                        }
+                                                                                                                                        Text(team.name)
+                                                                                                                                }
+                                                                                                                        },
+                                                                                                                        // In the away team onClick:
+                                                                                                                        onClick = {
+                                                                                                                                selectedAwayTeam =
+                                                                                                                                        team
+                                                                                                                                expandedAwayTeam =
+                                                                                                                                        false
+                                                                                                                        }
+                                                                                                                )
+                                                                                                        }
+                                                                                        }
                                                                                 }
                                                                         }
                                                                 }
