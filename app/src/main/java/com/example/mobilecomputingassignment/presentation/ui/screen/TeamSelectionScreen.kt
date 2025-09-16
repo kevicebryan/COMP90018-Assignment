@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -42,7 +43,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.example.mobilecomputingassignment.domain.models.Team
-import androidx.compose.foundation.layout.statusBarsPadding
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -67,7 +67,7 @@ fun TeamSelectionScreen(
                         Icon(Icons.Default.ArrowBack, contentDescription = "Back")
                     }
                 },
-                modifier = Modifier.statusBarsPadding() // ADD THIS LINE
+                modifier = Modifier.statusBarsPadding()
             )
         },
             bottomBar = {
@@ -81,9 +81,7 @@ fun TeamSelectionScreen(
         Box(modifier = Modifier.padding(paddingValues).fillMaxSize()) {
             if (isLoading) {
                 Box(
-                        modifier = Modifier.fillMaxSize(), // Changed from
-                        // fillMaxWidth().height(320.dp) to fill
-                        // screen
+                        modifier = Modifier.fillMaxSize(),
                         contentAlignment = Alignment.Center
                 ) { CircularProgressIndicator() }
             } else if (availableTeams.isEmpty()) {
@@ -98,10 +96,7 @@ fun TeamSelectionScreen(
             } else {
                 LazyColumn(
                         verticalArrangement =
-                                Arrangement.spacedBy(8.dp), // Matched from SignupTeamStep
-                        // If you want the fixed height like SignupTeamStep:
-                        // modifier = Modifier.height(320.dp).padding(horizontal = 16.dp)
-                        // If you want it to fill available space in Scaffold:
+                                Arrangement.spacedBy(8.dp),
                         modifier =
                                 Modifier.fillMaxSize().padding(horizontal = 16.dp, vertical = 8.dp)
                 ) {
