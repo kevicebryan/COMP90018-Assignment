@@ -382,7 +382,7 @@ constructor(
                 }
         }
 
-        private fun loadAflTeams() {
+         fun loadAflTeams() {
                 Log.d(TAG, "loadAflTeams called - using constant data")
                 // Since teams are now constant data, we can load them immediately without async
                 // calls
