@@ -20,16 +20,16 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory
  */
 object CustomMarkerIconGenerator {
 
-    private const val PIN_WIDTH_DP = 72
+    private const val PIN_WIDTH_DP = 96  // Increased from 72 to 96 for better text fit
     private const val PIN_HEIGHT_DP = 56
     private const val TRIANGLE_HEIGHT_DP = 12
     private const val LOGO_SIZE_DP = 30
     private const val CORNER_RADIUS_DP = 16
     private const val SHADOW_OFFSET_DP = 2
     private const val SHADOW_BLUR_DP = 4
-    private const val VENUE_TEXT_SIZE_DP = 10
+    private const val VENUE_TEXT_SIZE_DP = 11  // Slightly increased for better readability
     private const val NOISE_ICON_SIZE_DP = 12
-    private const val NOISE_CIRCLE_SIZE_DP = 8
+    private const val NOISE_CIRCLE_SIZE_DP = 10  // Slightly larger for better visibility
 
     /** Check if the match is happening today */
     private fun isMatchToday(event: Event): Boolean {
@@ -175,13 +175,13 @@ object CustomMarkerIconGenerator {
             paint.textSize = venueTextSize.toFloat()
             paint.textAlign = Paint.Align.CENTER
 
-            val textY = venueTextSize.toFloat() + 4
+            val textY = venueTextSize.toFloat() + 6  // Slightly more padding from top
             val textX = pinWidth / 2f
 
-            // Truncate text if too long
+            // Allow longer text with the wider marker (increased from 15 to 20 characters)
             val venueName =
-                    if (event.location.name.length > 15) {
-                        event.location.name.substring(0, 12) + "..."
+                    if (event.location.name.length > 20) {
+                        event.location.name.substring(0, 17) + "..."
                     } else {
                         event.location.name
                     }
@@ -199,15 +199,44 @@ object CustomMarkerIconGenerator {
             val logoRight = logoLeft + logoSize
             val logoBottom = logoTop + logoSize
 
+            // Set bounds and maintain aspect ratio with fit-contain scaling
             logoDrawable.setBounds(logoLeft, logoTop, logoRight, logoBottom)
+            
+            // Save canvas state
+            canvas.save()
+            
+            // Calculate scaling to maintain 1:1 aspect ratio and fit within bounds
+            val intrinsicWidth = logoDrawable.intrinsicWidth
+            val intrinsicHeight = logoDrawable.intrinsicHeight
+            
+            if (intrinsicWidth > 0 && intrinsicHeight > 0) {
+                val scaleX = logoSize.toFloat() / intrinsicWidth
+                val scaleY = logoSize.toFloat() / intrinsicHeight
+                val scale = minOf(scaleX, scaleY) // Use the smaller scale to fit-contain
+                
+                // Calculate centered position
+                val scaledWidth = intrinsicWidth * scale
+                val scaledHeight = intrinsicHeight * scale
+                val centerX = (logoLeft + logoRight) / 2f
+                val centerY = (logoTop + logoBottom) / 2f
+                
+                // Apply scaling and centering
+                canvas.translate(centerX, centerY)
+                canvas.scale(scale, scale)
+                canvas.translate(-intrinsicWidth / 2f, -intrinsicHeight / 2f)
+            }
+            
             logoDrawable.draw(canvas)
+            
+            // Restore canvas state
+            canvas.restore()
         }
 
         // Draw noise level indicator if available and event is active
         if (noiseLevel != null && event.isActive) {
-            // Draw noise level circle in top-right corner
-            val circleX = (pinWidth - noiseCircleSize - 4).toFloat()
-            val circleY = 4f
+            // Draw noise level circle centered below the logo
+            val circleX = pinWidth / 2f  // Center horizontally
+            val circleY = pinHeight - noiseCircleSize - 8f  // Position below logo with padding
             val circleRadius = noiseCircleSize / 2f
 
             paint.color = noiseLevel.color
@@ -216,7 +245,7 @@ object CustomMarkerIconGenerator {
             // Draw volume icon in the circle
             val volumeIcon = ContextCompat.getDrawable(context, R.drawable.ic_volume)
             if (volumeIcon != null) {
-                val iconSize = (noiseIconSize * 0.7f).toInt()
+                val iconSize = (noiseIconSize * 0.6f).toInt()  // Slightly smaller for better fit
                 val iconLeft = (circleX - iconSize / 2).toInt()
                 val iconTop = (circleY - iconSize / 2).toInt()
                 val iconRight = iconLeft + iconSize
@@ -307,13 +336,13 @@ object CustomMarkerIconGenerator {
             paint.textSize = venueTextSize.toFloat()
             paint.textAlign = Paint.Align.CENTER
 
-            val textY = venueTextSize.toFloat() + 4
+            val textY = venueTextSize.toFloat() + 6  // Slightly more padding from top
             val textX = pinWidth / 2f
 
-            // Truncate text if too long
+            // Allow longer text with the wider marker (increased from 15 to 20 characters)
             val venueName =
-                    if (event.location.name.length > 15) {
-                        event.location.name.substring(0, 12) + "..."
+                    if (event.location.name.length > 20) {
+                        event.location.name.substring(0, 17) + "..."
                     } else {
                         event.location.name
                     }
@@ -335,8 +364,35 @@ object CustomMarkerIconGenerator {
             val homeLogoRight = homeLogoLeft + logoSize
             val logoBottom = logoTop + logoSize
 
+            // Set bounds and maintain aspect ratio with fit-contain scaling
             homeLogoDrawable.setBounds(homeLogoLeft, logoTop, homeLogoRight, logoBottom)
+            
+            // Save canvas state
+            canvas.save()
+            
+            // Calculate scaling to maintain 1:1 aspect ratio and fit within bounds
+            val intrinsicWidth = homeLogoDrawable.intrinsicWidth
+            val intrinsicHeight = homeLogoDrawable.intrinsicHeight
+            
+            if (intrinsicWidth > 0 && intrinsicHeight > 0) {
+                val scaleX = logoSize.toFloat() / intrinsicWidth
+                val scaleY = logoSize.toFloat() / intrinsicHeight
+                val scale = minOf(scaleX, scaleY) // Use the smaller scale to fit-contain
+                
+                // Calculate centered position
+                val centerX = (homeLogoLeft + homeLogoRight) / 2f
+                val centerY = (logoTop + logoBottom) / 2f
+                
+                // Apply scaling and centering
+                canvas.translate(centerX, centerY)
+                canvas.scale(scale, scale)
+                canvas.translate(-intrinsicWidth / 2f, -intrinsicHeight / 2f)
+            }
+            
             homeLogoDrawable.draw(canvas)
+            
+            // Restore canvas state
+            canvas.restore()
         }
 
         // Draw away team logo on the right (below venue text)
@@ -353,15 +409,42 @@ object CustomMarkerIconGenerator {
             val awayLogoRight = awayLogoLeft + logoSize
             val logoBottom = logoTop + logoSize
 
+            // Set bounds and maintain aspect ratio with fit-contain scaling
             awayLogoDrawable.setBounds(awayLogoLeft, logoTop, awayLogoRight, logoBottom)
+            
+            // Save canvas state
+            canvas.save()
+            
+            // Calculate scaling to maintain 1:1 aspect ratio and fit within bounds
+            val intrinsicWidth = awayLogoDrawable.intrinsicWidth
+            val intrinsicHeight = awayLogoDrawable.intrinsicHeight
+            
+            if (intrinsicWidth > 0 && intrinsicHeight > 0) {
+                val scaleX = logoSize.toFloat() / intrinsicWidth
+                val scaleY = logoSize.toFloat() / intrinsicHeight
+                val scale = minOf(scaleX, scaleY) // Use the smaller scale to fit-contain
+                
+                // Calculate centered position
+                val centerX = (awayLogoLeft + awayLogoRight) / 2f
+                val centerY = (logoTop + logoBottom) / 2f
+                
+                // Apply scaling and centering
+                canvas.translate(centerX, centerY)
+                canvas.scale(scale, scale)
+                canvas.translate(-intrinsicWidth / 2f, -intrinsicHeight / 2f)
+            }
+            
             awayLogoDrawable.draw(canvas)
+            
+            // Restore canvas state
+            canvas.restore()
         }
 
         // Draw noise level indicator if available and event is active
         if (noiseLevel != null && event.isActive) {
-            // Draw noise level circle in top-right corner
-            val circleX = (pinWidth - noiseCircleSize - 4).toFloat()
-            val circleY = 4f
+            // Draw noise level circle centered below the logos
+            val circleX = pinWidth / 2f  // Center horizontally
+            val circleY = pinHeight - noiseCircleSize - 8f  // Position below logos with padding
             val circleRadius = noiseCircleSize / 2f
 
             paint.color = noiseLevel.color
@@ -370,7 +453,7 @@ object CustomMarkerIconGenerator {
             // Draw volume icon in the circle
             val volumeIcon = ContextCompat.getDrawable(context, R.drawable.ic_volume)
             if (volumeIcon != null) {
-                val iconSize = (noiseIconSize * 0.7f).toInt()
+                val iconSize = (noiseIconSize * 0.6f).toInt()  // Slightly smaller for better fit
                 val iconLeft = (circleX - iconSize / 2).toInt()
                 val iconTop = (circleY - iconSize / 2).toInt()
                 val iconRight = iconLeft + iconSize
