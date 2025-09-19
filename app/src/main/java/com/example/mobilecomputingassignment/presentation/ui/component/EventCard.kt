@@ -128,7 +128,7 @@ fun EventCard(
 
                     // Action buttons
                     Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                        if (isHosted) {
+                        if (isHosted && !isEventInPast) {
                             // Edit button with circular background
                             Box(
                                 modifier =
@@ -198,94 +198,94 @@ fun EventCard(
                 }
             }
 
-            Spacer(modifier = Modifier.height(12.dp))
+            if (!isEventInPast) {
+                Spacer(modifier = Modifier.height(12.dp))
 
-            // Team logos before event details
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                TeamLogo(
-                    teamName = event.matchDetails?.homeTeam ?: "TBD",
-                    modifier = Modifier.size(64.dp)
-                )
+                // Team logos before event details
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    TeamLogo(
+                        teamName = event.matchDetails?.homeTeam ?: "TBD",
+                        modifier = Modifier.size(64.dp)
+                    )
 
-                Spacer(modifier = Modifier.width(12.dp))
+                    Spacer(modifier = Modifier.width(12.dp))
 
-                Text(
-                    text = "vs",
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-
-                Spacer(modifier = Modifier.width(12.dp))
-
-                TeamLogo(
-                    teamName = event.matchDetails?.awayTeam ?: "TBD",
-                    modifier = Modifier.size(64.dp)
-                )
-            }
-
-            // Event details in nested card
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                colors =
-                    CardDefaults.cardColors(
-                        containerColor =
-                            MaterialTheme.colorScheme.surfaceVariant.copy(
-                                alpha = 0.3f
-                            )
-                    ),
-                shape = RoundedCornerShape(12.dp)
-            ) {
-                Column(modifier = Modifier.padding(16.dp)) {
-                    // Changing "Location" to text instead, with title size and bold applied
                     Text(
-                        text = event.location.name,
-                        style = MaterialTheme.typography.titleLarge,
+                        text = "vs",
+                        style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onSurface,
-                        modifier = Modifier.padding(vertical = 4.dp)
+                        color = MaterialTheme.colorScheme.onSurface
                     )
 
-                    if (event.location.address.isNotBlank()) {
+                    Spacer(modifier = Modifier.width(12.dp))
+
+                    TeamLogo(
+                        teamName = event.matchDetails?.awayTeam ?: "TBD",
+                        modifier = Modifier.size(64.dp)
+                    )
+                }
+                // Event details in nested card
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors =
+                        CardDefaults.cardColors(
+                            containerColor =
+                                MaterialTheme.colorScheme.surfaceVariant.copy(
+                                    alpha = 0.3f
+                                )
+                        ),
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Column(modifier = Modifier.padding(16.dp)) {
                         Text(
-                            text = event.location.address,
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f),
-                            modifier = Modifier.padding(bottom = 8.dp)
+                            text = event.location.name,
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onSurface,
+                            modifier = Modifier.padding(vertical = 4.dp)
                         )
-                    }
 
-                    EventDetailRow(
-                        icon = Icons.Default.DateRange,
-                        label = "Date",
-                        value =
-                            SimpleDateFormat("MMM dd, yyyy", Locale.getDefault())
-                                .format(event.date)
-                    )
+                        if (event.location.address.isNotBlank()) {
+                            Text(
+                                text = event.location.address,
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f),
+                                modifier = Modifier.padding(bottom = 8.dp)
+                            )
+                        }
 
-                    EventDetailRow(
-                        icon = Icons.Default.Info,
-                        label = "Check-in",
-                        value =
-                            SimpleDateFormat("HH:mm", Locale.getDefault())
-                                .format(event.checkInTime)
-                    )
-
-                    EventDetailRow(
-                        icon = Icons.Default.Person,
-                        label = "Capacity",
-                        value = "${event.attendeesCount}/${event.capacity}"
-                    )
-                    if (event.contactNumber.isNotBlank()) {
                         EventDetailRow(
-                            icon = Icons.Default.Phone,
-                            label = "Contact",
-                            value = event.contactNumber
+                            icon = Icons.Default.DateRange,
+                            label = "Date",
+                            value =
+                                SimpleDateFormat("MMM dd, yyyy", Locale.getDefault())
+                                    .format(event.date)
                         )
+
+                        EventDetailRow(
+                            icon = Icons.Default.Info,
+                            label = "Check-in",
+                            value =
+                                SimpleDateFormat("HH:mm", Locale.getDefault())
+                                    .format(event.checkInTime)
+                        )
+
+                        EventDetailRow(
+                            icon = Icons.Default.Person,
+                            label = "Capacity",
+                            value = "${event.attendeesCount}/${event.capacity}"
+                        )
+                        if (event.contactNumber.isNotBlank()) {
+                            EventDetailRow(
+                                icon = Icons.Default.Phone,
+                                label = "Contact",
+                                value = event.contactNumber
+                            )
+                        }
                     }
                 }
             }
