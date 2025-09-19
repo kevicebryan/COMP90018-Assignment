@@ -35,14 +35,14 @@ constructor(
           userLongitude: Double
   ): Result<Unit> {
     return try {
-            // Get user's favorite teams
-            val user = userRepository.getUserById(userId)
-            if (user == null) {
-                Log.e(TAG, "Failed to get user data for userId: $userId")
-                return Result.failure(Exception("User not found"))
-            }
-            
-            if (user.teams.isEmpty()) {
+      // Get user's favorite teams
+      val user = userRepository.getUserById(userId)
+      if (user == null) {
+        Log.e(TAG, "Failed to get user data for userId: $userId")
+        return Result.failure(Exception("User not found"))
+      }
+
+      if (user.teams.isEmpty()) {
         Log.d(TAG, "User has no favorite teams configured")
         return Result.success(Unit)
       }
@@ -117,9 +117,24 @@ constructor(
   /** Check for new events when a new event is created */
   suspend fun onNewEventCreated(event: Event) {
     Log.d(TAG, "New event created: ${event.id}")
-    // Get all users and check if any have this event's teams as favorites
-    // This would be called when a new event is created in the system
-    // For now, we'll rely on location-based monitoring
+
+    try {
+      // For now, we'll implement a simplified version that doesn't require getting all users
+      // In a production app, you'd want to implement this with a more efficient approach
+      // such as using Firestore queries to find users with specific favorite teams
+      Log.d(
+              TAG,
+              "New event created with teams: ${event.matchDetails?.homeTeam} vs ${event.matchDetails?.awayTeam}"
+      )
+
+      // TODO: Implement proper user notification system
+      // This would require either:
+      // 1. A Firestore query to find users with matching favorite teams
+      // 2. A background service that processes new events
+      // 3. Push notifications through Firebase Cloud Messaging
+    } catch (e: Exception) {
+      Log.e(TAG, "Error processing new event for favorite team notifications", e)
+    }
   }
 
   /** Clear notifications for an event (when user is no longer interested) */

@@ -12,11 +12,18 @@ class EventRepository
 @Inject
 constructor(private val eventFirestoreService: EventFirestoreService) : IEventRepository {
 
-  override suspend fun addNoiseSnapshot(eventId: String, userId: String, dbfs: Double): Result<Unit> {
+  override suspend fun addNoiseSnapshot(
+          eventId: String,
+          userId: String,
+          dbfs: Double
+  ): Result<Unit> {
     return eventFirestoreService.addNoiseSnapshot(eventId, userId, dbfs)
   }
 
-  override suspend fun computeRecentNoiseAverage(eventId: String, windowMinutes: Long): Result<Double> {
+  override suspend fun computeRecentNoiseAverage(
+          eventId: String,
+          windowMinutes: Long
+  ): Result<Double> {
     return eventFirestoreService.computeAndUpdateRecentNoiseAverage(eventId, windowMinutes)
   }
 
@@ -107,8 +114,39 @@ constructor(private val eventFirestoreService: EventFirestoreService) : IEventRe
     return eventFirestoreService.isUserAttending(eventId, userId)
   }
 
-
   override suspend fun removeAttendee(eventId: String, userId: String): Result<Unit> {
     return eventFirestoreService.removeAttendee(eventId, userId)
+  }
+
+  override suspend fun getEventsInViewport(
+          southWestLat: Double,
+          southWestLng: Double,
+          northEastLat: Double,
+          northEastLng: Double
+  ): Result<List<Event>> {
+    return try {
+      // For now, we'll implement this by getting all events and filtering them
+      // In a production app, you'd want to implement this at the Firestore level with geospatial
+      // queries
+      val allEventsResult = eventFirestoreService.getAllActiveEvents()
+
+      allEventsResult.map { eventDtos ->
+        eventDtos.map { it.toDomain() }.filter { event ->
+          val lat = event.location.latitude
+          val lng = event.location.longitude
+
+          // Check if coordinates are valid
+          if (lat.isNaN() || lat.isInfinite() || lng.isNaN() || lng.isInfinite()) {
+            false
+          } else {
+            // Check if event is within the viewport bounds
+            lat >= southWestLat && lat <= northEastLat && lng >= southWestLng && lng <= northEastLng
+          }
+        }
+      }
+    } catch (e: Exception) {
+      android.util.Log.e("EventRepository", "Error getting events in viewport", e)
+      Result.failure(e)
+    }
   }
 }

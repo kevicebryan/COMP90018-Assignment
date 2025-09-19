@@ -68,23 +68,53 @@ constructor(
 
   private fun observeLocationUpdates() {
     viewModelScope.launch {
-      locationRepository.getLocationUpdates().collect { location ->
-        _uiState.update { state ->
-          state.copy(
-                  userLocation = LatLng(location.latitude, location.longitude),
-                  nearbyEvents = filterNearbyEvents(state.allEvents, location)
-          )
-        }
+      try {
+        locationRepository.getLocationUpdates().collect { location ->
+          try {
+            // Validate location coordinates
+            if (location.latitude.isNaN() ||
+                            location.latitude.isInfinite() ||
+                            location.longitude.isNaN() ||
+                            location.longitude.isInfinite()
+            ) {
+              Log.w(
+                      "ExploreViewModel",
+                      "Invalid location coordinates received: ${location.latitude}, ${location.longitude}"
+              )
+              return@collect
+            }
 
-        // Check for favorite team events when location changes
-        val currentUserId = _uiState.value.currentUserId
-        if (currentUserId != null) {
-          manageFavoriteTeamNotificationsUseCase.onLocationChanged(
-                  currentUserId,
-                  location.latitude,
-                  location.longitude
-          )
+            _uiState.update { state ->
+              state.copy(
+                      userLocation = LatLng(location.latitude, location.longitude),
+                      nearbyEvents = filterNearbyEvents(state.allEvents, location)
+              )
+            }
+
+            // Check for favorite team events when location changes
+            val currentUserId = _uiState.value.currentUserId
+            if (currentUserId != null) {
+              try {
+                manageFavoriteTeamNotificationsUseCase.onLocationChanged(
+                        currentUserId,
+                        location.latitude,
+                        location.longitude
+                )
+              } catch (e: Exception) {
+                Log.e(
+                        "ExploreViewModel",
+                        "Error checking favorite team events on location change",
+                        e
+                )
+              }
+            }
+          } catch (e: Exception) {
+            Log.e("ExploreViewModel", "Error processing location update", e)
+          }
         }
+      } catch (e: Exception) {
+        Log.e("ExploreViewModel", "Error observing location updates", e)
+        _uiState.update { it.copy(error = "Location service error: ${e.message}") }
       }
     }
   }
@@ -124,29 +154,93 @@ constructor(
         return@launch
       }
 
+      // Try to load events based on current viewport first
+      val currentViewport = _uiState.value.currentViewport
+      if (currentViewport != null) {
+        loadEventsInViewport(currentViewport)
+      } else {
+        // Fallback to loading all events if no viewport is available
+        loadAllEvents()
+      }
+    }
+  }
+
+  private fun loadEventsInViewport(viewport: MapViewport) {
+    viewModelScope.launch {
+      try {
+        Log.d(
+                "ExploreViewModel",
+                "Loading events in viewport: SW(${viewport.southWest.latitude}, ${viewport.southWest.longitude}) NE(${viewport.northEast.latitude}, ${viewport.northEast.longitude})"
+        )
+
+        eventRepository
+                .getEventsInViewport(
+                        viewport.southWest.latitude,
+                        viewport.southWest.longitude,
+                        viewport.northEast.latitude,
+                        viewport.northEast.longitude
+                )
+                .onSuccess { events ->
+                  Log.d("ExploreViewModel", "Loaded ${events.size} events in viewport")
+
+                  // Filter out past events - only show today onwards
+                  val futureEvents = EventDateUtils.filterFutureEvents(events)
+                  Log.d(
+                          "ExploreViewModel",
+                          "Filtered to ${futureEvents.size} future events in viewport"
+                  )
+
+                  _uiState.update { state ->
+                    state.copy(
+                            visibleEvents = futureEvents,
+                            error = null // Clear any previous errors
+                    )
+                  }
+                  updateNearbyEvents()
+
+                  // Check for favorite team events after loading
+                  val currentUserId = _uiState.value.currentUserId
+                  val userLocation = _uiState.value.userLocation
+                  if (currentUserId != null && userLocation != null) {
+                    manageFavoriteTeamNotificationsUseCase.checkFavoriteTeamEvents(
+                            currentUserId,
+                            userLocation.latitude,
+                            userLocation.longitude
+                    )
+                  }
+                }
+                .onFailure { error ->
+                  Log.e("ExploreViewModel", "Failed to load events in viewport", error)
+                  // Fallback to loading all events
+                  loadAllEvents()
+                }
+      } catch (e: Exception) {
+        Log.e("ExploreViewModel", "Error loading events in viewport", e)
+        // Fallback to loading all events
+        loadAllEvents()
+      }
+    }
+  }
+
+  private fun loadAllEvents() {
+    viewModelScope.launch {
       eventRepository
               .getAllActiveEvents()
               .onSuccess { events ->
                 Log.d("ExploreViewModel", "Loaded ${events.size} events for explore map")
-                
+
                 // Filter out past events - only show today onwards
                 val futureEvents = EventDateUtils.filterFutureEvents(events)
-                Log.d("ExploreViewModel", "Filtered to ${futureEvents.size} future events (removed ${events.size - futureEvents.size} past events)")
-                
-                futureEvents.forEach { event ->
-                  Log.d(
-                          "ExploreViewModel",
-                          "Event: ${event.matchDetails?.homeTeam ?: "No match"} vs ${event.matchDetails?.awayTeam ?: "No match"} at ${event.location.name} (${event.location.latitude}, ${event.location.longitude})"
-                  )
-                  Log.d(
-                          "ExploreViewModel",
-                          "Event ${event.id} interested users: ${event.interestedUsers.size} - ${event.interestedUsers}"
-                  )
-                }
+                Log.d(
+                        "ExploreViewModel",
+                        "Filtered to ${futureEvents.size} future events (removed ${events.size - futureEvents.size} past events)"
+                )
+
                 _uiState.update { state ->
                   state.copy(
                           allEvents = futureEvents,
-                          visibleEvents = filterEventsInViewport(futureEvents, state.currentViewport),
+                          visibleEvents =
+                                  filterEventsInViewport(futureEvents, state.currentViewport),
                           error = null // Clear any previous errors
                   )
                 }
@@ -195,6 +289,19 @@ constructor(
   fun refreshEvents() {
     loadEvents()
     updateCurrentUserId() // Also refresh the current user ID
+  }
+
+  fun onViewportChanged(viewport: MapViewport) {
+    _uiState.update { it.copy(currentViewport = viewport) }
+
+    // Load events for the new viewport
+    viewModelScope.launch {
+      try {
+        loadEventsInViewport(viewport)
+      } catch (e: Exception) {
+        Log.e("ExploreViewModel", "Error loading events for new viewport", e)
+      }
+    }
   }
 
   fun onLocationPermissionGranted() {
@@ -296,22 +403,30 @@ constructor(
     return Intent(Intent.ACTION_VIEW, uri).apply { setPackage("com.google.android.apps.maps") }
   }
 
-  fun searchLocation(query: String, context: Context, cameraPositionState: com.google.maps.android.compose.CameraPositionState) {
+  fun searchLocation(
+          query: String,
+          context: Context,
+          cameraPositionState: com.google.maps.android.compose.CameraPositionState
+  ) {
     viewModelScope.launch {
       try {
         if (Geocoder.isPresent()) {
           val geocoder = Geocoder(context)
           val addresses = geocoder.getFromLocationName(query, 1)
-          
+
           if (addresses?.isNotEmpty() == true) {
             val address = addresses[0]
             val latLng = LatLng(address.latitude, address.longitude)
-            
+
             Log.d("ExploreViewModel", "Found location: ${address.getAddressLine(0)} at $latLng")
-            
+
             // Animate camera to the searched location
             cameraPositionState.animate(
-              update = com.google.android.gms.maps.CameraUpdateFactory.newLatLngZoom(latLng, 15f)
+                    update =
+                            com.google.android.gms.maps.CameraUpdateFactory.newLatLngZoom(
+                                    latLng,
+                                    15f
+                            )
             )
           } else {
             Log.w("ExploreViewModel", "No results found for query: $query")
@@ -345,23 +460,84 @@ constructor(
 
   private fun filterEventsInViewport(events: List<Event>, viewport: MapViewport?): List<Event> {
     if (viewport == null) return events
-    return events.filter { event ->
-      event.location.latitude in viewport.southWest.latitude..viewport.northEast.latitude &&
-              event.location.longitude in viewport.southWest.longitude..viewport.northEast.longitude
+
+    return try {
+      events.filter { event ->
+        // Add null safety checks for location coordinates
+        val eventLat = event.location.latitude
+        val eventLng = event.location.longitude
+        val swLat = viewport.southWest.latitude
+        val swLng = viewport.southWest.longitude
+        val neLat = viewport.northEast.latitude
+        val neLng = viewport.northEast.longitude
+
+        // Check if coordinates are valid (not NaN or infinite)
+        if (eventLat.isNaN() ||
+                        eventLat.isInfinite() ||
+                        eventLng.isNaN() ||
+                        eventLng.isInfinite() ||
+                        swLat.isNaN() ||
+                        swLat.isInfinite() ||
+                        swLng.isNaN() ||
+                        swLng.isInfinite() ||
+                        neLat.isNaN() ||
+                        neLat.isInfinite() ||
+                        neLng.isNaN() ||
+                        neLng.isInfinite()
+        ) {
+          Log.w("ExploreViewModel", "Invalid coordinates detected for event ${event.id}")
+          false
+        } else {
+          eventLat in swLat..neLat && eventLng in swLng..neLng
+        }
+      }
+    } catch (e: Exception) {
+      Log.e("ExploreViewModel", "Error filtering events in viewport", e)
+      events // Return all events as fallback
     }
   }
 
   private fun calculateDistance(lat1: Double, lon1: Double, lat2: Double, lon2: Double): Double {
-    val r = 6371e3 // Earth's radius in meters
-    val φ1 = lat1 * PI / 180
-    val φ2 = lat2 * PI / 180
-    val Δφ = (lat2 - lat1) * PI / 180
-    val Δλ = (lon2 - lon1) * PI / 180
+    return try {
+      // Validate input coordinates
+      if (lat1.isNaN() ||
+                      lat1.isInfinite() ||
+                      lon1.isNaN() ||
+                      lon1.isInfinite() ||
+                      lat2.isNaN() ||
+                      lat2.isInfinite() ||
+                      lon2.isNaN() ||
+                      lon2.isInfinite()
+      ) {
+        Log.w(
+                "ExploreViewModel",
+                "Invalid coordinates for distance calculation: ($lat1, $lon1) to ($lat2, $lon2)"
+        )
+        return Double.MAX_VALUE // Return max distance for invalid coordinates
+      }
 
-    val a = sin(Δφ / 2) * sin(Δφ / 2) + cos(φ1) * cos(φ2) * sin(Δλ / 2) * sin(Δλ / 2)
-    val c = 2 * atan2(sqrt(a), sqrt(1 - a))
+      val r = 6371e3 // Earth's radius in meters
+      val φ1 = lat1 * PI / 180
+      val φ2 = lat2 * PI / 180
+      val Δφ = (lat2 - lat1) * PI / 180
+      val Δλ = (lon2 - lon1) * PI / 180
 
-    return r * c
+      val a = sin(Δφ / 2) * sin(Δφ / 2) + cos(φ1) * cos(φ2) * sin(Δλ / 2) * sin(Δλ / 2)
+      val c = 2 * atan2(sqrt(a), sqrt(1 - a))
+
+      val distance = r * c
+
+      // Validate result
+      if (distance.isNaN() || distance.isInfinite()) {
+        Log.w("ExploreViewModel", "Invalid distance calculated: $distance")
+        return Double.MAX_VALUE
+      }
+
+      distance
+    } catch (e: Exception) {
+      Log.e("ExploreViewModel", "Error calculating distance", e)
+      Double.MAX_VALUE
+    }
   }
 }
 

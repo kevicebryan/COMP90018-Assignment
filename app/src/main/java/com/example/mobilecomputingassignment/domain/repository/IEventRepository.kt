@@ -20,5 +20,18 @@ interface IEventRepository {
 
   suspend fun computeRecentNoiseAverage(eventId: String, windowMinutes: Long = 20): Result<Double>
 
-
+  /**
+   * Get events within a geographic viewport (bounding box)
+   * @param southWestLat South-west corner latitude
+   * @param southWestLng South-west corner longitude
+   * @param northEastLat North-east corner latitude
+   * @param northEastLng North-east corner longitude
+   * @return List of events within the viewport
+   */
+  suspend fun getEventsInViewport(
+          southWestLat: Double,
+          southWestLng: Double,
+          northEastLat: Double,
+          northEastLng: Double
+  ): Result<List<Event>>
 }
