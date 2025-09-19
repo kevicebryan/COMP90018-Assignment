@@ -12,9 +12,9 @@ enum class NoiseLevel(
         val minDbfs: Double,
         val maxDbfs: Double
 ) {
-  QUIET("Quiet", Color.GREEN, -80.0, -40.0),
-  MODERATE("Moderate", Color.YELLOW, -40.0, -15.0),
-  LOUD("Loud", Color.RED, -15.0, Double.MAX_VALUE);
+  QUIET("Quiet", Color.parseColor("#237D56"), -80.0, -40.0),
+  MODERATE("Moderate", Color.parseColor("#C4BA00"), -40.0, -15.0),
+  LOUD("Loud", Color.parseColor("#BF0000"), -15.0, Double.MAX_VALUE);
 
   companion object {
     /**

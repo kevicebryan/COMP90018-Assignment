@@ -23,6 +23,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.mobilecomputingassignment.data.service.LocationService
 import com.example.mobilecomputingassignment.presentation.screens.explore.components.MatchDetailDrawer
 import com.example.mobilecomputingassignment.presentation.screens.explore.components.NearbyEventsBottomSheet
+import com.example.mobilecomputingassignment.presentation.screens.explore.components.NoiseLevelLegend
 import com.example.mobilecomputingassignment.presentation.utils.CustomMarkerIconGenerator
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.CameraPosition
@@ -198,13 +199,18 @@ fun ExploreScreen(
         }
       }
 
-      // Header overlay (top)
-      ExploreHeader(
-              onSearchLocation = { locationQuery ->
-                viewModel.searchLocation(locationQuery, context, cameraPositionState)
-              },
-              modifier = Modifier.align(Alignment.TopCenter)
-      )
+        // Header overlay (top)
+        ExploreHeader(
+                onSearchLocation = { locationQuery ->
+                  viewModel.searchLocation(locationQuery, context, cameraPositionState)
+                },
+                modifier = Modifier.align(Alignment.TopCenter)
+        )
+
+        // Noise level legend (bottom left)
+        NoiseLevelLegend(
+                modifier = Modifier.align(Alignment.BottomStart)
+        )
 
       // Action buttons column
       Column(
