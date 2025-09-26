@@ -294,9 +294,11 @@ constructor(
   fun onViewportChanged(viewport: MapViewport) {
     _uiState.update { it.copy(currentViewport = viewport) }
 
-    // Load events for the new viewport
+    // Load events for the new viewport with debouncing to prevent excessive API calls
     viewModelScope.launch {
       try {
+        // Add a small delay to debounce rapid viewport changes
+        kotlinx.coroutines.delay(300)
         loadEventsInViewport(viewport)
       } catch (e: Exception) {
         Log.e("ExploreViewModel", "Error loading events for new viewport", e)

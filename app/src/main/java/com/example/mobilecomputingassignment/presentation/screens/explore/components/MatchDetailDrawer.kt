@@ -295,6 +295,10 @@ fun MatchDetailDrawer(
 
 @Composable
 private fun TeamsSection(event: Event) {
+    // Add null safety for match details
+    val homeTeam = event.matchDetails?.homeTeam?.takeIf { it.isNotBlank() } ?: "TBD"
+    val awayTeam = event.matchDetails?.awayTeam?.takeIf { it.isNotBlank() } ?: "TBD"
+    
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
@@ -322,12 +326,12 @@ private fun TeamsSection(event: Event) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally,
                     modifier = Modifier.weight(1f)) {
                     TeamLogo(
-                        teamName = event.matchDetails?.homeTeam ?: "TBD",
+                        teamName = homeTeam,
                         modifier = Modifier.size(64.dp)
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        text = event.matchDetails?.homeTeam ?: "TBD",
+                        text = homeTeam,
                         style = MaterialTheme.typography.bodyMedium,
                         fontWeight = FontWeight.Medium,
                         modifier = Modifier.fillMaxWidth(),
@@ -347,12 +351,12 @@ private fun TeamsSection(event: Event) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally,
                     modifier = Modifier.weight(1f)) {
                     TeamLogo(
-                        teamName = event.matchDetails?.awayTeam ?: "TBD",
+                        teamName = awayTeam,
                         modifier = Modifier.size(64.dp)
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        text = event.matchDetails?.awayTeam ?: "TBD",
+                        text = awayTeam,
                         style = MaterialTheme.typography.bodyMedium,
                         fontWeight = FontWeight.Medium,
                         modifier = Modifier.fillMaxWidth(),
@@ -366,6 +370,21 @@ private fun TeamsSection(event: Event) {
 
 @Composable
 private fun DateTimeSection(event: Event) {
+    // Safe date formatting to prevent crashes
+    val dateFormatter = try {
+        SimpleDateFormat("dd MMM yyyy", Locale.getDefault())
+    } catch (e: Exception) {
+        android.util.Log.w("MatchDetailDrawer", "Error creating date formatter: ${e.message}")
+        SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+    }
+    
+    val timeFormatter = try {
+        SimpleDateFormat("HH:mm", Locale.getDefault())
+    } catch (e: Exception) {
+        android.util.Log.w("MatchDetailDrawer", "Error creating time formatter: ${e.message}")
+        SimpleDateFormat("HH:mm", Locale.getDefault())
+    }
+    
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
@@ -390,9 +409,12 @@ private fun DateTimeSection(event: Event) {
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
-                    text =
-                        SimpleDateFormat("dd MMM yyyy", Locale.getDefault())
-                            .format(event.date),
+                    text = try {
+                        dateFormatter.format(event.date)
+                    } catch (e: Exception) {
+                        android.util.Log.w("MatchDetailDrawer", "Error formatting date: ${e.message}")
+                        "Date unavailable"
+                    },
                     style = MaterialTheme.typography.bodyLarge,
                     fontWeight = FontWeight.Medium
                 )
@@ -408,9 +430,12 @@ private fun DateTimeSection(event: Event) {
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
-                    text =
-                        SimpleDateFormat("HH:mm", Locale.getDefault())
-                            .format(event.checkInTime),
+                    text = try {
+                        timeFormatter.format(event.checkInTime)
+                    } catch (e: Exception) {
+                        android.util.Log.w("MatchDetailDrawer", "Error formatting time: ${e.message}")
+                        "Time unavailable"
+                    },
                     style = MaterialTheme.typography.bodyLarge,
                     fontWeight = FontWeight.Medium
                 )
@@ -626,20 +651,9 @@ private fun InterestCountSection(event: Event) {
 
 @Composable
 private fun NoiseLevelSection(event: Event) {
-    val currentTime = Date()
-    val eventTime = event.date
-    val timeDifference = kotlin.math.abs(currentTime.time - eventTime.time)
-    val oneHourInMillis = 60 * 60 * 1000L
-
-    // Check if event is ongoing (within 1 hour range)
-    val isOngoing = timeDifference <= oneHourInMillis
-
-    if (isOngoing && event.recentNoiseDbfs != null) {
-        val noiseLevel =
-            com.example.mobilecomputingassignment.domain.models.NoiseLevel.fromDbfs(
-                event.recentNoiseDbfs
-            )
-
+    // Simplified noise level section to prevent crashes
+    if (event.recentNoiseDbfs != null) {
+        val noiseLevel = com.example.mobilecomputingassignment.domain.models.NoiseLevel.fromDbfs(event.recentNoiseDbfs)
         if (noiseLevel != null) {
             val backgroundColor = Color(noiseLevel.color).copy(alpha = 0.1f)
             val textColor = Color(noiseLevel.color)

@@ -3,16 +3,25 @@ package com.example.mobilecomputingassignment.domain.usecases.events
 import com.example.mobilecomputingassignment.domain.models.Event
 import com.example.mobilecomputingassignment.domain.repository.IEventRepository
 import com.example.mobilecomputingassignment.domain.usecases.notifications.ManageFavoriteTeamNotificationsUseCase
+import com.example.mobilecomputingassignment.presentation.utils.TimezoneUtils
 import java.util.Date
 import javax.inject.Inject
 
-class CreateEventUseCase @Inject constructor(
-    private val eventRepository: IEventRepository,
-    private val manageFavoriteTeamNotificationsUseCase: ManageFavoriteTeamNotificationsUseCase
+class CreateEventUseCase
+@Inject
+constructor(
+        private val eventRepository: IEventRepository,
+        private val manageFavoriteTeamNotificationsUseCase: ManageFavoriteTeamNotificationsUseCase
 ) {
   suspend fun execute(event: Event): Result<String> {
+    // Debug: Log event details to help troubleshoot
+    android.util.Log.d("CreateEventUseCase", "Event title: '${event.title}'")
+    android.util.Log.d("CreateEventUseCase", "Match details: ${event.matchDetails}")
+    android.util.Log.d("CreateEventUseCase", "Location: ${event.location.name}")
+    
     // Validate event data
     if (event.title.isBlank()) {
+      android.util.Log.e("CreateEventUseCase", "Event title is blank - this will cause failure")
       return Result.failure(Exception("Event title is required"))
     }
 
@@ -28,21 +37,23 @@ class CreateEventUseCase @Inject constructor(
       return Result.failure(Exception("Capacity must be greater than 0"))
     }
 
-    if (event.date.before(Date())) {
-      return Result.failure(Exception("Event date must be in the future"))
+    // Allow events for today - only prevent events in the past
+    // Use Australian timezone for AFL events (AEST/AEDT)
+    if (!TimezoneUtils.isTodayOrFuture(event.date)) {
+      return Result.failure(Exception("Event date must be today or in the future"))
     }
 
     if (event.checkInTime.after(event.date)) {
       return Result.failure(Exception("Check-in time must be before event date"))
     }
 
-    // Set timestamps
+    // Set timestamps - simple and consistent
     val now = Date()
     val eventToCreate = event.copy(createdAt = now, updatedAt = now, isActive = true)
 
     // Create the event
     val result = eventRepository.createEvent(eventToCreate)
-    
+
     // If event creation was successful, trigger favorite team notifications
     result.onSuccess { eventId ->
       try {

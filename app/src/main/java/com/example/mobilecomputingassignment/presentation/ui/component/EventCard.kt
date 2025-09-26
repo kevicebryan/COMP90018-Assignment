@@ -19,6 +19,8 @@ import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.ui.res.painterResource
+import com.example.mobilecomputingassignment.R
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material3.AlertDialog
@@ -268,7 +270,7 @@ fun EventCard(
 
                         EventDetailRow(
                             icon = Icons.Default.Info,
-                            label = "Check-in",
+                            label = "Time",
                             value =
                                 SimpleDateFormat("HH:mm", Locale.getDefault())
                                     .format(event.checkInTime)
@@ -423,4 +425,47 @@ private fun AmenityChip(text: String, modifier: Modifier = Modifier) {
                 labelColor = MaterialTheme.colorScheme.onPrimaryContainer
             )
     )
+}
+
+// Overloaded version that accepts drawable resource ID
+@Composable
+private fun EventDetailRow(
+    iconResId: Int,
+    label: String,
+    value: String,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(vertical = 2.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Box(
+            modifier =
+                Modifier
+                    .size(20.dp)
+                    .padding(end = 8.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                painter = painterResource(id = iconResId),
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(16.dp)
+            )
+        }
+        Text(
+            text = label,
+            style = MaterialTheme.typography.bodyMedium,
+            fontWeight = FontWeight.Medium,
+            color = MaterialTheme.colorScheme.onSurface,
+            modifier = Modifier.width(80.dp)
+        )
+        Text(
+            text = value,
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurface
+        )
+    }
 }

@@ -179,23 +179,26 @@ fun ExploreScreen(
                       ),
               onMapClick = { latLng -> viewModel.onMapClick(latLng) }
       ) {
-        // Markers for events in current viewport
-        uiState.visibleEvents.forEach { event ->
-          Marker(
-                  state =
-                          MarkerState(
-                                  position =
-                                          LatLng(event.location.latitude, event.location.longitude)
-                          ),
-                  title = event.matchDetails?.let { "${it.homeTeam} vs ${it.awayTeam}" }
-                                  ?: "Watch Along Event",
-                  snippet = event.location.name,
-                  icon = CustomMarkerIconGenerator.generateMarkerIcon(context, event),
-                  onClick = {
-                    viewModel.onMarkerClick(event)
-                    true
-                  }
-          )
+        // Markers for events in current viewport - limit to prevent performance issues
+        uiState.visibleEvents.take(50).forEach { event ->
+          // Safe marker creation with null checks
+          if (event.location.latitude != 0.0 && event.location.longitude != 0.0) {
+            Marker(
+                    state =
+                            MarkerState(
+                                    position =
+                                            LatLng(event.location.latitude, event.location.longitude)
+                            ),
+                    title = event.matchDetails?.let { "${it.homeTeam} vs ${it.awayTeam}" }
+                                    ?: "Watch Along Event",
+                    snippet = event.location.name,
+                    icon = CustomMarkerIconGenerator.generateMarkerIcon(context, event),
+                    onClick = {
+                      viewModel.onMarkerClick(event)
+                      true
+                    }
+            )
+          }
         }
       }
 

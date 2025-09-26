@@ -12,9 +12,11 @@ import com.example.mobilecomputingassignment.data.repository.MatchRepository
 import com.example.mobilecomputingassignment.domain.models.*
 import com.example.mobilecomputingassignment.domain.usecases.events.*
 import com.example.mobilecomputingassignment.domain.usecases.notifications.ManageEventUpdateNotificationsUseCase
+import com.example.mobilecomputingassignment.presentation.utils.TimezoneUtils
 import com.google.firebase.auth.FirebaseAuth
+import java.text.SimpleDateFormat
+import java.util.Locale
 import com.google.firebase.firestore.FirebaseFirestore
-import kotlinx.coroutines.tasks.await
 import dagger.hilt.android.lifecycle.HiltViewModel
 import java.util.Calendar
 import java.util.Date
@@ -23,6 +25,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 
 /**
  * EventViewModel - UI State Management
@@ -128,7 +131,7 @@ constructor(
 
         // Repository: Data access
         private val matchRepository: MatchRepository,
-        
+
         // Firebase
         private val firestore: FirebaseFirestore
 ) : ViewModel() {
@@ -236,6 +239,8 @@ constructor(
         }
 
         fun startEditingEvent(event: Event) {
+                // Simple and consistent: use the exact time as stored
+                // 17:00 loads as 17:00, 20:00 loads as 20:00 - no conversions
                 _formData.value =
                         EventFormData(
                                 date = event.date,
@@ -312,12 +317,15 @@ constructor(
                                 locationName =
                                         if (_formData.value.locationName.isEmpty()) match.venue
                                         else _formData.value.locationName,
-                                // Update event date and check-in time based on match time
+                                // Simple and consistent: use match time directly
                                 date = match.matchTime,
-                                checkInTime =
-                                        Date(
-                                                match.matchTime.time - (30 * 60 * 1000)
-                                        ) // 30 minutes before match
+                                // Simple calculation: 30 minutes before match time
+                                checkInTime = run {
+                                    val matchCalendar = Calendar.getInstance()
+                                    matchCalendar.time = match.matchTime
+                                    matchCalendar.add(Calendar.MINUTE, -30) // 30 minutes before
+                                    matchCalendar.time
+                                }
                         )
                 _formData.value = updatedFormData
         }
@@ -332,10 +340,11 @@ constructor(
         }
 
         fun createCustomMatch(homeTeam: String, awayTeam: String) {
+                // Simple and consistent: use device timezone
                 val calendar = Calendar.getInstance()
                 calendar.time = _formData.value.date
                 val season = calendar.get(Calendar.YEAR)
-                
+
                 val customMatch =
                         MatchDetails(
                                 id = "custom_${System.currentTimeMillis()}", // Generate unique ID
@@ -348,33 +357,42 @@ constructor(
                                 season = season
                         )
 
+                // Simple calculation: 30 minutes before match time
+                val matchTime = _formData.value.date
+                val customCalendar = Calendar.getInstance()
+                customCalendar.time = matchTime
+                customCalendar.add(Calendar.MINUTE, -30) // 30 minutes before
+                val checkInTime = customCalendar.time
+
                 val updatedFormData =
                         _formData.value.copy(
                                 matchId = customMatch.id,
                                 selectedMatch = customMatch,
                                 locationName =
                                         if (_formData.value.locationName.isEmpty()) "Custom Venue"
-                                        else _formData.value.locationName
+                                        else _formData.value.locationName,
+                                checkInTime = checkInTime
                         )
                 _formData.value = updatedFormData
                 _uiState.value = _uiState.value.copy(showCustomMatchDialog = false)
-                
+
                 // Save custom match to Firebase for future use
                 saveCustomMatchToFirebase(customMatch)
         }
-        
+
         private fun saveCustomMatchToFirebase(matchDetails: MatchDetails) {
                 viewModelScope.launch {
                         try {
                                 // Convert to DTO for Firebase
                                 val matchDetailsDto = MatchDetailsDto.fromDomain(matchDetails)
-                                
+
                                 // Save to a custom matches collection
-                                firestore.collection("custom_matches")
+                                firestore
+                                        .collection("custom_matches")
                                         .document(matchDetails.id)
                                         .set(matchDetailsDto)
                                         .await()
-                                        
+
                                 Log.d(TAG, "Custom match saved to Firebase: ${matchDetails.id}")
                         } catch (e: Exception) {
                                 Log.e(TAG, "Failed to save custom match to Firebase", e)
@@ -382,7 +400,7 @@ constructor(
                 }
         }
 
-         fun loadAflTeams() {
+        fun loadAflTeams() {
                 Log.d(TAG, "loadAflTeams called - using constant data")
                 // Since teams are now constant data, we can load them immediately without async
                 // calls
@@ -401,6 +419,11 @@ constructor(
 
                 Log.d(TAG, "Creating event with userId: $userId, username: $username")
                 val form = _formData.value
+                
+                // Debug: Log match details to help troubleshoot
+                Log.d(TAG, "Selected match: ${form.selectedMatch}")
+                Log.d(TAG, "Match ID: ${form.matchId}")
+                Log.d(TAG, "Location: ${form.locationName}")
 
                 // Validate venue name and address for inappropriate content
                 val venueNameValidation = ContentFilter.validateContent(form.locationName)
@@ -424,6 +447,16 @@ constructor(
                         return
                 }
 
+                // Simple and consistent: use the exact time the user selected
+                // 17:00 saves as 17:00, 20:00 saves as 20:00 - no conversions
+                
+                // Debug logging to see what's being saved
+                Log.d(TAG, "Creating event with form data:")
+                Log.d(TAG, "Form date: ${form.date}")
+                Log.d(TAG, "Form checkInTime: ${form.checkInTime}")
+                Log.d(TAG, "Form date time: ${SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(form.date)}")
+                Log.d(TAG, "Form checkInTime time: ${SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(form.checkInTime)}")
+                
                 val event =
                         Event(
                                 hostUserId = userId,
@@ -451,8 +484,8 @@ constructor(
                                 accessibility = form.accessibility,
                                 attendees = "",
                                 volume = form.volume,
-                                createdAt = Date(),
-                                updatedAt = Date(),
+                                createdAt = TimezoneUtils.getCurrentAustralianDate(),
+                                updatedAt = TimezoneUtils.getCurrentAustralianDate(),
                                 isActive = true
                         )
 
@@ -509,6 +542,8 @@ constructor(
                         return
                 }
 
+                // Simple and consistent: use the exact time the user selected
+                // 17:00 saves as 17:00, 20:00 saves as 20:00 - no conversions
                 val updatedEvent =
                         editingEvent.copy(
                                 date = form.date,
@@ -542,10 +577,12 @@ constructor(
                                 .execute(updatedEvent)
                                 .onSuccess {
                                         Log.d(TAG, "Event updated successfully")
-                                        
+
                                         // Notify interested users about the event update
-                                        manageEventUpdateNotificationsUseCase.notifyEventUpdated(updatedEvent)
-                                        
+                                        manageEventUpdateNotificationsUseCase.notifyEventUpdated(
+                                                updatedEvent
+                                        )
+
                                         _uiState.value =
                                                 _uiState.value.copy(
                                                         isLoading = false,

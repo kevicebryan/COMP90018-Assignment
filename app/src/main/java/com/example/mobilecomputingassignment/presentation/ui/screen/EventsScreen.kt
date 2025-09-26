@@ -12,18 +12,20 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.mobilecomputingassignment.domain.models.Event
 import com.example.mobilecomputingassignment.presentation.ui.component.EventCard
 import com.example.mobilecomputingassignment.presentation.ui.component.EventFormDialog
+import com.example.mobilecomputingassignment.presentation.utils.EventDateUtils
 import com.example.mobilecomputingassignment.presentation.viewmodel.EventViewModel
-import java.util.Date
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EventsScreen(modifier: Modifier = Modifier, eventViewModel: EventViewModel = hiltViewModel()) {
   val uiState by eventViewModel.uiState.collectAsState()
+  val context = LocalContext.current
 
   // State for collapsible past events sections
   var isInterestedPastEventsExpanded by remember { mutableStateOf(false) }
@@ -105,7 +107,10 @@ fun EventsScreen(modifier: Modifier = Modifier, eventViewModel: EventViewModel =
                       onToggleInterest = { eventId, isInterested ->
                         eventViewModel.toggleEventInterest(eventId, isInterested)
                       },
-                      onGetDirections = { event -> eventViewModel.openGoogleMapsDirections(event) }
+                      onGetDirections = { event ->
+                        val intent = eventViewModel.openGoogleMapsDirections(event)
+                        context.startActivity(intent)
+                      }
               )
       1 ->
               HostedEventsContent(
@@ -157,14 +162,12 @@ fun EventsScreen(modifier: Modifier = Modifier, eventViewModel: EventViewModel =
 
 // Helper function to check if an event is in the past
 private fun isEventInPast(event: Event): Boolean {
-  val now = Date()
-  return event.date.before(now)
+  return EventDateUtils.isEventInPast(event)
 }
 
 // Helper function to separate events into past and future
 private fun separateEventsByDate(events: List<Event>): Pair<List<Event>, List<Event>> {
-  val now = Date()
-  return events.partition { it.date.before(now) }
+  return events.partition { EventDateUtils.isEventInPast(it) }
 }
 
 // Collapsible section component for past events
@@ -178,10 +181,7 @@ private fun PastEventsSection(
   if (pastEvents.isNotEmpty()) {
     Card(
             modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
-            colors =
-                    CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.surface
-                    )
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
     ) {
       Column {
         // Collapsible header
@@ -267,15 +267,15 @@ private fun InterestedEventsContent(
                   onToggleExpanded = onTogglePastEventsExpanded
           ) { pastEventsList ->
             Column(
-              modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp),
-              verticalArrangement = Arrangement.spacedBy(8.dp)
+                    modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
               pastEventsList.forEach { event ->
                 EventCard(
-                  event = event,
-                  isHosted = false,
-                  onToggleInterest = { onToggleInterest(event.id, true) },
-                  onGetDirections = { onGetDirections(event) }
+                        event = event,
+                        isHosted = false,
+                        onToggleInterest = { onToggleInterest(event.id, true) },
+                        onGetDirections = { onGetDirections(event) }
                 )
               }
             }
@@ -340,15 +340,15 @@ private fun HostedEventsContent(
                   onToggleExpanded = onTogglePastEventsExpanded
           ) { pastEventsList ->
             Column(
-              modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp),
-              verticalArrangement = Arrangement.spacedBy(8.dp)
+                    modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
               pastEventsList.forEach { event ->
                 EventCard(
-                  event = event,
-                  isHosted = true,
-                  onEditEvent = { onEditEvent(event) },
-                  onDeleteEvent = { onDeleteEvent(event.id) }
+                        event = event,
+                        isHosted = true,
+                        onEditEvent = { onEditEvent(event) },
+                        onDeleteEvent = { onDeleteEvent(event.id) }
                 )
               }
             }

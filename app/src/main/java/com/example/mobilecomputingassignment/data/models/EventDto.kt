@@ -64,6 +64,7 @@ data class EventDto(
 
     companion object {
         fun fromDomain(event: Event): EventDto {
+            // Ensure dates are preserved in Australian timezone for Firebase storage
             return EventDto(
                     id = event.id,
                     hostUserId = event.hostUserId,

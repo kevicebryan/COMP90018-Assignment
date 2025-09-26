@@ -3,6 +3,7 @@ package com.example.mobilecomputingassignment.data.repository
 import android.util.Log
 import com.example.mobilecomputingassignment.data.remote.SquiggleApiService
 import com.example.mobilecomputingassignment.domain.models.MatchDetails
+import com.example.mobilecomputingassignment.presentation.utils.TimezoneUtils
 import java.text.SimpleDateFormat
 import java.util.*
 import javax.inject.Inject
@@ -30,7 +31,11 @@ import javax.inject.Singleton
 class MatchRepository @Inject constructor(private val squiggleApiService: SquiggleApiService) {
   companion object {
     private const val TAG = "MatchRepository"
-    private val API_DATE_FORMAT = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
+    private val API_DATE_FORMAT =
+            SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).apply {
+              // Set to Australian timezone for AFL matches
+              timeZone = TimezoneUtils.AUSTRALIAN_TIMEZONE
+            }
   }
 
   suspend fun getMatchesForDate(date: Date): Result<List<MatchDetails>> {
@@ -43,8 +48,8 @@ class MatchRepository @Inject constructor(private val squiggleApiService: Squigg
       if (response.isSuccessful) {
         val games = response.body()?.games ?: emptyList()
 
-        // Filter games by the selected date
-        val targetDateString = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(date)
+        // Filter games by the selected date (using Australian timezone)
+        val targetDateString = TimezoneUtils.formatAustralianDate(date)
 
         val matchingGames =
                 games.filter { game ->
