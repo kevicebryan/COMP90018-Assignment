@@ -1,0 +1,932 @@
+commit 293c4aa0274ffdd0e2c0543a5f24bd8e21c8b94e
+Author: kevicebryan <kevinbryanreligion@gmail.com>
+Date:   Fri Sep 26 17:00:41 2025 +1000
+
+    fix: assignments
+
+commit 885e221c56e42b97fc0773341f55a927d91edbde
+Merge: b0661c3 d6b9e27
+Author: Kevin Bryan <70892991+kevicebryan@users.noreply.github.com>
+Date:   Thu Sep 25 10:07:29 2025 +1000
+
+    Merge pull request #32 from kevicebryan/updates/hide-past-events
+    
+    add: collapsable for past events
+
+commit d6b9e27e4c23737e219c7183fe8a9677765e5560
+Author: kevicebryan <kevinbryanreligion@gmail.com>
+Date:   Thu Sep 25 10:06:57 2025 +1000
+
+    add: collapsable for past events
+
+commit b0661c34040d8d303352f53de17ab50758c85e26
+Merge: e73f5b4 6ae78e6
+Author: Wu Jia <159984023+twujia@users.noreply.github.com>
+Date:   Wed Sep 24 17:45:49 2025 +1000
+
+    Merge pull request #31 from kevicebryan/ui/nearby-events-update
+    
+    Update NearbyMatchCard and MatchDetailDrawer to match aesthetic of EventCard
+
+commit 6ae78e621b3b531d12e3681816ef35032c875db9
+Author: twujia <159984023+twujia@users.noreply.github.com>
+Date:   Wed Sep 24 17:28:02 2025 +1000
+
+    Update MatchDetailDrawer UI and section order
+    
+    - Updated card styles for sections (Teams, Date/Time, Venue, Amenities, Accessibility, Host, Capacity, Contact, Description) to match the same aesthetic as EventCard.kt
+    - Adjusted the order of sections in the drawer: Description, Venue, Host, Capacity, Amenities, Accessibility, Contact, Interest Count.
+    - Modified the Teams section layout for better alignment and sizing of team logos and names.
+    - Swapped the positions of the "Interest" and "Directions" buttons in the action row (to match EventCard.kt)
+
+commit 9ffd0d08a9a99b09788fd60a3eaa499a080e7d87
+Author: twujia <159984023+twujia@users.noreply.github.com>
+Date:   Wed Sep 24 16:38:22 2025 +1000
+
+    Update NearbyMatchCard UI to match shape/color/size of EventCard.kt
+    
+    - Updated Card appearance with rounded corners and a border.
+    - Added circular background for location icon.
+    - Updated spacing of address details to line up with the home and away teams.
+
+commit e73f5b49cb8995daaaca18a5f4cc323955fa8627
+Author: kevicebryan <kevinbryanreligion@gmail.com>
+Date:   Fri Sep 19 17:46:58 2025 +1000
+
+    added legend change colors to more visible contrast
+
+commit c90368c1ffc3ef088ee1a555b49a0047389cccd8
+Author: kevicebryan <kevinbryanreligion@gmail.com>
+Date:   Fri Sep 19 17:39:03 2025 +1000
+
+    hotfix: fix team not showing up in marker
+
+commit 4c65f09e455158eeaac50624e111f4f6b654085d
+Merge: 97c6f93 defdbb2
+Author: Wu Jia <159984023+twujia@users.noreply.github.com>
+Date:   Fri Sep 19 15:07:04 2025 +1000
+
+    Merge pull request #30 from kevicebryan/ui/events-card-v3
+    
+    Update events card: hide edit button and event details for past events
+
+commit defdbb2b191c1d4605341d3d62e3bd31776a22a1
+Author: Wu Jia Tan <159984023+twujia@users.noreply.github.com>
+Date:   Fri Sep 19 14:00:05 2025 +1000
+
+    Update events card: hide edit button and event details for past events
+    
+    - The edit and delete buttons for hosted events is now hidden if the event is in the past.
+    - Additionally, team logos and event details (location, date, check-in time, capacity, contact number) are also hidden.
+
+commit 97c6f930c39edb89fabad25788ade8abf1e5871b
+Author: kevicebryan <kevinbryanreligion@gmail.com>
+Date:   Thu Sep 18 17:43:44 2025 +1000
+
+    Update CustomMarkerIconGenerator.kt
+
+commit 2e473e9b905783fb24c85142951fe6e844cd94c2
+Author: kevicebryan <kevinbryanreligion@gmail.com>
+Date:   Thu Sep 18 17:34:59 2025 +1000
+
+    add: more info in event details and markers
+
+commit f96fdf8f19762ee66013adca2f354ed15f53ed28
+Merge: f50060c afd132f
+Author: joannhnguyen <joannhnguyen21@gmail.com>
+Date:   Wed Sep 17 15:03:44 2025 +1000
+
+    Merge pull request #28 from kevicebryan/fix-events-form
+    
+    Fix events form
+
+commit afd132f3c6890c9d165dd6fbc6968a4e6c77e2c2
+Author: JoAnn Nguyen <joannhnguyen21@gmail.com>
+Date:   Wed Sep 17 00:37:46 2025 +1000
+
+    Home Team vs Away Team Form Box
+    
+    Horizontally side by side now
+
+commit 8812e8582a415b7ee53ba0506b068b2909eb5873
+Author: JoAnn Nguyen <joannhnguyen21@gmail.com>
+Date:   Wed Sep 17 00:30:25 2025 +1000
+
+    Team vs Team display Update
+    
+    Only shows logos rather then team names and logo
+
+commit f50060c7d0b3c2bbfe700f5438437121441f6ffe
+Merge: fbc01d2 a9fee4e
+Author: Wu Jia <159984023+twujia@users.noreply.github.com>
+Date:   Tue Sep 16 12:16:00 2025 +1000
+
+    Merge pull request #29 from kevicebryan/ui/events-card-v2
+    
+    Update layout for EventCard
+
+commit 88fbb48901ef6fac2d2f0f724ebd46f81bcfc07c
+Author: JoAnn Nguyen <joannhnguyen21@gmail.com>
+Date:   Tue Sep 16 00:24:41 2025 +1000
+
+    Adjusting footer buttons
+
+commit 47e3bb84b2c0e47d2fd42713727382c95449968d
+Author: JoAnn Nguyen <joannhnguyen21@gmail.com>
+Date:   Mon Sep 15 23:07:08 2025 +1000
+
+    Match data updates when date changes
+
+commit 863def5f68d64b380dfe35d260a73b16edc7c237
+Author: JoAnn Nguyen <joannhnguyen21@gmail.com>
+Date:   Mon Sep 15 22:25:50 2025 +1000
+
+    Updates to custom events
+    
+    Working, but create button broken
+
+commit 9b85356da1ceca2a1181c5b7f46b19594ada1095
+Author: JoAnn Nguyen <joannhnguyen21@gmail.com>
+Date:   Mon Sep 15 20:46:59 2025 +1000
+
+    Custom matches
+
+commit a9fee4e02bd5596a20af37382b5ca94ca05772a3
+Author: twujia <159984023+twujia@users.noreply.github.com>
+Date:   Mon Sep 15 20:41:00 2025 +1000
+
+    Improved layout for EventCard
+    
+    - EventCard:
+        - Display team logos above event details.
+        - Clean event title by removing venue information (already present in description).
+        - Format match title "Team A vs Team B" to be on two lines for better readability.
+        - Change "Location" display from an icon-based row to bold H5 text.
+        - Temporarily disabled the "Toggle Interest" button; not sure if needed later
+    - TeamSelectionScreen:
+        - Remove commented-out code and simplify loading/empty state layout.
+    - TeamLogo:
+        - Add optional modifier parameter for better composability.
+
+commit fbc01d24bcf9e70a585be1799632718005112f07
+Author: VIJIT PUGALIA <vijitpugalia0@gmail.com>
+Date:   Mon Sep 15 19:54:49 2025 +1000
+
+    Remove calendar placeholder text
+
+commit d7ad9c7b57724c55171143ba8457a9ed4d24673f
+Author: FrankArtn <163541947+FrankArtn@users.noreply.github.com>
+Date:   Mon Sep 15 17:18:24 2025 +1000
+
+    Audio noise capture in dbfs -80 silent room 0 is max volume (#27)
+
+commit d94129e0362fac7cb82e535ed67bd6a1765dfd44
+Merge: 7dcbf92 8804466
+Author: VIJIT PUGALIA <85388591+VijitPugalia@users.noreply.github.com>
+Date:   Mon Sep 15 14:40:01 2025 +1000
+
+    fix: remove duplicate calendar icon
+    
+    - Remove trailingIcon to eliminate duplicate calendar icon
+    - Make leadingIcon clickable by wrapping in IconButton
+    - Change readOnly from true to false to allow manual typing
+    - Add input validation and length limits for DD/MM/YYYY format
+    - TODO: Update calendar icon color from orange to match design theme
+    
+    Fixes duplicate calendar icon issue in signup profile step while
+    maintaining both date picker and manual input functionality.
+
+commit 880446637a8a1213cc0b536be5e2595bddf35b03
+Author: VIJIT PUGALIA <vijitpugalia0@gmail.com>
+Date:   Mon Sep 15 14:39:00 2025 +1000
+
+    fix: remove duplicate calendar icon
+    
+    - Remove trailingIcon to eliminate duplicate calendar icon
+    - Make leadingIcon clickable by wrapping in IconButton
+    - Change readOnly from true to false to allow manual typing
+    - Add input validation and length limits for DD/MM/YYYY format
+    - TODO: Update calendar icon color from orange to match design theme
+    
+    Fixes duplicate calendar icon issue in signup profile step while
+    maintaining both date picker and manual input functionality.
+
+commit 7dcbf9204af1ecb59ff6ee7ba298c03651df7e9c
+Merge: b84813f 2bb08fc
+Author: VIJIT PUGALIA <85388591+VijitPugalia@users.noreply.github.com>
+Date:   Mon Sep 15 13:42:30 2025 +1000
+
+    fix(ui)
+    
+    fix(ui): resolve SignupLeagueStep lambda type and merge conflicts
+
+commit 2bb08fcb356310017f9eb562bb26af62b56b4970
+Author: VIJIT PUGALIA <vijitpugalia0@gmail.com>
+Date:   Mon Sep 15 13:41:37 2025 +1000
+
+    fix(ui): resolve SignupLeagueStep lambda type and merge conflicts
+    
+    Fix lambda return type mismatch and clean up merge conflicts in SignupLeagueStep function
+
+commit b84813fa17f39cb721ee29dd8ac2fec9512a4823
+Merge: 77c5652 956a7c9
+Author: VIJIT PUGALIA <85388591+VijitPugalia@users.noreply.github.com>
+Date:   Mon Sep 15 13:08:48 2025 +1000
+
+    fix: Resolve back button positioning and UI consistency issues
+    
+    - Add statusBarsPadding() to SignupHeader for proper positioning
+    - Make SignupLayout and SignupHeader public for reusability
+    - Fix SignupHeader spacing using Spacer instead of SpaceBetween
+    - Update LoginStep to use SignupLayout for consistent styling
+    - Ensure uniform back button behavior across signup and login flows
+
+commit 956a7c93227becd4d764d3e3282665010c4989b3
+Merge: e62b97e 77c5652
+Author: VIJIT PUGALIA <85388591+VijitPugalia@users.noreply.github.com>
+Date:   Mon Sep 15 13:07:28 2025 +1000
+
+    Merge branch 'master' into fix/login-page-back-button-styling
+
+commit e62b97eed15a52c7e30ef1b85be1dd7913ce8879
+Author: VIJIT PUGALIA <vijitpugalia0@gmail.com>
+Date:   Mon Sep 15 13:01:55 2025 +1000
+
+    fix: Resolve back button positioning and UI consistency issues
+    
+    - Add statusBarsPadding() to SignupHeader for proper positioning
+    - Make SignupLayout and SignupHeader public for reusability
+    - Fix SignupHeader spacing using Spacer instead of SpaceBetween
+    - Update LoginStep to use SignupLayout for consistent styling
+    - Ensure uniform back button behavior across signup and login flows
+
+commit 77c5652741a8ac9c6a44343453d7c564ee93b941
+Merge: 5b7e2a6 b51f48d
+Author: VIJIT PUGALIA <85388591+VijitPugalia@users.noreply.github.com>
+Date:   Mon Sep 15 12:08:51 2025 +1000
+
+    Merge pull request #23 from kevicebryan/bugfix/signup-back-next-flow
+    
+    Fix back button positioning and styling consistency
+
+commit df81740eba77996f4fe0b26e2ec3dd20f6c08448
+Author: JoAnn Nguyen <joannhnguyen21@gmail.com>
+Date:   Mon Sep 15 10:56:01 2025 +1000
+
+    location wording updated
+
+commit 08d0b6204e43e76238261182abc1ac3d54999305
+Author: JoAnn Nguyen <joannhnguyen21@gmail.com>
+Date:   Mon Sep 15 02:12:14 2025 +1000
+
+    Updates to Event Creation
+    
+    Date & Time box update, removal of duplicate icons, amentities & accessibility dropdowns
+
+commit b51f48d5e3a424ff88e8d75626927aa53c19a513
+Author: VIJIT PUGALIA <vijitpugalia0@gmail.com>
+Date:   Sun Sep 14 17:11:55 2025 +1000
+
+    feat: Create ProfileLeagueSelectionScreen for consistent profile navigation
+    
+    - Add new ProfileLeagueSelectionScreen using Scaffold + TopAppBar pattern
+    - Matches design consistency with other profile sub-screens
+    - Replace SignupLeagueStep usage in profile context
+    - Maintain separate SignupLeagueStep for signup flow
+    - Fix back button and typography inconsistencies
+
+commit 9405517f7fdd88c78e8b970a716e4800c0d9f4db
+Author: VIJIT PUGALIA <vijitpugalia0@gmail.com>
+Date:   Sun Sep 14 12:50:39 2025 +1000
+
+    Fix back button positioning and styling consistency
+    
+    - Add statusBarsPadding() to SignupHeader to prevent overlap with status bar
+    - Fix SignupLeagueStep to use SignupLayout for consistent styling
+    - Resolve compilation errors with proper Unit return types
+    - Ensure all signup steps have uniform back button appearance and positioning
+
+commit 5b7e2a61f10d60303f982b59a18daaa059fc1bf9
+Author: kevicebryan <kevinbryanreligion@gmail.com>
+Date:   Sat Sep 13 14:25:58 2025 +1000
+
+    revamp the explore
+    
+    - hide past events
+    - make marker more cool!
+
+commit 7e83b953cfbcb30a88afb4ac570c36023bbba7b5
+Author: kevicebryan <kevinbryanreligion@gmail.com>
+Date:   Sat Sep 13 13:52:34 2025 +1000
+
+    fix: make custom match if no match present
+
+commit c82d28846ab771b221aa48f87b717ed1800e25fe
+Author: kevicebryan <kevinbryanreligion@gmail.com>
+Date:   Sat Sep 13 13:22:02 2025 +1000
+
+    fix: copyrwriting on uninterest event
+
+commit d22d65fc8b0ce7ac18efdc014ae23fb851780915
+Author: kevicebryan <kevinbryanreligion@gmail.com>
+Date:   Sat Sep 13 13:21:44 2025 +1000
+
+    add: notifs, responsive interest
+    
+    ✅ Immediate UI updates for interest button
+    ✅ Directions button in interested events (no more check-in button)
+    ✅ Automated notifications for interested events
+    ✅ Favorite team notifications when nearby (5km)
+    ✅ Proximity notifications when walking past (100m)
+    ✅ Network connectivity monitoring and user-friendly error messages
+    ✅ All required permissions properly configured
+
+commit cb8ac50cc43c6ee3308c6ce027f13b6661498387
+Merge: 54cc54e 00a24ef
+Author: Kevin Bryan <70892991+kevicebryan@users.noreply.github.com>
+Date:   Fri Sep 12 23:01:11 2025 +1000
+
+    Merge pull request #22 from kevicebryan/hotfix/team-selection
+    
+    fix: use constants for team selections and revamp themes
+
+commit 00a24ef074c080bbe655ddc1207bf9e7f5e80ba5
+Author: kevicebryan <kevinbryanreligion@gmail.com>
+Date:   Fri Sep 12 23:00:50 2025 +1000
+
+    fix: use constants for team selections and revamp themes
+
+commit 54cc54e6cf01075624afe93a82af4bc233878f3b
+Merge: e3bc0a8 0040aa7
+Author: Kevin Bryan <70892991+kevicebryan@users.noreply.github.com>
+Date:   Thu Sep 11 17:57:06 2025 +1000
+
+    Merge pull request #21 from kevicebryan/feat/interest-an-event
+    
+    add: interest, fix: select match on events
+
+commit 0040aa7d8188ea7ead301d59a3cfd24ac05ee9e1
+Author: kevicebryan <kevinbryanreligion@gmail.com>
+Date:   Thu Sep 11 17:56:03 2025 +1000
+
+    add: interest, fix: select match on events
+
+commit e3bc0a81a6f4334df1e1d7c884cf61078cf913ab
+Author: FrankArtn <frank_artnarong@hotmail.com>
+Date:   Tue Sep 9 20:57:55 2025 +1000
+
+    resolve conflicts
+
+commit 30a9224f1fac68c9df359f0db4956b3cf72c7f39
+Author: FrankArtn <163541947+FrankArtn@users.noreply.github.com>
+Date:   Tue Sep 9 20:50:25 2025 +1000
+
+    Feat/checkin - changed title, shake functionality and vibration when prize revealed (#20)
+    
+    * Check in scanner functionality with landing, points and pointsearned pages
+    
+    * update text in check in landing page
+    
+    * Shake to reveal functionaility and vibration
+
+commit 9c08746b7339181faaac909d995b671093e84f37
+Author: Shaikh Irfan <irfanshaikhfadilah@gmail.com>
+Date:   Tue Sep 9 15:34:16 2025 +1000
+
+    Added files for WatchMates logo and edited XML file to use logo assets
+
+commit fa5d1883426fff9936dff7b9fed90d1a27205a95
+Merge: ee12f92 ac4016f
+Author: Wu Jia <159984023+twujia@users.noreply.github.com>
+Date:   Tue Sep 9 14:39:48 2025 +1000
+
+    Merge pull request #17 from kevicebryan/ui/events-card
+    
+    UI/events card
+
+commit ee12f92f981c7bf0942ef7dbfcedae06c3d13006
+Merge: 8de6f7c 96ed82b
+Author: VIJIT PUGALIA <85388591+VijitPugalia@users.noreply.github.com>
+Date:   Tue Sep 9 14:35:42 2025 +1000
+
+    Fix - Select League Back Button
+
+commit 96ed82badd066cb6237bf5dc0f3b99b5dbea232e
+Author: VIJIT PUGALIA <vijitpugalia0@gmail.com>
+Date:   Tue Sep 9 14:28:42 2025 +1000
+
+    Fixed Select League Back Button
+
+commit ac4016ffa63eb61c7dc5cb9cd3602d8feedc4015
+Author: twujia <159984023+twujia@users.noreply.github.com>
+Date:   Tue Sep 9 13:44:37 2025 +1000
+
+    Update spacing
+
+commit aa61895a5a6eb23b694753b0bd188126a58faeea
+Author: twujia <159984023+twujia@users.noreply.github.com>
+Date:   Tue Sep 9 13:38:29 2025 +1000
+
+    Refactor EventCard UI for improved visual hierarchy and appeal
+    
+    This commit enhances the EventCard component by:
+    - Introducing a gradient background for the header section.
+    - Styling action buttons (Edit, Delete, Interest) with circular backgrounds for better visual distinction.
+    - Encapsulating event details within a nested card for improved organization.
+    - Redesigning the EventDetailRow with circular icon backgrounds and adjusted typography for a cleaner look.
+    - Updating overall card shape to have more rounded corners.
+    - Adjusting spacing and typography throughout the card for better readability and aesthetics.
+
+commit 8de6f7c1d69f65b97d1fab2a783479446a5c6a94
+Author: kevicebryan <kevinbryanreligion@gmail.com>
+Date:   Tue Sep 9 13:16:58 2025 +1000
+
+    Update libs.versions.toml
+
+commit 75ba4b4a7680424097cfa88d4b0aeccea23222b4
+Merge: 1a1f10d 020bccd
+Author: Kevin Bryan <70892991+kevicebryan@users.noreply.github.com>
+Date:   Tue Sep 9 11:37:23 2025 +1000
+
+    Merge pull request #16 from kevicebryan/feat/explore-maps
+    
+    feat: added the foundation of explore feature
+
+commit 020bccd4d22f372394999b6c50a56844f3295fc8
+Merge: d95f384 1a1f10d
+Author: kevicebryan <kevinbryanreligion@gmail.com>
+Date:   Tue Sep 9 11:36:50 2025 +1000
+
+    Merge branch 'master' into feat/explore-maps
+
+commit 1a1f10d21a3c21e68e822c8235c5391f08a6188f
+Merge: bcb4cac 0a309ff
+Author: VIJIT PUGALIA <85388591+VijitPugalia@users.noreply.github.com>
+Date:   Tue Sep 9 01:51:07 2025 +1000
+
+    Merge pull request #15 from kevicebryan/CustomFont
+    
+    Update deploymentTargetSelector.xml
+
+commit 0a309ff27fe1674cb06e89918423420781b42a75
+Author: VIJIT PUGALIA <vijitpugalia0@gmail.com>
+Date:   Tue Sep 9 01:50:32 2025 +1000
+
+    Update deploymentTargetSelector.xml
+
+commit bcb4cacc8f6eeb57c1f5e0a61c5c997672d02c9e
+Merge: 645777f 1c62e72
+Author: VIJIT PUGALIA <85388591+VijitPugalia@users.noreply.github.com>
+Date:   Tue Sep 9 00:16:38 2025 +1000
+
+    Merge pull request #14 from kevicebryan/Select-League-Logo-Change
+    
+    New League Logo
+
+commit af65207595c8124b57abe1667c870bb38dc4cbd1
+Author: twujia <159984023+twujia@users.noreply.github.com>
+Date:   Sun Sep 7 23:08:41 2025 +1000
+
+    Refactor EventCard for improved UI and styling
+    
+    - Increased card corner radius to 16.dp for a softer look.
+    - Added a 1.dp border with a subtle primary color tint.
+    - Adjusted padding and spacing for better visual hierarchy.
+    - Changed the tint of the favorite icon in the header to onPrimaryContainer for better contrast.
+    - Ensured consistent styling for Text and Icon components.
+
+commit d95f384377e364c39a7a3df2e42dcb54aedbb675
+Author: kevicebryan <kevinbryanreligion@gmail.com>
+Date:   Sun Sep 7 21:24:19 2025 +1000
+
+    fix: makers to show up on map
+
+commit 1c62e7283912a84a3047912df74ed61c89179e6a
+Author: VIJIT PUGALIA <vijitpugalia0@gmail.com>
+Date:   Sat Sep 6 22:30:35 2025 +1000
+
+    New League Logo
+    
+    Update the League logo from Shield to Trophy
+
+commit 645777fd92b7750cdf65b42c7af0040818f83c5f
+Merge: 5babe9c a1d6626
+Author: Wu Jia <159984023+twujia@users.noreply.github.com>
+Date:   Fri Sep 5 18:08:40 2025 +1000
+
+    Merge pull request #13 from kevicebryan/test/reselect-teams
+    
+    Test/reselect teams
+    
+    - Fixed saving logic for team selection
+    - Saving now uses team name rather than team id
+
+commit a1d6626055ce49164d9d12d65e17f2d65e63ba1a
+Author: kevicebryan <kevinbryanreligion@gmail.com>
+Date:   Fri Sep 5 18:00:26 2025 +1000
+
+    fix: save reselect teams to firebase
+
+commit c6a75bdffb377e76ef428a9707e9810d44309fd2
+Author: kevicebryan <kevinbryanreligion@gmail.com>
+Date:   Fri Sep 5 17:55:37 2025 +1000
+
+    test: reselect teams feature
+
+commit 5babe9c493056356c948d674f6690385b3b33160
+Author: VIJIT PUGALIA <vijitpugalia0@gmail.com>
+Date:   Fri Sep 5 03:44:42 2025 +1000
+
+    Reselect League
+    
+    Reselect League on Profile Screen
+
+commit 6d5f59ffb3eb7619a73790ec7523d653ce0227f3
+Author: kevicebryan <kevinbryanreligion@gmail.com>
+Date:   Thu Sep 4 18:14:34 2025 +1000
+
+    Implement Explore screen with location and event features
+    
+    Added ExploreScreen with map, event markers, and nearby events bottom sheet. Introduced location repository, DI module, event model, and team logo provider. Updated MainAppScreen to use the new ExploreScreen and removed the placeholder. Added supporting UI components and vector assets for teams, directions, phone, and accessibility.
+
+commit 2c107392bf9468c6bbde247aa140ab26435f498c
+Author: FrankArtn <163541947+FrankArtn@users.noreply.github.com>
+Date:   Tue Sep 2 22:38:12 2025 +1000
+
+    Check in scanner functionality with landing, points and pointsearned pages (#12)
+
+commit 55cc13222d67a29ef13f84fa9efcf44f1130216e
+Author: FrankArtn <frank_artnarong@hotmail.com>
+Date:   Tue Sep 2 16:02:53 2025 +1000
+
+    Fix bottom menu bar navigation
+
+commit b15ee47f7262d7e9bacc5063abf59b73c0673149
+Merge: c664db2 65a5a6d
+Author: FrankArtn <frank_artnarong@hotmail.com>
+Date:   Tue Sep 2 15:59:06 2025 +1000
+
+    Merge branch 'feat/checkin'
+
+commit 65a5a6ddd01c6d0fcaba84da8c2ee5a04d29b4c2
+Author: FrankArtn <frank_artnarong@hotmail.com>
+Date:   Tue Sep 2 15:56:05 2025 +1000
+
+    fixed bottom menu navigation
+
+commit c664db27b0f4a1d003e10cdb7ee0284880de37af
+Merge: 74a0eee 290c73a
+Author: Wu Jia <159984023+twujia@users.noreply.github.com>
+Date:   Tue Sep 2 15:39:37 2025 +1000
+
+    Merge pull request #10 from kevicebryan/feat/profile/reselectTeam
+    
+    Team selection and additional AFL team logos
+
+commit 290c73af20f30e3cad55e1eb1a6d719fbd45c115
+Merge: bea6546 74a0eee
+Author: kevicebryan <kevinbryanreligion@gmail.com>
+Date:   Tue Sep 2 15:37:03 2025 +1000
+
+    Merge branch 'master' into feat/profile/reselectTeam
+
+commit add515e9c52f8812f3344019917c182446bf84fb
+Merge: 373fb44 74a0eee
+Author: FrankArtn <frank_artnarong@hotmail.com>
+Date:   Tue Sep 2 15:35:53 2025 +1000
+
+    Merge branch 'master' into feat/checkin
+
+commit 373fb44d759fc5efcf4cbd67eea8d6be5b04950e
+Author: FrankArtn <frank_artnarong@hotmail.com>
+Date:   Tue Sep 2 13:59:33 2025 +1000
+
+    Create deviceManager.xml
+
+commit 74a0eee59d831321b3ad87118d2445024152ec37
+Author: FrankArtn <163541947+FrankArtn@users.noreply.github.com>
+Date:   Tue Sep 2 13:57:23 2025 +1000
+
+    fixed username not showing on QR (#5)
+    
+    fixed by updating the QRCodeScreen.kt and MainAppScreen.kt to pass in user instead of just the string,
+
+commit bea6546d7f11d5702e684c0751597b58912a64af
+Author: twujia <159984023+twujia@users.noreply.github.com>
+Date:   Tue Sep 2 13:13:48 2025 +1000
+
+    feat: Add remaining team logos and update project code style
+    
+    Added PNG logo assets for Adelaide, Carlton, Geelong, Gold Coast, and Richmond teams. Updated `TeamLogoMapper` to include these new logos in both the full name and abbreviation maps.
+    
+    Also, updated the project's Java code style settings to define a specific import layout order.
+
+commit a1e5d4c567fc2a549f8312680510d75d4c769624
+Author: twujia <159984023+twujia@users.noreply.github.com>
+Date:   Tue Sep 2 12:30:02 2025 +1000
+
+    Feat/Team Selection: Implement team selection functionality
+    
+    This commit introduces the ability for users to select and update their favorite teams.
+    
+    Key changes:
+    - Added `updateUserTeams` function to `AuthViewModel` to save selected teams to Firestore.
+    - Integrated `TeamSelectionScreen` into `MainAppScreen`.
+    - `TeamSelectionScreen` now loads AFL teams using `AuthViewModel.loadAflTeams`.
+    - Users can now select and deselect teams, and these changes are reflected in the UI.
+    - Selected teams are saved to the user's profile in Firestore when the "Save" button is clicked.
+    - Team IDs are now used for selection instead of team names in `TeamSelectionScreen`.
+
+commit ee16725a3bbc04df89c81ceed03365a24b233e48
+Author: twujia <159984023+twujia@users.noreply.github.com>
+Date:   Mon Sep 1 21:54:27 2025 +1000
+
+    First attempt at team selection screen
+    
+    - [UNFINISHED] Added `TeamSelectionScreen.kt` to allow users to select their favorite teams. This screen displays a grid of available teams and allows users to tap to select/deselect them. Changes are saved via a "Save Changes" button.
+    - Integrated `TeamSelectionScreen` into `MainAppScreen.kt` to be displayed when `showTeamSelection` is true.
+    - Updated the "Teams" menu item in `ProfileScreen.kt` to "Select Teams" for clarity and to navigate to the new team selection screen.
+
+commit dba415353c05a728be341b5588a7ba706d52a71b
+Author: twujia <159984023+twujia@users.noreply.github.com>
+Date:   Mon Sep 1 21:52:35 2025 +1000
+
+    First attempt at team selection screen
+    
+    - [UNFINISHED] Added `TeamSelectionScreen.kt` to allow users to select their favorite teams. This screen displays a grid of available teams and allows users to tap to select/deselect them. Changes are saved via a "Save Changes" button.
+    - Integrated `TeamSelectionScreen` into `MainAppScreen.kt` to be displayed when `showTeamSelection` is true.
+    - Updated the "Teams" menu item in `ProfileScreen.kt` to "Select Teams" for clarity and to navigate to the new team selection screen.
+
+commit 9c75bc3950d5caf6ecc32911086201d7a8ef1cf9
+Merge: d9a4a9b 8818949
+Author: Kevin Bryan <70892991+kevicebryan@users.noreply.github.com>
+Date:   Sun Aug 31 19:47:21 2025 +1000
+
+    Merge pull request #9 from kevicebryan/fromJo/feat/cancelevent
+    
+    18 year old checkbox disabled/enabled
+
+commit 88189498ff2fa9adb9a6ccdf9bdc9f9add862be4
+Author: JoAnn Nguyen <joannhnguyen21@gmail.com>
+Date:   Sun Aug 31 17:49:12 2025 +1000
+
+    18 year old checkbox disabled/enabled
+    
+    Fixed so that users can only check box if they enter a birthday that = 18 years+
+
+commit d9a4a9b342789f5835d1e4161dca798830a7b141
+Merge: 8d44beb 53c5a2c
+Author: Kevin Bryan <70892991+kevicebryan@users.noreply.github.com>
+Date:   Sun Aug 31 00:39:20 2025 +1000
+
+    Merge pull request #7 from kevicebryan/from-Jo/fix/navbar
+    
+    From jo/fix/navbar
+
+commit 8d44bebc7cfc64a0adc0a85520b71aa0decc54f5
+Merge: 5cd705e 5338537
+Author: Kevin Bryan <70892991+kevicebryan@users.noreply.github.com>
+Date:   Sun Aug 31 00:39:03 2025 +1000
+
+    Merge pull request #8 from kevicebryan/fix/add-match-picker-for-manage-events
+    
+    fix: event match picker, date, and other fields
+
+commit 5338537b416c7544bfc32a074dba6bbaf1c32bda
+Author: kevicebryan <kevinbryanreligion@gmail.com>
+Date:   Sun Aug 31 00:38:36 2025 +1000
+
+    fix: event match picker, date, and other fields
+    
+    Integrated Google Maps and location services into the app, including API key management via environment variables and manifest placeholders. Added LocationService for location retrieval, a MapPickerDialog component for selecting locations on a map, and updated EventFormDialog to support map-based location selection and date/time pickers. Updated EventViewModel to manage map picker state and handle location selection. Added required permissions and metadata to AndroidManifest, new vector drawables for calendar and clock icons, and a production build script for secure builds.
+
+commit 53c5a2cfffddd5ca34f36fe8bd74c484639a6b45
+Author: JoAnn Nguyen <joannhnguyen21@gmail.com>
+Date:   Wed Aug 27 22:57:25 2025 +1000
+
+    Create material_theme_project_new.xml
+
+commit 72301fd48109387333b36f25d0d262b25ec23556
+Author: JoAnn Nguyen <joannhnguyen21@gmail.com>
+Date:   Wed Aug 27 22:56:39 2025 +1000
+
+    Fixed bottom nav bar
+
+commit 36141b46605bc1d2b332717a99275d40d0e680a6
+Author: FrankArtn <frank_artnarong@hotmail.com>
+Date:   Tue Aug 26 22:37:24 2025 +1000
+
+    Add in check in scanner
+
+commit 1c06cb4b7847b714c71920dd8900bb5a80c60a6a
+Author: FrankArtn <frank_artnarong@hotmail.com>
+Date:   Tue Aug 26 21:22:12 2025 +1000
+
+    update gradle to accomodate use of camera
+    
+    add in dependencies, plugins and camera permissions
+
+commit 3b8b0ea1a6c36adaf1cef5a9d4e060d70ce619c6
+Author: FrankArtn <frank_artnarong@hotmail.com>
+Date:   Tue Aug 26 20:35:45 2025 +1000
+
+    fixed username not showing on QR
+    
+    fixed by updating the QRCodeScreen.kt and MainAppScreen.kt to pass in user instead of just the string,
+
+commit 5cd705ea45b5d07ad66686ec8149a30fdc06bfeb
+Merge: 132df93 50917da
+Author: Kevin Bryan <70892991+kevicebryan@users.noreply.github.com>
+Date:   Tue Aug 26 20:35:00 2025 +1000
+
+    Merge pull request #4 from kevicebryan/fix/relogin-different-account
+    
+    fix: clear cache to ensure account changes when changing account
+
+commit 50917da7b1503d3acfed3cbd0422e50ea3e68256
+Author: kevicebryan <kevinbryanreligion@gmail.com>
+Date:   Tue Aug 26 20:29:00 2025 +1000
+
+    Clear cached ViewModel data on user logout
+    
+    Added clear methods to AuthViewModel, EventViewModel, and ProfileViewModel to reset cached data when a user logs out. MainActivity now listens for authentication state changes and invokes these methods on logout to ensure sensitive data is cleared. Also added logging for profile loading and error handling in ProfileViewModel.
+
+commit 132df938fefd41e896bd1e34c803ba2d058beb85
+Merge: 048aeaf f817b9e
+Author: FrankArtn <163541947+FrankArtn@users.noreply.github.com>
+Date:   Tue Aug 26 16:08:28 2025 +1000
+
+    Merge pull request #3 from kevicebryan/team/test
+    
+    team/test
+
+commit f817b9ed7ea70782ad96d0dd89e56d04ca60bc1a
+Author: FrankArtn <frank_artnarong@hotmail.com>
+Date:   Tue Aug 26 16:05:05 2025 +1000
+
+    team/test
+
+commit 048aeafe312037f465af508f6ae1dc060b63337a
+Author: FrankArtn <frank_artnarong@hotmail.com>
+Date:   Tue Aug 26 15:56:48 2025 +1000
+
+    pull
+
+commit 6ab61ad544dbd24b8f9d063d521f34cde97cdbae
+Merge: c0e9355 fdddcb6
+Author: Kevin Bryan <70892991+kevicebryan@users.noreply.github.com>
+Date:   Tue Aug 26 15:54:04 2025 +1000
+
+    Merge pull request #2 from kevicebryan/feat/events-management
+    
+    Feat/events management
+
+commit c0e935560f9c755c8364dfeda2c8c46a091001cc
+Author: Kevin Bryan <70892991+kevicebryan@users.noreply.github.com>
+Date:   Mon Aug 25 22:58:28 2025 +1000
+
+    Update README.md
+
+commit fdddcb65dfee755971b63114739ed14a94c50e58
+Author: kevicebryan <kevinbryanreligion@gmail.com>
+Date:   Mon Aug 25 20:45:17 2025 +1000
+
+    Add content filtering and event volume to event management
+    
+    Introduced ContentFilter utility for NSFW and inappropriate content detection, now used to validate usernames, venue names, and addresses during registration and event creation/editing. Added a 'volume' field to events, updated related DTOs, domain models, and UI forms to support it. Adjusted amenities to include 'hasToilet' instead of 'hasDrinks', and fixed attendee capacity display logic. Improved documentation and code comments throughout data, domain, and presentation layers.
+
+commit c346173edc73b5c3cdbf1a861bca610cdab27d30
+Author: kevicebryan <kevinbryanreligion@gmail.com>
+Date:   Sun Aug 24 14:33:19 2025 +1000
+
+    Integrate match selection with event creation flow
+    
+    Refactored event and event DTO models to remove static title and description fields, replacing them with computed properties based on selected match details. Added MatchRepository and SquiggleApiService support for fetching AFL matches, and updated the event form dialog and EventViewModel to support match selection, dynamic event details, and improved validation. This enables users to create events tied to specific matches, with automatic population of event information.
+
+commit 8b0174ddb79860175fae4b928d44cc92d188b3a3
+Author: kevicebryan <kevinbryanreligion@gmail.com>
+Date:   Sun Aug 24 13:56:54 2025 +1000
+
+    Add event management feature with UI and data layers
+    
+    Implemented event creation, editing, interest management, and check-in functionality. Added domain models, repository interfaces and implementations, Firestore service, use cases, and a full Compose UI (EventCard, EventFormDialog, EventsScreen) with a corresponding ViewModel. Updated DI to provide event repository. Removed placeholder EventsScreen.
+
+commit 9ac78f96b4cd94c83c0ff8fe900282edc450919c
+Author: kevicebryan <kevinbryanreligion@gmail.com>
+Date:   Sun Aug 24 12:51:55 2025 +1000
+
+    Add custom drawable icons and update profile and QR screens
+    
+    Added multiple custom vector drawable icons for use in the app. Updated ProfileScreen to use new drawable icons for Privacy Policy and Terms & Conditions menu items. Refactored QRCodeScreen for improved layout, text, and code style.
+
+commit 9bd67355b3a3bc319273fe74ab67c1545d07aa53
+Author: kevicebryan <kevinbryanreligion@gmail.com>
+Date:   Sun Aug 24 12:31:44 2025 +1000
+
+    Add forgot password dialog and reset email flow
+    
+    Introduces a ForgotPasswordDialog composable for password reset, integrates it into the login flow, and adds sendPasswordResetEmail logic to AuthViewModel. Also updates UI to support password reset and improves ConfirmationDialog styling. Minor visual tweaks to SignupSteps for disabled league items.
+
+commit 839b16a79e1634fa3242ee02008bba349ed3ec8d
+Author: kevicebryan <kevinbryanreligion@gmail.com>
+Date:   Sun Aug 24 12:10:38 2025 +1000
+
+    Add profile, legal docs, QR code, and UI components
+    
+    Introduces profile management UI, QR code generation, and legal document viewing. Adds new composables for bottom navigation, profile card, menu items, and confirmation dialogs. Implements legal document templates and document viewer screen. Updates README with new features and compliance details. Adds ZXing dependencies for QR code support and new drawable resources for icons and avatar. Refactors main app screen to integrate new components and navigation.
+
+commit 89e06d389fc905d7974cfafcb2b4b29dbee5e017
+Merge: 866d54b 58a0f06
+Author: Kevin Bryan <70892991+kevicebryan@users.noreply.github.com>
+Date:   Sun Aug 24 00:08:21 2025 +1000
+
+    Merge pull request #1 from kevicebryan/feat/auth
+    
+    feat; onboarding, auth
+
+commit 58a0f066d2f3a0b0c737cad900498090960f06a6
+Author: kevicebryan <kevinbryanreligion@gmail.com>
+Date:   Sun Aug 24 00:07:40 2025 +1000
+
+    Refactor UI and remove test logic from AuthViewModel
+    
+    Refactored several Compose UI screens to clean up code structure and improve consistency, including removing unnecessary fontWeight usage and aligning with theme typography. Removed temporary forced error logic for email and username checks in AuthViewModel, restoring actual use case execution. Minor comment and whitespace adjustments in theme and UI files.
+
+commit 9b5a94c337b5d96ae18280fa60112b8189bcb1de
+Author: kevicebryan <kevinbryanreligion@gmail.com>
+Date:   Sun Aug 24 00:02:25 2025 +1000
+
+    Add AFL team support and onboarding improvements
+    
+    Introduces AFL team data integration via Squiggle API, adds local team logo resources and mapping utilities, and implements a splash screen. Refactors onboarding and main app navigation, updates dependency injection for Retrofit, and enhances onboarding UI/UX. Also includes new view models, repository, and various UI and theme adjustments.
+
+commit a01449cd20e934e15081c4459efbfee29d5c3e54
+Author: kevicebryan <kevinbryanreligion@gmail.com>
+Date:   Sat Aug 23 20:42:29 2025 +1000
+
+    Replace launcher icons with PNG format
+    
+    Replaces all mipmap launcher icons from WEBP and WEBP round formats to PNG format across all densities. Updates DESIGN_GUIDE.MD with minor formatting improvements for clarity.
+
+commit a9b8c080bc15376f0f756c70a6bccc706d6499ad
+Author: kevicebryan <kevinbryanreligion@gmail.com>
+Date:   Sat Aug 23 20:37:44 2025 +1000
+
+    Update README and fix auth UI and ViewModel issues
+    
+    Expanded and reorganized the README to reflect current and planned features, architecture, and development notes. Fixed password field icons in LoginStep and SignupSteps to use a lock icon instead of visibility toggles. Corrected a nullability issue in OnboardingScreen error message display. Renamed checkUsernameExistUseCase to checkUsernameExistsUseCase in AuthViewModel for consistency.
+
+commit 50b67b90542258be817aff549993fe9e6318bdd3
+Author: kevicebryan <kevinbryanreligion@gmail.com>
+Date:   Sat Aug 23 17:39:30 2025 +1000
+
+    Add user onboarding and authentication with Hilt DI
+    
+    Introduces a multi-step onboarding flow with login and signup screens, including email, password, username, age, league, and team selection steps. Implements user authentication and registration using Firebase Auth and Firestore, with domain, data, and presentation layers. Adds Hilt for dependency injection, refactors MainActivity for onboarding integration, and provides repository and use case abstractions for user management.
+
+commit 866d54b363d357e938f733b70f48b188d4cdd45b
+Merge: 94295ed 7d801af
+Author: kevicebryan <kevinbryanreligion@gmail.com>
+Date:   Fri Aug 22 19:01:08 2025 +1000
+
+    Merge branch 'master' of https://github.com/kevicebryan/COMP90018-Assignment
+
+commit 94295ed101d511a69578f0ba0a4c8967e239d1c3
+Author: kevicebryan <kevinbryanreligion@gmail.com>
+Date:   Fri Aug 22 19:01:07 2025 +1000
+
+    Move theme files to presentation/ui/theme package
+    
+    Refactored theme-related files by relocating them from ui/theme to presentation/ui/theme to improve project structure. Updated package declarations and imports accordingly.
+
+commit 7d801afb3b7a50ac1af8624d61d8c5b94eab136c
+Author: Kevin Bryan <70892991+kevicebryan@users.noreply.github.com>
+Date:   Fri Aug 22 17:07:48 2025 +1000
+
+    Create README.md
+
+commit eb9e97e2722b232ad9423e7d40cdd80c331dad5a
+Author: kevicebryan <kevinbryanreligion@gmail.com>
+Date:   Fri Aug 15 14:19:27 2025 +1000
+
+    Add WatchMates theme, Firebase, and Google Fonts integration
+    
+    Introduces a custom WatchMates Material 3 theme with brand colors and typography using Racing Sans One and Noto Sans via Google Fonts. Adds Firebase (Auth, Firestore, Analytics) and Google Sign-In integration, updates MainActivity with a Firebase test UI, and provides design and theme usage guides. Updates Gradle configs, AndroidManifest, and resource files to support new theming and Firebase setup.
+
+commit c1e213c8baaf4db7772c98cccc1dd55b6d82736c
+Author: kevicebryan <kevinbryanreligion@gmail.com>
+Date:   Tue Aug 12 17:08:07 2025 +1000
+
+    init
+
+commit 3ad00bd9c4f44492b1512b3e29f6309713d92d8b
+Author: kevicebryan <kevinbryanreligion@gmail.com>
+Date:   Fri Aug 1 17:12:11 2025 +1000
+
+    Create deploymentTargetSelector.xml
+
+commit 89feda317db5cc77afd7d72c97db34a0d5a7e39e
+Author: kevicebryan <kevinbryanreligion@gmail.com>
+Date:   Fri Aug 1 17:09:05 2025 +1000
+
+    init
