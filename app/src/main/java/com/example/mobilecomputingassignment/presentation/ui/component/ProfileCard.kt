@@ -9,14 +9,27 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.mobilecomputingassignment.R
 import com.example.mobilecomputingassignment.domain.models.User
+import java.text.NumberFormat
+import java.util.Locale
 
 @Composable
 fun ProfileCard(user: User?, isLoading: Boolean, modifier: Modifier = Modifier) {
+    val context = LocalContext.current
+
+    // Get avatar drawable resource ID from user's selected avatar
+    val avatarResId =
+            user?.selectedAvatar?.let { avatarName ->
+                context.resources.getIdentifier(avatarName, "drawable", context.packageName)
+            }
+                    ?: R.drawable.avatar_default
+
     Card(
             modifier = modifier.fillMaxWidth(),
             colors =
@@ -29,16 +42,22 @@ fun ProfileCard(user: User?, isLoading: Boolean, modifier: Modifier = Modifier) 
         Row(modifier = Modifier.padding(20.dp), verticalAlignment = Alignment.CenterVertically) {
             // Avatar
             Image(
-                    painter = painterResource(id = R.drawable.avatar),
+                    painter =
+                            painterResource(
+                                    id =
+                                            if (avatarResId != 0) avatarResId
+                                            else R.drawable.avatar_default
+                            ),
                     contentDescription = "Profile Avatar",
+                    contentScale = ContentScale.Crop,
                     modifier =
                             Modifier.size(64.dp)
+                                    .clip(CircleShape)
                                     .border(
                                             width = 2.dp,
                                             color = MaterialTheme.colorScheme.primary,
                                             shape = CircleShape
                                     )
-                                    .clip(CircleShape)
             )
 
             Spacer(modifier = Modifier.width(16.dp))
@@ -96,6 +115,8 @@ private fun DefaultUserInfo() {
 
 @Composable
 private fun PointsDisplay(points: Long) {
+    val formattedPoints = NumberFormat.getNumberInstance(Locale.getDefault()).format(points)
+
     Row(verticalAlignment = Alignment.CenterVertically) {
         Icon(
                 painter = painterResource(id = R.drawable.ic_points),
@@ -105,7 +126,7 @@ private fun PointsDisplay(points: Long) {
         )
         Spacer(modifier = Modifier.width(4.dp))
         Text(
-                text = "$points points",
+                text = "$formattedPoints points",
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.primary,
                 fontWeight = FontWeight.SemiBold

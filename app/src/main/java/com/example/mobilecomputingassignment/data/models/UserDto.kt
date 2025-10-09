@@ -11,6 +11,8 @@ data class UserDto(
         val leagues: List<String> = emptyList(),
         val teams: List<String> = emptyList(),
         val points: Long = 0L, // User points
+        val selectedAvatar: String = "avatar_default",
+        val unlockedAvatars: List<String> = listOf("avatar_default"),
         val createdAt: Timestamp? = null,
         val updatedAt: Timestamp? = null
 ) {
@@ -23,6 +25,8 @@ data class UserDto(
                         leagues = leagues,
                         teams = teams,
                         points = points,
+                        selectedAvatar = selectedAvatar,
+                        unlockedAvatars = unlockedAvatars,
                         createdAt = createdAt?.toDate(),
                         updatedAt = updatedAt?.toDate()
                 )
@@ -37,6 +41,8 @@ fun User.toDto(): UserDto {
                 leagues = leagues,
                 teams = teams,
                 points = points,
+                selectedAvatar = selectedAvatar,
+                unlockedAvatars = unlockedAvatars,
                 createdAt = createdAt?.let { Timestamp(it) },
                 updatedAt = updatedAt?.let { Timestamp(it) }
         )

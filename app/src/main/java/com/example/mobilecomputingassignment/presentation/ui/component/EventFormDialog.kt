@@ -662,24 +662,24 @@ fun EventFormDialog(
                                                                                         android.util.Log.d("EventFormDialog", "New time formatted: ${SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(newTime)}")
 
                                                                                         eventViewModel
-                                                                                                .updateFormData(
-                                                                                                        formData.copy(
-                                                                                                                checkInTime =
-                                                                                                                        newTime
-                                                                                                        )
+                                                                                        .updateFormData(
+                                                                                                formData.copy(
+                                                                                                        checkInTime =
+                                                                                                                newTime
                                                                                                 )
-                                                                                        showTimePicker =
-                                                                                                false
-                                                                                },
-                                                                                colors =
-                                                                                        ButtonDefaults
-                                                                                                .textButtonColors(
-                                                                                                        contentColor =
-                                                                                                                MaterialTheme
-                                                                                                                        .colorScheme
-                                                                                                                        .primary
-                                                                                )
-                                                                        ) { Text("OK") }
+                                                                                        )
+                                                                                showTimePicker =
+                                                                                        false
+                                                                        },
+                                                                        colors =
+                                                                                ButtonDefaults
+                                                                                        .textButtonColors(
+                                                                                                contentColor =
+                                                                                                        MaterialTheme
+                                                                                                                .colorScheme
+                                                                                                                .primary
+                                                                        )
+                                                                ) { Text("OK") }
                                                                 },
                                                                 dismissButton = {
                                                                         TextButton(

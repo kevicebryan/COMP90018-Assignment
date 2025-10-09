@@ -132,6 +132,8 @@ constructor(private val firestore: FirebaseFirestore, private val auth: Firebase
                             leagues = user.leagues,
                             teams = user.teams,
                             points = user.points,
+                            selectedAvatar = user.selectedAvatar,
+                            unlockedAvatars = user.unlockedAvatars,
                             createdAt = user.createdAt?.let { Timestamp(it) },
                             updatedAt = Timestamp.now()
                     )

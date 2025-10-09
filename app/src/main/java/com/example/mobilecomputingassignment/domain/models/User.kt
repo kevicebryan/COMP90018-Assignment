@@ -10,6 +10,9 @@ data class User(
         val leagues: List<String> = emptyList(), // Array of league names
         val teams: List<String> = emptyList(), // Array of team names
         val points: Long = 0L, // User points for gamification
+        val selectedAvatar: String = "avatar_default", // Selected avatar drawable name
+        val unlockedAvatars: List<String> =
+                listOf("avatar_default"), // List of unlocked avatar names
         val createdAt: Date? = null,
         val updatedAt: Date? = null
 ) {

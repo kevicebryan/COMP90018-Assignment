@@ -5,7 +5,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -18,8 +17,6 @@ import com.example.mobilecomputingassignment.presentation.viewmodel.PointsViewMo
 import com.example.mobilecomputingassignment.presentation.viewmodel.ProfileUiState
 import com.example.mobilecomputingassignment.presentation.viewmodel.ProfileViewModel
 import kotlinx.coroutines.launch
-import com.example.mobilecomputingassignment.presentation.ui.screen.ProfileLeagueSelectionScreen
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -32,6 +29,7 @@ fun MainAppScreen(onLogout: () -> Unit, viewModel: AuthViewModel = hiltViewModel
         var showTermsConditions by remember { mutableStateOf(false) }
         var showTeamSelection by remember { mutableStateOf(false) }
         var showLeagueSelection by remember { mutableStateOf(false) }
+        var showAvatarSelection by remember { mutableStateOf(false) }
 
         // check-in flow state
         var scannedHostId by remember { mutableStateOf<String?>(null) }
@@ -115,7 +113,6 @@ fun MainAppScreen(onLogout: () -> Unit, viewModel: AuthViewModel = hiltViewModel
                                                                 res.exceptionOrNull()?.message
                                                                         ?: "Check-in failed"
                                                         )
-
                                                 }
                                         }
                                 }
@@ -124,7 +121,6 @@ fun MainAppScreen(onLogout: () -> Unit, viewModel: AuthViewModel = hiltViewModel
                                 AlertDialog(
                                         onDismissRequest = { alreadyCheckedDialog = false },
                                         confirmButton = {
-
                                                 TextButton(
                                                         onClick = { alreadyCheckedDialog = false }
                                                 ) { Text("OK") }
@@ -177,7 +173,6 @@ fun MainAppScreen(onLogout: () -> Unit, viewModel: AuthViewModel = hiltViewModel
                 showPointsEarned && earnedPoints != null -> {
                         PointsEarnedScreen(
                                 points = earnedPoints!!,
-
                                 onBackClick = { showPointsEarned = false },
                                 // ✅ ADDED: let the screen navigate straight to Profile if you added
                                 // a "See Points" button there
@@ -216,14 +211,15 @@ fun MainAppScreen(onLogout: () -> Unit, viewModel: AuthViewModel = hiltViewModel
                 }
                 showTeamSelection -> {
                         val authUiState by viewModel.uiState.collectAsState()
-                        
-                        // Load teams when team selection screen is shown (now instant from constants)
+
+                        // Load teams when team selection screen is shown (now instant from
+                        // constants)
                         LaunchedEffect(showTeamSelection) {
                                 if (showTeamSelection) {
                                         viewModel.loadAflTeams()
                                 }
                         }
-                        
+
                         TeamSelectionScreen(
                                 availableTeams = authUiState.availableTeams,
                                 // Assuming signupData.teams from AuthViewModel holds current user's
@@ -260,6 +256,11 @@ fun MainAppScreen(onLogout: () -> Unit, viewModel: AuthViewModel = hiltViewModel
                         return
                 }
 
+                // --- AVATAR SELECTION ---
+                showAvatarSelection -> {
+                        AvatarSelectionScreen(onBackClick = { showAvatarSelection = false })
+                        return
+                }
         }
 
         // ----- Normal tab shell -----
@@ -272,9 +273,7 @@ fun MainAppScreen(onLogout: () -> Unit, viewModel: AuthViewModel = hiltViewModel
                         )
                 }
         ) { innerPadding ->
-                Box(
-                        modifier = Modifier.fillMaxSize().padding(innerPadding)
-                ) {
+                Box(modifier = Modifier.fillMaxSize().padding(innerPadding)) {
                         when (selectedTab) {
                                 0 ->
                                         ExploreScreen(
@@ -326,6 +325,9 @@ fun MainAppScreen(onLogout: () -> Unit, viewModel: AuthViewModel = hiltViewModel
                                                 onShowTeamSelection = { showTeamSelection = true },
                                                 onShowLeagueSelection = {
                                                         showLeagueSelection = true
+                                                },
+                                                onShowAvatarSelection = {
+                                                        showAvatarSelection = true
                                                 }
                                         )
                         }

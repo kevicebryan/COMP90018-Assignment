@@ -25,6 +25,7 @@ fun ProfileScreen(
         onShowTermsConditions: () -> Unit,
         onShowTeamSelection: () -> Unit,
         onShowLeagueSelection: () -> Unit,
+        onShowAvatarSelection: () -> Unit,
         modifier: Modifier = Modifier,
         profileViewModel: ProfileViewModel = hiltViewModel()
 ) {
@@ -38,9 +39,9 @@ fun ProfileScreen(
     ) {
         item {
             Text(
-                text = "Profile",
-                style = MaterialTheme.typography.headlineMedium,
-                modifier = Modifier.padding(bottom = 16.dp)
+                    text = "Profile",
+                    style = MaterialTheme.typography.headlineMedium,
+                    modifier = Modifier.padding(bottom = 16.dp)
             )
         }
 
@@ -58,16 +59,26 @@ fun ProfileScreen(
 
         item {
             ProfileMenuItemWithDrawable(
+                    iconRes = R.drawable.ic_child,
+                    title = "Avatar Selection",
+                    onClick = onShowAvatarSelection
+            )
+        }
+
+        item {
+            ProfileMenuItemWithDrawable(
                     iconRes = R.drawable.ic_sports,
-                    title = "Select Teams", // Changed to "Select Teams" so users know its exact purpose
+                    title = "Select Teams", // Changed to "Select Teams" so users know its exact
+                    // purpose
                     onClick = onShowTeamSelection
             )
         }
         item {
             ProfileMenuItemWithDrawable(
-                iconRes = R.drawable.ic_league, // Or a different icon for leagues if you have one
-                title = "Select League",
-                onClick = onShowLeagueSelection
+                    iconRes =
+                            R.drawable.ic_league, // Or a different icon for leagues if you have one
+                    title = "Select League",
+                    onClick = onShowLeagueSelection
             )
         }
 

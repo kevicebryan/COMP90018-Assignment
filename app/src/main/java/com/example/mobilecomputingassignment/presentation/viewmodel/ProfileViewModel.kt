@@ -29,218 +29,400 @@ constructor(
         private val auth: FirebaseAuth
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(ProfileUiState())
-    val uiState: StateFlow<ProfileUiState> = _uiState.asStateFlow()
+        private val _uiState = MutableStateFlow(ProfileUiState())
+        val uiState: StateFlow<ProfileUiState> = _uiState.asStateFlow()
 
-    init {
-        loadUserProfile()
-    }
-
-    fun loadUserProfile() {
-        val currentAuthUser = auth.currentUser // Renamed for clarity within this function
-        if (currentAuthUser == null) {
-            android.util.Log.d(
-                    "ProfileViewModel",
-                    "No authenticated user found for loading profile"
-            )
-            _uiState.value =
-                    _uiState.value.copy(
-                            user = null, // Ensure user is null if not authenticated
-                            isLoading = false,
-                            errorMessage = "User not authenticated"
-                    )
-            return
+        init {
+                loadUserProfile()
         }
 
-        android.util.Log.d("ProfileViewModel", "Loading profile for user: ${currentAuthUser.uid}")
-        viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null)
-            try {
-                val user = userRepository.getUserById(currentAuthUser.uid)
-                android.util.Log.d("ProfileViewModel", "Loaded user profile: ${user?.username}")
-                _uiState.value =
-                        _uiState.value.copy(
-                                user = user,
-                                isLoading = false,
-                                errorMessage = if (user == null) "User profile not found" else null
+        fun loadUserProfile() {
+                val currentAuthUser = auth.currentUser // Renamed for clarity within this function
+                if (currentAuthUser == null) {
+                        android.util.Log.d(
+                                "ProfileViewModel",
+                                "No authenticated user found for loading profile"
                         )
-            } catch (e: Exception) {
-                android.util.Log.e("ProfileViewModel", "Failed to load profile", e)
-                _uiState.value =
-                        _uiState.value.copy(
-                                isLoading = false,
-                                errorMessage = e.message ?: "Failed to load profile"
-                        )
-            }
-        }
-    }
+                        _uiState.value =
+                                _uiState.value.copy(
+                                        user = null, // Ensure user is null if not authenticated
+                                        isLoading = false,
+                                        errorMessage = "User not authenticated"
+                                )
+                        return
+                }
 
-    fun refreshProfile() {
-        loadUserProfile()
-    }
-
-    // --- NEW FUNCTION TO UPDATE USER LEAGUES (Option 2) ---
-    fun updateUserLeagues(selectedLeagues: List<String>) {
-        val currentAuthUser = auth.currentUser
-        if (currentAuthUser == null) {
-            _uiState.value =
-                    _uiState.value.copy(
-                            isLoading = false, // Not loading if user isn't authenticated
-                            errorMessage = "User not authenticated to update leagues"
-                    )
-            android.util.Log.w(
-                    "ProfileViewModel",
-                    "Attempted to update leagues for unauthenticated user."
-            )
-            return
-        }
-
-        // Get the current user state from our uiState
-        val currentUserData = _uiState.value.user
-        if (currentUserData == null) {
-            _uiState.value =
-                    _uiState.value.copy(
-                            isLoading = false, // Not loading if current user data is missing
-                            errorMessage = "Current user data not loaded. Cannot update leagues."
-                    )
-            android.util.Log.w(
-                    "ProfileViewModel",
-                    "Current user data in uiState is null. Cannot proceed with league update."
-            )
-            return
-        }
-
-        // Ensure the ID of the user data matches the authenticated user's ID
-        if (currentUserData.id != currentAuthUser.uid) {
-            _uiState.value =
-                    _uiState.value.copy(
-                            isLoading = false,
-                            errorMessage = "User data mismatch. Please try again."
-                    )
-            android.util.Log.e(
-                    "ProfileViewModel",
-                    "Mismatch between authenticated user ID (${currentAuthUser.uid}) and loaded user data ID (${currentUserData.id})."
-            )
-            // Optionally, trigger a profile reload here if this state is unexpected
-            // loadUserProfile()
-            return
-        }
-
-        viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null)
-
-            // Create a new User object with the updated leagues list
-            val updatedUserData = currentUserData.copy(leagues = selectedLeagues)
-
-            val result =
-                    userRepository.updateUser(updatedUserData) // Use the general updateUser method
-
-            if (result.isSuccess) {
                 android.util.Log.d(
                         "ProfileViewModel",
-                        "Successfully updated user with new leagues."
+                        "Loading profile for user: ${currentAuthUser.uid}"
                 )
-                // Update local state directly with the modified user object to reflect changes
-                // immediately
-                // then reload from source to ensure consistency and get any server-side updates
-                // (like updatedAt timestamp)
-                _uiState.value = _uiState.value.copy(user = updatedUserData) // Optimistic update
-                loadUserProfile() // Reload to ensure data is fresh and synced, also handles
-                // isLoading = false
-            } else {
-                android.util.Log.e(
-                        "ProfileViewModel",
-                        "Failed to update user with new leagues",
-                        result.exceptionOrNull()
-                )
-                _uiState.value =
-                        _uiState.value.copy(
-                                isLoading = false,
-                                errorMessage = result.exceptionOrNull()?.message
-                                                ?: "Failed to update leagues"
+                viewModelScope.launch {
+                        _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null)
+                        try {
+                                val user = userRepository.getUserById(currentAuthUser.uid)
+                                android.util.Log.d(
+                                        "ProfileViewModel",
+                                        "Loaded user profile: ${user?.username}"
+                                )
+                                _uiState.value =
+                                        _uiState.value.copy(
+                                                user = user,
+                                                isLoading = false,
+                                                errorMessage =
+                                                        if (user == null) "User profile not found"
+                                                        else null
+                                        )
+                        } catch (e: Exception) {
+                                android.util.Log.e("ProfileViewModel", "Failed to load profile", e)
+                                _uiState.value =
+                                        _uiState.value.copy(
+                                                isLoading = false,
+                                                errorMessage = e.message ?: "Failed to load profile"
+                                        )
+                        }
+                }
+        }
+
+        fun refreshProfile() {
+                loadUserProfile()
+        }
+
+        // --- NEW FUNCTION TO UPDATE USER LEAGUES (Option 2) ---
+        fun updateUserLeagues(selectedLeagues: List<String>) {
+                val currentAuthUser = auth.currentUser
+                if (currentAuthUser == null) {
+                        _uiState.value =
+                                _uiState.value.copy(
+                                        isLoading =
+                                                false, // Not loading if user isn't authenticated
+                                        errorMessage = "User not authenticated to update leagues"
+                                )
+                        android.util.Log.w(
+                                "ProfileViewModel",
+                                "Attempted to update leagues for unauthenticated user."
                         )
-            }
-        }
-    }
-    // --- END OF NEW FUNCTION ---
+                        return
+                }
 
-    fun clearUserData() {
-        android.util.Log.d("ProfileViewModel", "Clearing user data")
-        _uiState.value = ProfileUiState() // Reset to initial empty state, ensures user is null
-    }
-
-    // Function to update user teams
-    fun updateUserTeams(selectedTeams: List<String>) {
-        val currentAuthUser = auth.currentUser
-        if (currentAuthUser == null) {
-            _uiState.value =
-                    _uiState.value.copy(
-                            isLoading = false,
-                            errorMessage = "User not authenticated to update teams"
-                    )
-            android.util.Log.w(
-                    "ProfileViewModel",
-                    "Attempted to update teams for unauthenticated user."
-            )
-            return
-        }
-
-        // Get the current user state from our uiState
-        val currentUserData = _uiState.value.user
-        if (currentUserData == null) {
-            _uiState.value =
-                    _uiState.value.copy(
-                            isLoading = false,
-                            errorMessage = "Current user data not loaded. Cannot update teams."
-                    )
-            android.util.Log.w(
-                    "ProfileViewModel",
-                    "Current user data in uiState is null. Cannot proceed with team update."
-            )
-            return
-        }
-
-        // Ensure the ID of the user data matches the authenticated user's ID
-        if (currentUserData.id != currentAuthUser.uid) {
-            _uiState.value =
-                    _uiState.value.copy(
-                            isLoading = false,
-                            errorMessage = "User data mismatch. Please try again."
-                    )
-            android.util.Log.e(
-                    "ProfileViewModel",
-                    "Mismatch between authenticated user ID (${currentAuthUser.uid}) and loaded user data ID (${currentUserData.id})."
-            )
-            return
-        }
-
-        viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null)
-
-            // Create a new User object with the updated teams list
-            val updatedUserData = currentUserData.copy(teams = selectedTeams)
-
-            val result = userRepository.updateUser(updatedUserData)
-
-            if (result.isSuccess) {
-                android.util.Log.d("ProfileViewModel", "Successfully updated user with new teams.")
-                // Update local state directly with the modified user object to reflect changes
-                // immediately
-                _uiState.value = _uiState.value.copy(user = updatedUserData) // Optimistic update
-                loadUserProfile() // Reload to ensure data is fresh and synced
-            } else {
-                android.util.Log.e(
-                        "ProfileViewModel",
-                        "Failed to update user with new teams",
-                        result.exceptionOrNull()
-                )
-                _uiState.value =
-                        _uiState.value.copy(
-                                isLoading = false,
-                                errorMessage = result.exceptionOrNull()?.message
-                                                ?: "Failed to update teams"
+                // Get the current user state from our uiState
+                val currentUserData = _uiState.value.user
+                if (currentUserData == null) {
+                        _uiState.value =
+                                _uiState.value.copy(
+                                        isLoading = false, // Not loading if current user data is
+                                        // missing
+                                        errorMessage =
+                                                "Current user data not loaded. Cannot update leagues."
+                                )
+                        android.util.Log.w(
+                                "ProfileViewModel",
+                                "Current user data in uiState is null. Cannot proceed with league update."
                         )
-            }
+                        return
+                }
+
+                // Ensure the ID of the user data matches the authenticated user's ID
+                if (currentUserData.id != currentAuthUser.uid) {
+                        _uiState.value =
+                                _uiState.value.copy(
+                                        isLoading = false,
+                                        errorMessage = "User data mismatch. Please try again."
+                                )
+                        android.util.Log.e(
+                                "ProfileViewModel",
+                                "Mismatch between authenticated user ID (${currentAuthUser.uid}) and loaded user data ID (${currentUserData.id})."
+                        )
+                        // Optionally, trigger a profile reload here if this state is unexpected
+                        // loadUserProfile()
+                        return
+                }
+
+                viewModelScope.launch {
+                        _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null)
+
+                        // Create a new User object with the updated leagues list
+                        val updatedUserData = currentUserData.copy(leagues = selectedLeagues)
+
+                        val result =
+                                userRepository.updateUser(
+                                        updatedUserData
+                                ) // Use the general updateUser method
+
+                        if (result.isSuccess) {
+                                android.util.Log.d(
+                                        "ProfileViewModel",
+                                        "Successfully updated user with new leagues."
+                                )
+                                // Update local state directly with the modified user object to
+                                // reflect changes
+                                // immediately
+                                // then reload from source to ensure consistency and get any
+                                // server-side updates
+                                // (like updatedAt timestamp)
+                                _uiState.value =
+                                        _uiState.value.copy(
+                                                user = updatedUserData
+                                        ) // Optimistic update
+                                loadUserProfile() // Reload to ensure data is fresh and synced, also
+                                // handles
+                                // isLoading = false
+                        } else {
+                                android.util.Log.e(
+                                        "ProfileViewModel",
+                                        "Failed to update user with new leagues",
+                                        result.exceptionOrNull()
+                                )
+                                _uiState.value =
+                                        _uiState.value.copy(
+                                                isLoading = false,
+                                                errorMessage = result.exceptionOrNull()?.message
+                                                                ?: "Failed to update leagues"
+                                        )
+                        }
+                }
         }
-    }
+        // --- END OF NEW FUNCTION ---
+
+        fun clearUserData() {
+                android.util.Log.d("ProfileViewModel", "Clearing user data")
+                _uiState.value =
+                        ProfileUiState() // Reset to initial empty state, ensures user is null
+        }
+
+        // Function to update user teams
+        fun updateUserTeams(selectedTeams: List<String>) {
+                val currentAuthUser = auth.currentUser
+                if (currentAuthUser == null) {
+                        _uiState.value =
+                                _uiState.value.copy(
+                                        isLoading = false,
+                                        errorMessage = "User not authenticated to update teams"
+                                )
+                        android.util.Log.w(
+                                "ProfileViewModel",
+                                "Attempted to update teams for unauthenticated user."
+                        )
+                        return
+                }
+
+                // Get the current user state from our uiState
+                val currentUserData = _uiState.value.user
+                if (currentUserData == null) {
+                        _uiState.value =
+                                _uiState.value.copy(
+                                        isLoading = false,
+                                        errorMessage =
+                                                "Current user data not loaded. Cannot update teams."
+                                )
+                        android.util.Log.w(
+                                "ProfileViewModel",
+                                "Current user data in uiState is null. Cannot proceed with team update."
+                        )
+                        return
+                }
+
+                // Ensure the ID of the user data matches the authenticated user's ID
+                if (currentUserData.id != currentAuthUser.uid) {
+                        _uiState.value =
+                                _uiState.value.copy(
+                                        isLoading = false,
+                                        errorMessage = "User data mismatch. Please try again."
+                                )
+                        android.util.Log.e(
+                                "ProfileViewModel",
+                                "Mismatch between authenticated user ID (${currentAuthUser.uid}) and loaded user data ID (${currentUserData.id})."
+                        )
+                        return
+                }
+
+                viewModelScope.launch {
+                        _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null)
+
+                        // Create a new User object with the updated teams list
+                        val updatedUserData = currentUserData.copy(teams = selectedTeams)
+
+                        val result = userRepository.updateUser(updatedUserData)
+
+                        if (result.isSuccess) {
+                                android.util.Log.d(
+                                        "ProfileViewModel",
+                                        "Successfully updated user with new teams."
+                                )
+                                // Update local state directly with the modified user object to
+                                // reflect changes
+                                // immediately
+                                _uiState.value =
+                                        _uiState.value.copy(
+                                                user = updatedUserData
+                                        ) // Optimistic update
+                                loadUserProfile() // Reload to ensure data is fresh and synced
+                        } else {
+                                android.util.Log.e(
+                                        "ProfileViewModel",
+                                        "Failed to update user with new teams",
+                                        result.exceptionOrNull()
+                                )
+                                _uiState.value =
+                                        _uiState.value.copy(
+                                                isLoading = false,
+                                                errorMessage = result.exceptionOrNull()?.message
+                                                                ?: "Failed to update teams"
+                                        )
+                        }
+                }
+        }
+
+        // Function to update selected avatar
+        fun updateUserAvatar(avatarName: String) {
+                val currentAuthUser = auth.currentUser
+                if (currentAuthUser == null) {
+                        android.util.Log.w(
+                                "ProfileViewModel",
+                                "Attempted to update avatar for unauthenticated user."
+                        )
+                        return
+                }
+
+                val currentUserData = _uiState.value.user
+                if (currentUserData == null) {
+                        android.util.Log.w(
+                                "ProfileViewModel",
+                                "Current user data in uiState is null. Cannot proceed with avatar update."
+                        )
+                        return
+                }
+
+                if (currentUserData.id != currentAuthUser.uid) {
+                        android.util.Log.e(
+                                "ProfileViewModel",
+                                "Mismatch between authenticated user ID and loaded user data ID."
+                        )
+                        return
+                }
+
+                // Check if avatar is unlocked
+                if (!currentUserData.unlockedAvatars.contains(avatarName)) {
+                        android.util.Log.w(
+                                "ProfileViewModel",
+                                "Attempted to select locked avatar: $avatarName"
+                        )
+                        return
+                }
+
+                viewModelScope.launch {
+                        _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null)
+
+                        val updatedUserData = currentUserData.copy(selectedAvatar = avatarName)
+                        val result = userRepository.updateUser(updatedUserData)
+
+                        if (result.isSuccess) {
+                                android.util.Log.d(
+                                        "ProfileViewModel",
+                                        "Successfully updated selected avatar."
+                                )
+                                _uiState.value = _uiState.value.copy(user = updatedUserData)
+                                loadUserProfile()
+                        } else {
+                                android.util.Log.e(
+                                        "ProfileViewModel",
+                                        "Failed to update avatar",
+                                        result.exceptionOrNull()
+                                )
+                                _uiState.value =
+                                        _uiState.value.copy(
+                                                isLoading = false,
+                                                errorMessage = result.exceptionOrNull()?.message
+                                                                ?: "Failed to update avatar"
+                                        )
+                        }
+                }
+        }
+
+        // Function to unlock avatar with points
+        fun unlockAvatar(avatarName: String, cost: Int) {
+                val currentAuthUser = auth.currentUser
+                if (currentAuthUser == null) {
+                        android.util.Log.w(
+                                "ProfileViewModel",
+                                "Attempted to unlock avatar for unauthenticated user."
+                        )
+                        return
+                }
+
+                val currentUserData = _uiState.value.user
+                if (currentUserData == null) {
+                        android.util.Log.w(
+                                "ProfileViewModel",
+                                "Current user data in uiState is null. Cannot proceed with avatar unlock."
+                        )
+                        return
+                }
+
+                if (currentUserData.id != currentAuthUser.uid) {
+                        android.util.Log.e(
+                                "ProfileViewModel",
+                                "Mismatch between authenticated user ID and loaded user data ID."
+                        )
+                        return
+                }
+
+                // Check if user has enough points
+                if (currentUserData.points < cost) {
+                        android.util.Log.w(
+                                "ProfileViewModel",
+                                "Not enough points to unlock avatar: $avatarName"
+                        )
+                        _uiState.value =
+                                _uiState.value.copy(
+                                        errorMessage = "Not enough points to unlock this avatar"
+                                )
+                        return
+                }
+
+                // Check if already unlocked
+                if (currentUserData.unlockedAvatars.contains(avatarName)) {
+                        android.util.Log.w(
+                                "ProfileViewModel",
+                                "Avatar already unlocked: $avatarName"
+                        )
+                        return
+                }
+
+                viewModelScope.launch {
+                        _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null)
+
+                        val newPoints = currentUserData.points - cost
+                        val newUnlockedAvatars = currentUserData.unlockedAvatars + avatarName
+                        val updatedUserData =
+                                currentUserData.copy(
+                                        points = newPoints,
+                                        unlockedAvatars = newUnlockedAvatars,
+                                        selectedAvatar =
+                                                avatarName // Auto-select the newly unlocked avatar
+                                )
+
+                        val result = userRepository.updateUser(updatedUserData)
+
+                        if (result.isSuccess) {
+                                android.util.Log.d(
+                                        "ProfileViewModel",
+                                        "Successfully unlocked avatar: $avatarName"
+                                )
+                                _uiState.value = _uiState.value.copy(user = updatedUserData)
+                                loadUserProfile()
+                        } else {
+                                android.util.Log.e(
+                                        "ProfileViewModel",
+                                        "Failed to unlock avatar",
+                                        result.exceptionOrNull()
+                                )
+                                _uiState.value =
+                                        _uiState.value.copy(
+                                                isLoading = false,
+                                                errorMessage = result.exceptionOrNull()?.message
+                                                                ?: "Failed to unlock avatar"
+                                        )
+                        }
+                }
+        }
 }
