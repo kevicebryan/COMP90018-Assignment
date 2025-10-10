@@ -46,19 +46,32 @@ fun EventDetailsDialog(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Teams
+        // Teams or League Logo
+        val isF1Event = event.matchDetails?.competition == "F1"
+        
         Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
+                horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically
         ) {
-          TeamLogo(teamName = event.matchDetails?.homeTeam ?: "TBD")
-          Text(
-                  text = "VS",
-                  style = MaterialTheme.typography.titleLarge,
-                  color = MaterialTheme.colorScheme.primary
-          )
-          TeamLogo(teamName = event.matchDetails?.awayTeam ?: "TBD")
+          if (isF1Event) {
+            // F1 Event - Show F1 logo
+            androidx.compose.foundation.Image(
+                    painter = painterResource(id = R.drawable.league_f1),
+                    contentDescription = "F1",
+                    modifier = Modifier.size(80.dp)
+            )
+          } else {
+            // AFL Event - Show team logos
+            TeamLogo(teamName = event.matchDetails?.homeTeam ?: "TBD")
+            Text(
+                    text = "VS",
+                    style = MaterialTheme.typography.titleLarge,
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.padding(horizontal = 16.dp)
+            )
+            TeamLogo(teamName = event.matchDetails?.awayTeam ?: "TBD")
+          }
         }
 
         Spacer(modifier = Modifier.height(16.dp))

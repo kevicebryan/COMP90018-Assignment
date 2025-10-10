@@ -53,7 +53,8 @@ object CustomMarkerIconGenerator {
         val matchDetails = event.matchDetails
 
         return if (matchDetails != null) {
-            // Determine if this is an AFL event
+            // Determine if this is an AFL event (show team logos)
+            // For F1 and other leagues, show league logo
             if (matchDetails.competition.equals("AFL", ignoreCase = true)) {
                 generateAFLTeamMarker(context, event)
             } else {
@@ -86,6 +87,7 @@ object CustomMarkerIconGenerator {
         val leagueLogoRes =
                 when (competition.uppercase()) {
                     "AFL" -> R.drawable.league_afl
+                    "F1" -> R.drawable.league_f1
                     "A-LEAGUE" -> R.drawable.league_a_league
                     "PREMIER LEAGUE" -> R.drawable.league_premier_league
                     "NBA" -> R.drawable.league_nba

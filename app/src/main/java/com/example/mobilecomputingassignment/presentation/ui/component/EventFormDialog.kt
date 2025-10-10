@@ -33,9 +33,9 @@ import com.example.mobilecomputingassignment.R
 import com.example.mobilecomputingassignment.domain.models.Team
 import com.example.mobilecomputingassignment.presentation.utils.TimezoneUtils
 import com.example.mobilecomputingassignment.presentation.viewmodel.EventViewModel
+import java.text.SimpleDateFormat
 import java.util.*
 import java.util.Calendar
-import java.text.SimpleDateFormat
 
 @Composable
 private fun EventFormSection(
@@ -49,12 +49,12 @@ private fun EventFormSection(
                 Row(
                         modifier =
                                 Modifier.fillMaxWidth()
-                                .clickable(
+                                        .clickable(
                                                 interactionSource =
                                                         remember { MutableInteractionSource() },
-                                        indication = null
-                                ) { onHeaderClick() }
-                                .padding(vertical = 8.dp),
+                                                indication = null
+                                        ) { onHeaderClick() }
+                                        .padding(vertical = 8.dp),
                         verticalAlignment = Alignment.CenterVertically
                 ) {
                         Icon(
@@ -315,7 +315,11 @@ fun EventFormDialog(
 
                                                         // Date picker
                                                         OutlinedTextField(
-                                                                value = TimezoneUtils.formatPreservedDate(formData.date),
+                                                                value =
+                                                                        TimezoneUtils
+                                                                                .formatPreservedDate(
+                                                                                        formData.date
+                                                                                ),
                                                                 onValueChange = {},
                                                                 label = { Text("Event Date *") },
                                                                 modifier = Modifier.weight(1f),
@@ -323,8 +327,8 @@ fun EventFormDialog(
                                                                 trailingIcon = {
                                                                         IconButton(
                                                                                 onClick = {
-                                                                                showDatePicker =
-                                                                                        true
+                                                                                        showDatePicker =
+                                                                                                true
                                                                                 }
                                                                         ) {
                                                                                 Icon(
@@ -347,7 +351,11 @@ fun EventFormDialog(
 
                                                         // Time picker
                                                         OutlinedTextField(
-                                                                value = TimezoneUtils.formatPreservedTime(formData.checkInTime),
+                                                                value =
+                                                                        TimezoneUtils
+                                                                                .formatPreservedTime(
+                                                                                        formData.checkInTime
+                                                                                ),
                                                                 onValueChange = {},
                                                                 label = { Text("Match Time *") },
                                                                 modifier = Modifier.weight(1f),
@@ -355,8 +363,8 @@ fun EventFormDialog(
                                                                 trailingIcon = {
                                                                         IconButton(
                                                                                 onClick = {
-                                                                                showTimePicker =
-                                                                                        true
+                                                                                        showTimePicker =
+                                                                                                true
                                                                                 }
                                                                         ) {
                                                                                 Icon(
@@ -396,7 +404,7 @@ fun EventFormDialog(
                                                                                         datePickerState
                                                                                                 .selectedDateMillis
                                                                                                 ?.let {
-                                                                                                                        millis
+                                                                                                        millis
                                                                                                         ->
                                                                                                         // Create date in Australian timezone to match validation logic
                                                                                                         val calendar =
@@ -414,13 +422,13 @@ fun EventFormDialog(
                                                                                                                 // Only reset selectedMatch when the user actually picked a different date
                                                                                                                 eventViewModel
                                                                                                                         .updateFormData(
-                                                                                                                        formData.copy(
+                                                                                                                                formData.copy(
                                                                                                                                         date =
                                                                                                                                                 newDate,
                                                                                                                                         selectedMatch =
                                                                                                                                                 null
+                                                                                                                                )
                                                                                                                         )
-                                                                                                                )
                                                                                                         }
                                                                                                 }
                                                                                         showDatePicker =
@@ -433,7 +441,7 @@ fun EventFormDialog(
                                                                                                                 MaterialTheme
                                                                                                                         .colorScheme
                                                                                                                         .primary
-                                                                                )
+                                                                                                )
                                                                         ) { Text("OK") }
                                                                 },
                                                                 dismissButton = {
@@ -449,7 +457,7 @@ fun EventFormDialog(
                                                                                                                 MaterialTheme
                                                                                                                         .colorScheme
                                                                                                                         .onSurfaceVariant
-                                                                                )
+                                                                                                )
                                                                         ) { Text("Cancel") }
                                                                 },
                                                                 colors =
@@ -545,8 +553,8 @@ fun EventFormDialog(
                                                                                                 .copy(
                                                                                                         alpha =
                                                                                                                 0.12f
+                                                                                                )
                                                                         )
-                                                                )
                                                         ) {
                                                                 DatePicker(
                                                                         state = datePickerState,
@@ -557,10 +565,12 @@ fun EventFormDialog(
 
                                                 // Time picker dialog
                                                 if (showTimePicker) {
-                                                        // Read time directly without timezone conversion
+                                                        // Read time directly without timezone
+                                                        // conversion
                                                         val calendar = Calendar.getInstance()
                                                         calendar.time = formData.checkInTime
-                                                        val hour = calendar.get(Calendar.HOUR_OF_DAY)
+                                                        val hour =
+                                                                calendar.get(Calendar.HOUR_OF_DAY)
                                                         val minute = calendar.get(Calendar.MINUTE)
 
                                                         val timePickerState =
@@ -641,45 +651,83 @@ fun EventFormDialog(
                                                                                                                 MaterialTheme
                                                                                                                         .colorScheme
                                                                                                                         .onSurface
-                                                                                )
+                                                                                                )
                                                                         )
                                                                 },
                                                                 confirmButton = {
                                                                         TextButton(
                                                                                 onClick = {
-                                                                                        // Create time directly without timezone conversion
-                                                                                        val calendar = Calendar.getInstance()
-                                                                                        calendar.time = formData.date
-                                                                                        calendar.set(Calendar.HOUR_OF_DAY, timePickerState.hour)
-                                                                                        calendar.set(Calendar.MINUTE, timePickerState.minute)
-                                                                                        calendar.set(Calendar.SECOND, 0)
-                                                                                        calendar.set(Calendar.MILLISECOND, 0)
-                                                                                        val newTime = calendar.time
-                                                                                        
-                                                                                        // Debug logging
-                                                                                        android.util.Log.d("EventFormDialog", "Time picker selected: ${timePickerState.hour}:${timePickerState.minute}")
-                                                                                        android.util.Log.d("EventFormDialog", "New time created: ${newTime}")
-                                                                                        android.util.Log.d("EventFormDialog", "New time formatted: ${SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(newTime)}")
+                                                                                        // Create
+                                                                                        // time
+                                                                                        // directly
+                                                                                        // without
+                                                                                        // timezone
+                                                                                        // conversion
+                                                                                        val calendar =
+                                                                                                Calendar.getInstance()
+                                                                                        calendar.time =
+                                                                                                formData.date
+                                                                                        calendar.set(
+                                                                                                Calendar.HOUR_OF_DAY,
+                                                                                                timePickerState
+                                                                                                        .hour
+                                                                                        )
+                                                                                        calendar.set(
+                                                                                                Calendar.MINUTE,
+                                                                                                timePickerState
+                                                                                                        .minute
+                                                                                        )
+                                                                                        calendar.set(
+                                                                                                Calendar.SECOND,
+                                                                                                0
+                                                                                        )
+                                                                                        calendar.set(
+                                                                                                Calendar.MILLISECOND,
+                                                                                                0
+                                                                                        )
+                                                                                        val newTime =
+                                                                                                calendar.time
+
+                                                                                        // Debug
+                                                                                        // logging
+                                                                                        android.util
+                                                                                                .Log
+                                                                                                .d(
+                                                                                                        "EventFormDialog",
+                                                                                                        "Time picker selected: ${timePickerState.hour}:${timePickerState.minute}"
+                                                                                                )
+                                                                                        android.util
+                                                                                                .Log
+                                                                                                .d(
+                                                                                                        "EventFormDialog",
+                                                                                                        "New time created: ${newTime}"
+                                                                                                )
+                                                                                        android.util
+                                                                                                .Log
+                                                                                                .d(
+                                                                                                        "EventFormDialog",
+                                                                                                        "New time formatted: ${SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(newTime)}"
+                                                                                                )
 
                                                                                         eventViewModel
-                                                                                        .updateFormData(
-                                                                                                formData.copy(
-                                                                                                        checkInTime =
-                                                                                                                newTime
+                                                                                                .updateFormData(
+                                                                                                        formData.copy(
+                                                                                                                checkInTime =
+                                                                                                                        newTime
+                                                                                                        )
                                                                                                 )
-                                                                                        )
-                                                                                showTimePicker =
-                                                                                        false
-                                                                        },
-                                                                        colors =
-                                                                                ButtonDefaults
-                                                                                        .textButtonColors(
-                                                                                                contentColor =
-                                                                                                        MaterialTheme
-                                                                                                                .colorScheme
-                                                                                                                .primary
-                                                                        )
-                                                                ) { Text("OK") }
+                                                                                        showTimePicker =
+                                                                                                false
+                                                                                },
+                                                                                colors =
+                                                                                        ButtonDefaults
+                                                                                                .textButtonColors(
+                                                                                                        contentColor =
+                                                                                                                MaterialTheme
+                                                                                                                        .colorScheme
+                                                                                                                        .primary
+                                                                                                )
+                                                                        ) { Text("OK") }
                                                                 },
                                                                 dismissButton = {
                                                                         TextButton(
@@ -694,7 +742,7 @@ fun EventFormDialog(
                                                                                                                 MaterialTheme
                                                                                                                         .colorScheme
                                                                                                                         .onSurfaceVariant
-                                                                                )
+                                                                                                )
                                                                         ) { Text("Cancel") }
                                                                 },
                                                                 containerColor =
@@ -710,89 +758,27 @@ fun EventFormDialog(
                                                 }
                                         }
 
-                                        // Match Selection
-                                        EventFormSection(title = "Match") {
-                                                // State to track whether "Live" or "Custom" mode is
-                                                // selected
-                                                // true for Live, false for Custom
-                                                var isLiveMatchMode by
-                                                        remember(
-                                                                uiState.availableMatches,
-                                                                formData.selectedMatch
-                                                        ) {
-                                                                mutableStateOf(
-                                                                        // If editing and has a selected match, check if it's a live match
-                                                                        formData.selectedMatch?.let { match ->
-                                                                                // Custom matches have "Custom Match" as round, live matches have actual round numbers
-                                                                                match.round != "Custom Match" && 
-                                                                                uiState.availableMatches.isNotEmpty()
-                                                                        } ?: uiState.availableMatches.isNotEmpty()
-                                                                )
-                                                }
+                                        // League Selection
+                                        var selectedLeague by remember {
+                                                mutableStateOf(
+                                                        formData.selectedMatch?.competition
+                                                                ?.ifEmpty { "AFL" }
+                                                                ?: "AFL"
+                                                )
+                                        }
 
-                                                val availableTeams = uiState.availableTeams
-
-                                                var selectedHomeTeam by
-                                                        remember(
-                                                                availableTeams,
-                                                                formData.selectedMatch
-                                                        ) {
-                                                                mutableStateOf<Team?>(
-                                                                        // Initialize with team from
-                                                                        // selected match if
-                                                                        // available
-                                                                        formData.selectedMatch
-                                                                                ?.homeTeam?.let {
-                                                                                teamName ->
-                                                        availableTeams
-                                                                                        .find {
-                                                                                                it.name ==
-                                                                                                        teamName
-                                                                                        }
-                                                                        }
-                                                                )
-                                                        }
-                                                var selectedAwayTeam by
-                                                        remember(
-                                                                availableTeams,
-                                                                formData.selectedMatch
-                                                        ) {
-                                                                mutableStateOf<Team?>(
-                                                                        // Initialize with team from
-                                                                        // selected match if
-                                                                        // available
-                                                                        formData.selectedMatch
-                                                                                ?.awayTeam?.let {
-                                                                                teamName ->
-                                                                                availableTeams
-                                                                                        .find {
-                                                                                                it.name ==
-                                                                                                        teamName
-                                                                                        }
-                                                                        }
-                                                                )
-                                                }
-
-                                                LaunchedEffect(uiState.availableMatches) {
-                                                        if (uiState.availableMatches.isEmpty()) {
-                                                                isLiveMatchMode = false
-                                                        }
-                                                }
-
+                                        EventFormSection(title = "League") {
                                                 Row(
                                                         modifier = Modifier.fillMaxWidth(),
                                                         horizontalArrangement =
-                                                                Arrangement.spacedBy(
-                                                                16.dp
-                                                        ) // Add space between buttons
+                                                                Arrangement.spacedBy(8.dp)
                                                 ) {
-                                                        // --- Live Button ---
-                                                        if (isLiveMatchMode) {
-                                                                // Selected state: Filled Button
+                                                        // AFL Button
+                                                        if (selectedLeague == "AFL") {
                                                                 Button(
                                                                         onClick = {
-                                                                                isLiveMatchMode =
-                                                                                        true
+                                                                                selectedLeague =
+                                                                                        "AFL"
                                                                         },
                                                                         colors =
                                                                                 ButtonDefaults
@@ -800,7 +786,7 @@ fun EventFormDialog(
                                                                                                 containerColor =
                                                                                                         MaterialTheme
                                                                                                                 .colorScheme
-                                                                                                                .primary, // Or your orange Color(0xFFFFA500)
+                                                                                                                .primary,
                                                                                                 contentColor =
                                                                                                         MaterialTheme
                                                                                                                 .colorScheme
@@ -808,13 +794,32 @@ fun EventFormDialog(
                                                                                         ),
                                                                         modifier =
                                                                                 Modifier.weight(1f)
-                                                                ) { Text("Live") }
+                                                                ) {
+                                                                        Image(
+                                                                                painter =
+                                                                                        painterResource(
+                                                                                                id =
+                                                                                                        R.drawable
+                                                                                                                .league_afl
+                                                                                        ),
+                                                                                contentDescription =
+                                                                                        "AFL",
+                                                                                modifier =
+                                                                                        Modifier.size(
+                                                                                                        24.dp
+                                                                                                )
+                                                                                                .padding(
+                                                                                                        end =
+                                                                                                                8.dp
+                                                                                                )
+                                                                        )
+                                                                        Text("AFL")
+                                                                }
                                                         } else {
-                                                                // Unselected state: Outlined Button
                                                                 OutlinedButton(
                                                                         onClick = {
-                                                                                isLiveMatchMode =
-                                                                                        true
+                                                                                selectedLeague =
+                                                                                        "AFL"
                                                                         },
                                                                         colors =
                                                                                 ButtonDefaults
@@ -822,28 +827,46 @@ fun EventFormDialog(
                                                                                                 contentColor =
                                                                                                         MaterialTheme
                                                                                                                 .colorScheme
-                                                                                                                .primary // Text color for outlined button
+                                                                                                                .primary
                                                                                         ),
                                                                         border =
                                                                                 BorderStroke(
-                                                                                1.dp,
+                                                                                        1.dp,
                                                                                         MaterialTheme
                                                                                                 .colorScheme
                                                                                                 .primary
-                                                                        ), // Outline color
+                                                                                ),
                                                                         modifier =
                                                                                 Modifier.weight(1f)
-                                                                ) { Text("Live") }
+                                                                ) {
+                                                                        Image(
+                                                                                painter =
+                                                                                        painterResource(
+                                                                                                id =
+                                                                                                        R.drawable
+                                                                                                                .league_afl
+                                                                                        ),
+                                                                                contentDescription =
+                                                                                        "AFL",
+                                                                                modifier =
+                                                                                        Modifier.size(
+                                                                                                        24.dp
+                                                                                                )
+                                                                                                .padding(
+                                                                                                        end =
+                                                                                                                8.dp
+                                                                                                )
+                                                                        )
+                                                                        Text("AFL")
+                                                                }
                                                         }
 
-                                                        // --- Custom Button ---
-                                                        if (!isLiveMatchMode
-                                                        ) { // Note the negation here
-                                                                // Selected state: Filled Button
+                                                        // F1 Button
+                                                        if (selectedLeague == "F1") {
                                                                 Button(
                                                                         onClick = {
-                                                                                isLiveMatchMode =
-                                                                                        false
+                                                                                selectedLeague =
+                                                                                        "F1"
                                                                         },
                                                                         colors =
                                                                                 ButtonDefaults
@@ -851,7 +874,7 @@ fun EventFormDialog(
                                                                                                 containerColor =
                                                                                                         MaterialTheme
                                                                                                                 .colorScheme
-                                                                                                                .primary, // Or your desired selected color
+                                                                                                                .primary,
                                                                                                 contentColor =
                                                                                                         MaterialTheme
                                                                                                                 .colorScheme
@@ -859,13 +882,32 @@ fun EventFormDialog(
                                                                                         ),
                                                                         modifier =
                                                                                 Modifier.weight(1f)
-                                                                ) { Text("Custom") }
+                                                                ) {
+                                                                        Image(
+                                                                                painter =
+                                                                                        painterResource(
+                                                                                                id =
+                                                                                                        R.drawable
+                                                                                                                .league_f1
+                                                                                        ),
+                                                                                contentDescription =
+                                                                                        "F1",
+                                                                                modifier =
+                                                                                        Modifier.size(
+                                                                                                        24.dp
+                                                                                                )
+                                                                                                .padding(
+                                                                                                        end =
+                                                                                                                8.dp
+                                                                                                )
+                                                                        )
+                                                                        Text("F1")
+                                                                }
                                                         } else {
-                                                                // Unselected state: Outlined Button
                                                                 OutlinedButton(
                                                                         onClick = {
-                                                                                isLiveMatchMode =
-                                                                                        false
+                                                                                selectedLeague =
+                                                                                        "F1"
                                                                         },
                                                                         colors =
                                                                                 ButtonDefaults
@@ -873,292 +915,775 @@ fun EventFormDialog(
                                                                                                 contentColor =
                                                                                                         MaterialTheme
                                                                                                                 .colorScheme
-                                                                                                                .primary // Text color
+                                                                                                                .primary
                                                                                         ),
                                                                         border =
                                                                                 BorderStroke(
-                                                                                1.dp,
+                                                                                        1.dp,
                                                                                         MaterialTheme
                                                                                                 .colorScheme
                                                                                                 .primary
-                                                                        ), // Outline color
+                                                                                ),
                                                                         modifier =
                                                                                 Modifier.weight(1f)
-                                                                ) { Text("Custom") }
+                                                                ) {
+                                                                        Image(
+                                                                                painter =
+                                                                                        painterResource(
+                                                                                                id =
+                                                                                                        R.drawable
+                                                                                                                .league_f1
+                                                                                        ),
+                                                                                contentDescription =
+                                                                                        "F1",
+                                                                                modifier =
+                                                                                        Modifier.size(
+                                                                                                        24.dp
+                                                                                                )
+                                                                                                .padding(
+                                                                                                        end =
+                                                                                                                8.dp
+                                                                                                )
+                                                                        )
+                                                                        Text("F1")
+                                                                }
                                                         }
                                                 }
-                                                if (isLiveMatchMode) {
-                                                        // --- UI for LIVE Match Mode ---
-                                                        if (uiState.availableMatches.isNotEmpty()) {
-                                                                var expanded by remember {
-                                                                        mutableStateOf(false)
-                                                                }
+                                        }
 
-                                                                ExposedDropdownMenuBox(
-                                                                        expanded = expanded,
-                                                                        onExpandedChange = {
-                                                                                expanded = !expanded
+                                        // Match Selection (AFL only) or Grand Prix Selection (F1)
+                                        // Use the league selected in the UI, not from formData
+                                        val currentSelectedLeague = selectedLeague
+
+                                        // AFL-specific variables (moved outside else block for button validation access)
+                                        var isLiveMatchMode by remember(
+                                                uiState.availableMatches,
+                                                formData.selectedMatch
+                                        ) {
+                                                mutableStateOf(
+                                                        formData.selectedMatch
+                                                                ?.let { match ->
+                                                                        match.round != "Custom Match" &&
+                                                                                uiState.availableMatches.isNotEmpty()
+                                                                }
+                                                                ?: uiState.availableMatches.isNotEmpty()
+                                                )
+                                        }
+
+                                        val availableTeams = uiState.availableTeams
+
+                                        var selectedHomeTeam by remember(
+                                                availableTeams,
+                                                formData.selectedMatch
+                                        ) {
+                                                mutableStateOf<Team?>(
+                                                        formData.selectedMatch
+                                                                ?.homeTeam
+                                                                ?.let { teamName ->
+                                                                        availableTeams.find { it.name == teamName }
+                                                                }
+                                                )
+                                        }
+
+                                        var selectedAwayTeam by remember(
+                                                availableTeams,
+                                                formData.selectedMatch
+                                        ) {
+                                                mutableStateOf<Team?>(
+                                                        formData.selectedMatch
+                                                                ?.awayTeam
+                                                                ?.let { teamName ->
+                                                                        availableTeams.find { it.name == teamName }
+                                                                }
+                                                )
+                                        }
+
+                                        LaunchedEffect(uiState.availableMatches) {
+                                                if (uiState.availableMatches.isEmpty()) {
+                                                        isLiveMatchMode = false
+                                                }
+                                        }
+
+                                        if (currentSelectedLeague == "F1") {
+                                                // F1 Grand Prix Selection
+                                                EventFormSection(title = "Grand Prix") {
+                                                        var selectedGrandPrix by remember {
+                                                                mutableStateOf(
+                                                                        formData.selectedMatch
+                                                                                ?.venue
+                                                                                ?: ""
+                                                                )
+                                                        }
+                                                        var expanded by remember {
+                                                                mutableStateOf(false)
+                                                        }
+
+                                                        ExposedDropdownMenuBox(
+                                                                expanded = expanded,
+                                                                onExpandedChange = {
+                                                                        expanded = !expanded
+                                                                },
+                                                                modifier = Modifier.fillMaxWidth()
+                                                        ) {
+                                                                OutlinedTextField(
+                                                                        value =
+                                                                                selectedGrandPrix
+                                                                                        .ifEmpty {
+                                                                                                "Select a Grand Prix *"
+                                                                                        },
+                                                                        onValueChange = {},
+                                                                        readOnly = true,
+                                                                        label = {
+                                                                                Text("Grand Prix *")
+                                                                        },
+                                                                        trailingIcon = {
+                                                                                ExposedDropdownMenuDefaults
+                                                                                        .TrailingIcon(
+                                                                                                expanded =
+                                                                                                        expanded
+                                                                                        )
                                                                         },
                                                                         modifier =
                                                                                 Modifier.fillMaxWidth()
-                                                                ) {
-                                                                        OutlinedTextField(
-                                                                                value =
-                                                                                        formData.selectedMatch // <<< THIS IS THE KEY CHANGE
-                                                                                                ?.let {
-                                                                                                        currentSelectedMatch
-                                                                                                        -> // If a match is selected in formData...
-                                                                                                val home =
-                                                                                                                currentSelectedMatch
-                                                                                                                        .homeTeam
-                                                                                                                ?: "TBD"
-                                                                                                val away =
-                                                                                                                currentSelectedMatch
-                                                                                                                        .awayTeam
-                                                                                                                ?: "TBD"
-                                                                                                val venueInfo =
-                                                                                                                currentSelectedMatch
-                                                                                                                        .venue
-                                                                                                                        ?.let {
-                                                                                                                                " - $it"
-                                                                                                                        }
-                                                                                                                ?: ""
-                                                                                                "$home vs $away$venueInfo" // ...display its details.
-                                                                                        }
-                                                                                        ?: "Select a live match *", // Default if formData.selectedMatch is null
-                                                                                onValueChange = {
-                                                                                }, // Not directly
-                                                                                // editable
-                                                                                readOnly = true,
-                                                                                label = {
-                                                                                        Text(
-                                                                                                "Selected Live Match *"
-                                                                                        )
-                                                                                }, // Updated label
-                                                                                trailingIcon = {
-                                                                                        ExposedDropdownMenuDefaults
-                                                                                                .TrailingIcon(
-                                                                                                        expanded =
-                                                                                                                expanded
-                                                                                                )
-                                                                                },
-                                                                                modifier =
-                                                                                        Modifier.fillMaxWidth()
                                                                                         .menuAnchor()
-                                                                        )
+                                                                )
 
-                                                                        ExposedDropdownMenu(
-                                                                                expanded = expanded,
-                                                                                onDismissRequest = {
-                                                                                        expanded =
-                                                                                                false
-                                                                                }
-                                                                        ) {
-                                                                                if (uiState.isLoadingMatches &&
-                                                                                                uiState.availableMatches
-                                                                                                        .isEmpty()
-                                                                                ) {
+                                                                ExposedDropdownMenu(
+                                                                        expanded = expanded,
+                                                                        onDismissRequest = {
+                                                                                expanded = false
+                                                                        }
+                                                                ) {
+                                                                        com.example
+                                                                                .mobilecomputingassignment
+                                                                                .data.constants
+                                                                                .TeamConstants
+                                                                                .F1_GRAND_PRIX
+                                                                                .forEach { grandPrix
+                                                                                        ->
                                                                                         DropdownMenuItem(
                                                                                                 onClick = {
-                                                                                                },
-                                                                                                enabled =
-                                                                                                        false,
-                                                                                                text = {
-                                                                                                        Text(
-                                                                                                                "Still loading..."
-                                                                                                        )
-                                                                                                }
-                                                                                        )
-                                                                                }
-                                                                                uiState.availableMatches
-                                                                                        .forEach {
-                                                                                                matchInList
-                                                                                                ->
-                                                                                        DropdownMenuItem(
-                                                                                                onClick = {
-                                                                                                                eventViewModel
-                                                                                                                        .selectMatch(
-                                                                                                                matchInList
-                                                                                                        )
+                                                                                                        selectedGrandPrix =
+                                                                                                                grandPrix
+                                                                                                        // Create F1 match details
+                                                                                                        val calendar =
+                                                                                                                Calendar.getInstance()
+                                                                                                        calendar.time =
+                                                                                                                formData.date
+                                                                                                        val season =
+                                                                                                                calendar.get(
+                                                                                                                        Calendar.YEAR
+                                                                                                                )
+
+                                                                                                        val f1Match =
+                                                                                                                com.example
+                                                                                                                        .mobilecomputingassignment
+                                                                                                                        .domain
+                                                                                                                        .models
+                                                                                                                        .MatchDetails(
+                                                                                                                                id =
+                                                                                                                                        "f1_${System.currentTimeMillis()}",
+                                                                                                                                homeTeam =
+                                                                                                                                        "",
+                                                                                                                                awayTeam =
+                                                                                                                                        "",
+                                                                                                                                competition =
+                                                                                                                                        "F1",
+                                                                                                                                venue =
+                                                                                                                                        grandPrix,
+                                                                                                                                matchTime =
+                                                                                                                                        formData.date,
+                                                                                                                                round =
+                                                                                                                                        grandPrix,
+                                                                                                                                season =
+                                                                                                                                        season
+                                                                                                                        )
+
+                                                                                                        eventViewModel
+                                                                                                                .selectMatch(
+                                                                                                                        f1Match
+                                                                                                                )
                                                                                                         expanded =
                                                                                                                 false
                                                                                                 },
                                                                                                 text = {
                                                                                                         Text(
-                                                                                                                "${matchInList.homeTeam ?: "TBD"} vs ${matchInList.awayTeam ?: "TBD"}"
+                                                                                                                grandPrix
                                                                                                         )
                                                                                                 }
                                                                                         )
                                                                                 }
-                                                                        }
                                                                 }
-                                                                formData.selectedMatch?.let {
-                                                                        selected ->
-                                                                        Spacer(
-                                                                                modifier =
-                                                                                        Modifier.height(
+                                                        }
+
+                                                        // Show F1 logo if a Grand Prix is selected
+                                                        if (selectedGrandPrix.isNotEmpty()) {
+                                                                Spacer(
+                                                                        modifier =
+                                                                                Modifier.height(
                                                                                         12.dp
                                                                                 )
-                                                                        )
-
-                                                                        TeamVsTeamDisplay(
-                                                                                homeTeamName =
-                                                                                        selected.homeTeam,
-                                                                                awayTeamName =
-                                                                                        selected.awayTeam
-                                                                        )
-                                                                }
-                                                        } else { // No matches available and not
-                                                                // loading
-                                                                Text(
-                                                                        text =
-                                                                                "There are no live matches available for the selected date. Please select another day or create a custom match.",
-                                                                        style =
-                                                                                MaterialTheme
-                                                                                        .typography
-                                                                                        .bodyMedium,
-                                                                        color =
-                                                                                MaterialTheme
-                                                                                        .colorScheme
-                                                                                        .error,
-                                                                        textAlign =
-                                                                                TextAlign.Center,
-                                                                        modifier =
-                                                                                Modifier.fillMaxWidth()
-                                                                                .padding(
-                                                                                                horizontal =
-                                                                                                        16.dp,
-                                                                                                vertical =
-                                                                                                        8.dp
-                                                                                )
                                                                 )
-                                                        }
-                                                } // --- Custom Matches ---
-                                                else {
-
-                                                        // Add this LaunchedEffect to load teams
-                                                        // when entering custom mode
-                                                        LaunchedEffect(Unit) {
-                                                                eventViewModel
-                                                                        .loadAflTeams() // You need
-                                                                // to make
-                                                                // this
-                                                                // method
-                                                                // public
-                                                        }
-
-                                                        var expandedHomeTeam by remember {
-                                                                mutableStateOf(false)
-                                                        }
-                                                        var expandedAwayTeam by remember {
-                                                                mutableStateOf(false)
-                                                        }
-
-                                                        Column(
-                                                                modifier =
-                                                                        Modifier.fillMaxWidth()
-                                                                                .padding(
-                                                                                        vertical =
-                                                                                                8.dp
-                                                                                ),
-                                                                horizontalAlignment =
-                                                                        Alignment
-                                                                                .CenterHorizontally,
-                                                                verticalArrangement =
-                                                                        Arrangement.spacedBy(12.dp)
-                                                        ) {
                                                                 Row(
                                                                         modifier =
                                                                                 Modifier.fillMaxWidth(),
                                                                         horizontalArrangement =
-                                                                                Arrangement
-                                                                                        .spacedBy(
-                                                                                                16.dp
-                                                                                        ), // gap
-                                                                        // between fields
+                                                                                Arrangement.Center,
                                                                         verticalAlignment =
-                                                                                Alignment.Top
+                                                                                Alignment
+                                                                                        .CenterVertically
                                                                 ) {
-                                                                        // --- Home Team Dropdown
-                                                                        // ---
-                                                                        Column(
+                                                                        Image(
+                                                                                painter =
+                                                                                        painterResource(
+                                                                                                id =
+                                                                                                        R.drawable
+                                                                                                                .league_f1
+                                                                                        ),
+                                                                                contentDescription =
+                                                                                        "F1",
+                                                                                modifier =
+                                                                                        Modifier.size(
+                                                                                                80.dp
+                                                                                        )
+                                                                        )
+                                                                }
+                                                        }
+                                                }
+                                        } else {
+                                                // AFL Match Selection
+
+                                                EventFormSection(title = "Match") {
+
+                                                        Row(
+                                                                modifier = Modifier.fillMaxWidth(),
+                                                                horizontalArrangement =
+                                                                        Arrangement.spacedBy(
+                                                                                16.dp
+                                                                        ) // Add space between
+                                                                // buttons
+                                                                ) {
+                                                                // --- Live Button ---
+                                                                if (isLiveMatchMode) {
+                                                                        // Selected state: Filled
+                                                                        // Button
+                                                                        Button(
+                                                                                onClick = {
+                                                                                        isLiveMatchMode =
+                                                                                                true
+                                                                                },
+                                                                                colors =
+                                                                                        ButtonDefaults
+                                                                                                .buttonColors(
+                                                                                                        containerColor =
+                                                                                                                MaterialTheme
+                                                                                                                        .colorScheme
+                                                                                                                        .primary, // Or your orange Color(0xFFFFA500)
+                                                                                                        contentColor =
+                                                                                                                MaterialTheme
+                                                                                                                        .colorScheme
+                                                                                                                        .onPrimary
+                                                                                                ),
                                                                                 modifier =
                                                                                         Modifier.weight(
                                                                                                 1f
                                                                                         )
-                                                                        ) {
-                                                                                Text(
-                                                                                        text =
-                                                                                                "Home Team *",
-                                                                                        style =
+                                                                        ) { Text("Live") }
+                                                                } else {
+                                                                        // Unselected state:
+                                                                        // Outlined Button
+                                                                        OutlinedButton(
+                                                                                onClick = {
+                                                                                        isLiveMatchMode =
+                                                                                                true
+                                                                                },
+                                                                                colors =
+                                                                                        ButtonDefaults
+                                                                                                .outlinedButtonColors(
+                                                                                                        contentColor =
+                                                                                                                MaterialTheme
+                                                                                                                        .colorScheme
+                                                                                                                        .primary // Text color for outlined button
+                                                                                                ),
+                                                                                border =
+                                                                                        BorderStroke(
+                                                                                                1.dp,
                                                                                                 MaterialTheme
-                                                                                                        .typography
-                                                                                                        .titleMedium,
-                                                                                        fontWeight =
-                                                                                                FontWeight
-                                                                                                        .Bold,
-                                                                                        modifier =
-                                                                                                Modifier.padding(
-                                                                                                        bottom =
-                                                                                                                8.dp
+                                                                                                        .colorScheme
+                                                                                                        .primary
+                                                                                        ), // Outline color
+                                                                                modifier =
+                                                                                        Modifier.weight(
+                                                                                                1f
                                                                                         )
+                                                                        ) { Text("Live") }
+                                                                }
+
+                                                                // --- Custom Button ---
+                                                                if (!isLiveMatchMode
+                                                                ) { // Note the negation here
+                                                                        // Selected state: Filled
+                                                                        // Button
+                                                                        Button(
+                                                                                onClick = {
+                                                                                        isLiveMatchMode =
+                                                                                                false
+                                                                                },
+                                                                                colors =
+                                                                                        ButtonDefaults
+                                                                                                .buttonColors(
+                                                                                                        containerColor =
+                                                                                                                MaterialTheme
+                                                                                                                        .colorScheme
+                                                                                                                        .primary, // Or your desired selected color
+                                                                                                        contentColor =
+                                                                                                                MaterialTheme
+                                                                                                                        .colorScheme
+                                                                                                                        .onPrimary
+                                                                                                ),
+                                                                                modifier =
+                                                                                        Modifier.weight(
+                                                                                                1f
+                                                                                        )
+                                                                        ) { Text("Custom") }
+                                                                } else {
+                                                                        // Unselected state:
+                                                                        // Outlined Button
+                                                                        OutlinedButton(
+                                                                                onClick = {
+                                                                                        isLiveMatchMode =
+                                                                                                false
+                                                                                },
+                                                                                colors =
+                                                                                        ButtonDefaults
+                                                                                                .outlinedButtonColors(
+                                                                                                        contentColor =
+                                                                                                                MaterialTheme
+                                                                                                                        .colorScheme
+                                                                                                                        .primary // Text color
+                                                                                                ),
+                                                                                border =
+                                                                                        BorderStroke(
+                                                                                                1.dp,
+                                                                                                MaterialTheme
+                                                                                                        .colorScheme
+                                                                                                        .primary
+                                                                                        ), // Outline color
+                                                                                modifier =
+                                                                                        Modifier.weight(
+                                                                                                1f
+                                                                                        )
+                                                                        ) { Text("Custom") }
+                                                                }
+                                                        }
+                                                        if (isLiveMatchMode) {
+                                                                // --- UI for LIVE Match Mode ---
+                                                                if (uiState.availableMatches
+                                                                                .isNotEmpty()
+                                                                ) {
+                                                                        var expanded by remember {
+                                                                                mutableStateOf(
+                                                                                        false
+                                                                                )
+                                                                        }
+
+                                                                        ExposedDropdownMenuBox(
+                                                                                expanded = expanded,
+                                                                                onExpandedChange = {
+                                                                                        expanded =
+                                                                                                !expanded
+                                                                                },
+                                                                                modifier =
+                                                                                        Modifier.fillMaxWidth()
+                                                                        ) {
+                                                                                OutlinedTextField(
+                                                                                        value =
+                                                                                                formData.selectedMatch // <<< THIS IS THE KEY CHANGE
+                                                                                                        ?.let {
+                                                                                                                currentSelectedMatch
+                                                                                                                -> // If a match is selected in formData...
+                                                                                                                val home =
+                                                                                                                        currentSelectedMatch
+                                                                                                                                .homeTeam
+                                                                                                                                ?: "TBD"
+                                                                                                                val away =
+                                                                                                                        currentSelectedMatch
+                                                                                                                                .awayTeam
+                                                                                                                                ?: "TBD"
+                                                                                                                val venueInfo =
+                                                                                                                        currentSelectedMatch
+                                                                                                                                .venue
+                                                                                                                                ?.let {
+                                                                                                                                        " - $it"
+                                                                                                                                }
+                                                                                                                                ?: ""
+                                                                                                                "$home vs $away$venueInfo" // ...display its details.
+                                                                                                        }
+                                                                                                        ?: "Select a live match *", // Default if formData.selectedMatch is null
+                                                                                        onValueChange = {
+                                                                                        }, // Not
+                                                                                        // directly
+                                                                                        // editable
+                                                                                        readOnly =
+                                                                                                true,
+                                                                                        label = {
+                                                                                                Text(
+                                                                                                        "Selected Live Match *"
+                                                                                                )
+                                                                                        }, // Updated label
+                                                                                        trailingIcon = {
+                                                                                                ExposedDropdownMenuDefaults
+                                                                                                        .TrailingIcon(
+                                                                                                                expanded =
+                                                                                                                        expanded
+                                                                                                        )
+                                                                                        },
+                                                                                        modifier =
+                                                                                                Modifier.fillMaxWidth()
+                                                                                                        .menuAnchor()
                                                                                 )
 
-                                                                                ExposedDropdownMenuBox(
+                                                                                ExposedDropdownMenu(
                                                                                         expanded =
-                                                                                                expandedHomeTeam,
-                                                                                        onExpandedChange = {
-                                                                                                expandedHomeTeam =
-                                                                                                        !expandedHomeTeam
+                                                                                                expanded,
+                                                                                        onDismissRequest = {
+                                                                                                expanded =
+                                                                                                        false
                                                                                         }
                                                                                 ) {
-                                                                                        OutlinedTextField(
-                                                                                                value =
-                                                                                                        selectedHomeTeam
-                                                                                                                ?.name
-                                                                                                        ?: "Home team",
-                                                                                                onValueChange = {
-                                                                                                },
-                                                                                                readOnly =
-                                                                                                        true,
-                                                                                                trailingIcon = {
-                                                                                                        ExposedDropdownMenuDefaults
-                                                                                                                .TrailingIcon(
-                                                                                                                expandedHomeTeam
-                                                                                                        )
-                                                                                                },
-                                                                                                modifier =
-                                                                                                        Modifier.fillMaxWidth()
-                                                                                                        .menuAnchor()
-                                                                                        )
-
-                                                                                        ExposedDropdownMenu(
-                                                                                                expanded =
-                                                                                                        expandedHomeTeam,
-                                                                                                onDismissRequest = {
-                                                                                                        expandedHomeTeam =
-                                                                                                                false
-                                                                                                }
-                                                                                        ) {
-                                                                                                if (availableTeams
+                                                                                        if (uiState.isLoadingMatches &&
+                                                                                                        uiState.availableMatches
                                                                                                                 .isEmpty()
-                                                                                                ) {
+                                                                                        ) {
+                                                                                                DropdownMenuItem(
+                                                                                                        onClick = {
+                                                                                                        },
+                                                                                                        enabled =
+                                                                                                                false,
+                                                                                                        text = {
+                                                                                                                Text(
+                                                                                                                        "Still loading..."
+                                                                                                                )
+                                                                                                        }
+                                                                                                )
+                                                                                        }
+                                                                                        uiState.availableMatches
+                                                                                                .forEach {
+                                                                                                        matchInList
+                                                                                                        ->
                                                                                                         DropdownMenuItem(
+                                                                                                                onClick = {
+                                                                                                                        eventViewModel
+                                                                                                                                .selectMatch(
+                                                                                                                                        matchInList
+                                                                                                                                )
+                                                                                                                        expanded =
+                                                                                                                                false
+                                                                                                                },
                                                                                                                 text = {
                                                                                                                         Text(
-                                                                                                                                "No teams available"
+                                                                                                                                "${matchInList.homeTeam ?: "TBD"} vs ${matchInList.awayTeam ?: "TBD"}"
                                                                                                                         )
-                                                                                                                },
-                                                                                                                onClick = {
                                                                                                                 }
                                                                                                         )
-                                                                                                } else {
+                                                                                                }
+                                                                                }
+                                                                        }
+                                                                        formData.selectedMatch
+                                                                                ?.let { selected ->
+                                                                                        Spacer(
+                                                                                                modifier =
+                                                                                                        Modifier.height(
+                                                                                                                12.dp
+                                                                                                        )
+                                                                                        )
+
+                                                                                        TeamVsTeamDisplay(
+                                                                                                homeTeamName =
+                                                                                                        selected.homeTeam,
+                                                                                                awayTeamName =
+                                                                                                        selected.awayTeam
+                                                                                        )
+                                                                                }
+                                                                } else { // No matches available and
+                                                                        // not
+                                                                        // loading
+                                                                        Text(
+                                                                                text =
+                                                                                        "There are no live matches available for the selected date. Please select another day or create a custom match.",
+                                                                                style =
+                                                                                        MaterialTheme
+                                                                                                .typography
+                                                                                                .bodyMedium,
+                                                                                color =
+                                                                                        MaterialTheme
+                                                                                                .colorScheme
+                                                                                                .error,
+                                                                                textAlign =
+                                                                                        TextAlign
+                                                                                                .Center,
+                                                                                modifier =
+                                                                                        Modifier.fillMaxWidth()
+                                                                                                .padding(
+                                                                                                        horizontal =
+                                                                                                                16.dp,
+                                                                                                        vertical =
+                                                                                                                8.dp
+                                                                                                )
+                                                                        )
+                                                                }
+                                                        } // --- Custom Matches ---
+                                                        else {
+
+                                                                // Add this LaunchedEffect to load
+                                                                // teams
+                                                                // when entering custom mode
+                                                                LaunchedEffect(Unit) {
+                                                                        eventViewModel
+                                                                                .loadAflTeams() // You need
+                                                                        // to make
+                                                                        // this
+                                                                        // method
+                                                                        // public
+                                                                }
+
+                                                                var expandedHomeTeam by remember {
+                                                                        mutableStateOf(false)
+                                                                }
+                                                                var expandedAwayTeam by remember {
+                                                                        mutableStateOf(false)
+                                                                }
+
+                                                                Column(
+                                                                        modifier =
+                                                                                Modifier.fillMaxWidth()
+                                                                                        .padding(
+                                                                                                vertical =
+                                                                                                        8.dp
+                                                                                        ),
+                                                                        horizontalAlignment =
+                                                                                Alignment
+                                                                                        .CenterHorizontally,
+                                                                        verticalArrangement =
+                                                                                Arrangement
+                                                                                        .spacedBy(
+                                                                                                12.dp
+                                                                                        )
+                                                                ) {
+                                                                        Row(
+                                                                                modifier =
+                                                                                        Modifier.fillMaxWidth(),
+                                                                                horizontalArrangement =
+                                                                                        Arrangement
+                                                                                                .spacedBy(
+                                                                                                        16.dp
+                                                                                                ), // gap
+                                                                                // between fields
+                                                                                verticalAlignment =
+                                                                                        Alignment
+                                                                                                .Top
+                                                                        ) {
+                                                                                // --- Home Team
+                                                                                // Dropdown
+                                                                                // ---
+                                                                                Column(
+                                                                                        modifier =
+                                                                                                Modifier.weight(
+                                                                                                        1f
+                                                                                                )
+                                                                                ) {
+                                                                                        Text(
+                                                                                                text =
+                                                                                                        "Home Team *",
+                                                                                                style =
+                                                                                                        MaterialTheme
+                                                                                                                .typography
+                                                                                                                .titleMedium,
+                                                                                                fontWeight =
+                                                                                                        FontWeight
+                                                                                                                .Bold,
+                                                                                                modifier =
+                                                                                                        Modifier.padding(
+                                                                                                                bottom =
+                                                                                                                        8.dp
+                                                                                                        )
+                                                                                        )
+
+                                                                                        ExposedDropdownMenuBox(
+                                                                                                expanded =
+                                                                                                        expandedHomeTeam,
+                                                                                                onExpandedChange = {
+                                                                                                        expandedHomeTeam =
+                                                                                                                !expandedHomeTeam
+                                                                                                }
+                                                                                        ) {
+                                                                                                OutlinedTextField(
+                                                                                                        value =
+                                                                                                                selectedHomeTeam
+                                                                                                                        ?.name
+                                                                                                                        ?: "Home team",
+                                                                                                        onValueChange = {
+                                                                                                        },
+                                                                                                        readOnly =
+                                                                                                                true,
+                                                                                                        trailingIcon = {
+                                                                                                                ExposedDropdownMenuDefaults
+                                                                                                                        .TrailingIcon(
+                                                                                                                                expandedHomeTeam
+                                                                                                                        )
+                                                                                                        },
+                                                                                                        modifier =
+                                                                                                                Modifier.fillMaxWidth()
+                                                                                                                        .menuAnchor()
+                                                                                                )
+
+                                                                                                ExposedDropdownMenu(
+                                                                                                        expanded =
+                                                                                                                expandedHomeTeam,
+                                                                                                        onDismissRequest = {
+                                                                                                                expandedHomeTeam =
+                                                                                                                        false
+                                                                                                        }
+                                                                                                ) {
+                                                                                                        if (availableTeams
+                                                                                                                        .isEmpty()
+                                                                                                        ) {
+                                                                                                                DropdownMenuItem(
+                                                                                                                        text = {
+                                                                                                                                Text(
+                                                                                                                                        "No teams available"
+                                                                                                                                )
+                                                                                                                        },
+                                                                                                                        onClick = {
+                                                                                                                        }
+                                                                                                                )
+                                                                                                        } else {
+                                                                                                                availableTeams
+                                                                                                                        .forEach {
+                                                                                                                                team
+                                                                                                                                ->
+                                                                                                                                DropdownMenuItem(
+                                                                                                                                        text = {
+                                                                                                                                                Row(
+                                                                                                                                                        verticalAlignment =
+                                                                                                                                                                Alignment
+                                                                                                                                                                        .CenterVertically
+                                                                                                                                                ) {
+                                                                                                                                                        team.localLogoRes
+                                                                                                                                                                ?.let {
+                                                                                                                                                                        logoRes
+                                                                                                                                                                        ->
+                                                                                                                                                                        Image(
+                                                                                                                                                                                painter =
+                                                                                                                                                                                        painterResource(
+                                                                                                                                                                                                id =
+                                                                                                                                                                                                        logoRes
+                                                                                                                                                                                        ),
+                                                                                                                                                                                contentDescription =
+                                                                                                                                                                                        team.name,
+                                                                                                                                                                                modifier =
+                                                                                                                                                                                        Modifier.size(
+                                                                                                                                                                                                24.dp
+                                                                                                                                                                                        )
+                                                                                                                                                                        )
+                                                                                                                                                                        Spacer(
+                                                                                                                                                                                modifier =
+                                                                                                                                                                                        Modifier.width(
+                                                                                                                                                                                                8.dp
+                                                                                                                                                                                        )
+                                                                                                                                                                        )
+                                                                                                                                                                }
+                                                                                                                                                        Text(
+                                                                                                                                                                team.name
+                                                                                                                                                        )
+                                                                                                                                                }
+                                                                                                                                        },
+                                                                                                                                        // In the home team onClick:
+                                                                                                                                        onClick = {
+                                                                                                                                                selectedHomeTeam =
+                                                                                                                                                        team
+                                                                                                                                                expandedHomeTeam =
+                                                                                                                                                        false
+                                                                                                                                        }
+                                                                                                                                )
+                                                                                                                        }
+                                                                                                        }
+                                                                                                }
+                                                                                        }
+                                                                                }
+
+                                                                                // --- Away Team
+                                                                                // Dropdown
+                                                                                // ---
+                                                                                Column(
+                                                                                        modifier =
+                                                                                                Modifier.weight(
+                                                                                                        1f
+                                                                                                )
+                                                                                ) {
+                                                                                        Text(
+                                                                                                text =
+                                                                                                        "Away Team *",
+                                                                                                style =
+                                                                                                        MaterialTheme
+                                                                                                                .typography
+                                                                                                                .titleMedium,
+                                                                                                fontWeight =
+                                                                                                        FontWeight
+                                                                                                                .Bold,
+                                                                                                modifier =
+                                                                                                        Modifier.padding(
+                                                                                                                bottom =
+                                                                                                                        8.dp
+                                                                                                        )
+                                                                                        )
+
+                                                                                        ExposedDropdownMenuBox(
+                                                                                                expanded =
+                                                                                                        expandedAwayTeam,
+                                                                                                onExpandedChange = {
+                                                                                                        expandedAwayTeam =
+                                                                                                                !expandedAwayTeam
+                                                                                                }
+                                                                                        ) {
+                                                                                                OutlinedTextField(
+                                                                                                        value =
+                                                                                                                selectedAwayTeam
+                                                                                                                        ?.name
+                                                                                                                        ?: "Away team",
+                                                                                                        onValueChange = {
+                                                                                                        },
+                                                                                                        readOnly =
+                                                                                                                true,
+                                                                                                        trailingIcon = {
+                                                                                                                ExposedDropdownMenuDefaults
+                                                                                                                        .TrailingIcon(
+                                                                                                                                expandedAwayTeam
+                                                                                                                        )
+                                                                                                        },
+                                                                                                        modifier =
+                                                                                                                Modifier.fillMaxWidth()
+                                                                                                                        .menuAnchor()
+                                                                                                )
+
+                                                                                                ExposedDropdownMenu(
+                                                                                                        expanded =
+                                                                                                                expandedAwayTeam,
+                                                                                                        onDismissRequest = {
+                                                                                                                expandedAwayTeam =
+                                                                                                                        false
+                                                                                                        }
+                                                                                                ) {
                                                                                                         availableTeams
+                                                                                                                .filter {
+                                                                                                                        it !=
+                                                                                                                                selectedHomeTeam
+                                                                                                                }
                                                                                                                 .forEach {
                                                                                                                         team
                                                                                                                         ->
-                                                                                                                DropdownMenuItem(
-                                                                                                                        text = {
+                                                                                                                        DropdownMenuItem(
+                                                                                                                                text = {
                                                                                                                                         Row(
                                                                                                                                                 verticalAlignment =
                                                                                                                                                         Alignment
@@ -1168,7 +1693,7 @@ fun EventFormDialog(
                                                                                                                                                         ?.let {
                                                                                                                                                                 logoRes
                                                                                                                                                                 ->
-                                                                                                                                                Image(
+                                                                                                                                                                Image(
                                                                                                                                                                         painter =
                                                                                                                                                                                 painterResource(
                                                                                                                                                                                         id =
@@ -1178,193 +1703,85 @@ fun EventFormDialog(
                                                                                                                                                                                 team.name,
                                                                                                                                                                         modifier =
                                                                                                                                                                                 Modifier.size(
-                                                                                                                                                                24.dp
-                                                                                                                                                        )
-                                                                                                                                                )
-                                                                                                                                                Spacer(
+                                                                                                                                                                                        24.dp
+                                                                                                                                                                                )
+                                                                                                                                                                )
+                                                                                                                                                                Spacer(
                                                                                                                                                                         modifier =
                                                                                                                                                                                 Modifier.width(
-                                                                                                                                                                8.dp
-                                                                                                                                                        )
-                                                                                                                                                )
-                                                                                                                                        }
+                                                                                                                                                                                        8.dp
+                                                                                                                                                                                )
+                                                                                                                                                                )
+                                                                                                                                                        }
                                                                                                                                                 Text(
                                                                                                                                                         team.name
                                                                                                                                                 )
-                                                                                                                                }
-                                                                                                                        },
-                                                                                                                        // In the home team onClick:
-                                                                                                                        onClick = {
-                                                                                                                                selectedHomeTeam =
-                                                                                                                                        team
-                                                                                                                                expandedHomeTeam =
-                                                                                                                                        false
-                                                                                                                        }
-                                                                                                                )
-                                                                                                        }
-                                                                                                }
-                                                                                        }
-                                                                                }
-                                                                        }
-
-                                                                        // --- Away Team Dropdown
-                                                                        // ---
-                                                                        Column(
-                                                                                modifier =
-                                                                                        Modifier.weight(
-                                                                                                1f
-                                                                                        )
-                                                                        ) {
-                                                                                Text(
-                                                                                        text =
-                                                                                                "Away Team *",
-                                                                                        style =
-                                                                                                MaterialTheme
-                                                                                                        .typography
-                                                                                                        .titleMedium,
-                                                                                        fontWeight =
-                                                                                                FontWeight
-                                                                                                        .Bold,
-                                                                                        modifier =
-                                                                                                Modifier.padding(
-                                                                                                        bottom =
-                                                                                                                8.dp
-                                                                                        )
-                                                                                )
-
-                                                                                ExposedDropdownMenuBox(
-                                                                                        expanded =
-                                                                                                expandedAwayTeam,
-                                                                                        onExpandedChange = {
-                                                                                                expandedAwayTeam =
-                                                                                                        !expandedAwayTeam
-                                                                                        }
-                                                                                ) {
-                                                                                        OutlinedTextField(
-                                                                                                value =
-                                                                                                        selectedAwayTeam
-                                                                                                                ?.name
-                                                                                                        ?: "Away team",
-                                                                                                onValueChange = {
-                                                                                                },
-                                                                                                readOnly =
-                                                                                                        true,
-                                                                                                trailingIcon = {
-                                                                                                        ExposedDropdownMenuDefaults
-                                                                                                                .TrailingIcon(
-                                                                                                                expandedAwayTeam
-                                                                                                        )
-                                                                                                },
-                                                                                                modifier =
-                                                                                                        Modifier.fillMaxWidth()
-                                                                                                        .menuAnchor()
-                                                                                        )
-
-                                                                                        ExposedDropdownMenu(
-                                                                                                expanded =
-                                                                                                        expandedAwayTeam,
-                                                                                                onDismissRequest = {
-                                                                                                        expandedAwayTeam =
-                                                                                                                false
-                                                                                                }
-                                                                                        ) {
-                                                                                                availableTeams
-                                                                                                        .filter {
-                                                                                                                it !=
-                                                                                                                        selectedHomeTeam
-                                                                                                        }
-                                                                                                        .forEach {
-                                                                                                                team
-                                                                                                                ->
-                                                                                                                DropdownMenuItem(
-                                                                                                                        text = {
-                                                                                                                                Row(
-                                                                                                                                        verticalAlignment =
-                                                                                                                                                Alignment
-                                                                                                                                                        .CenterVertically
-                                                                                                                                ) {
-                                                                                                                                        team.localLogoRes
-                                                                                                                                                ?.let {
-                                                                                                                                                        logoRes
-                                                                                                                                                        ->
-                                                                                                                                                Image(
-                                                                                                                                                                painter =
-                                                                                                                                                                        painterResource(
-                                                                                                                                                                                id =
-                                                                                                                                                                                        logoRes
-                                                                                                                                                                        ),
-                                                                                                                                                                contentDescription =
-                                                                                                                                                                        team.name,
-                                                                                                                                                                modifier =
-                                                                                                                                                                        Modifier.size(
-                                                                                                                                                                24.dp
-                                                                                                                                                        )
-                                                                                                                                                )
-                                                                                                                                                Spacer(
-                                                                                                                                                                modifier =
-                                                                                                                                                                        Modifier.width(
-                                                                                                                                                                8.dp
-                                                                                                                                                        )
-                                                                                                                                                )
                                                                                                                                         }
-                                                                                                                                        Text(
-                                                                                                                                                team.name
-                                                                                                                                        )
+                                                                                                                                },
+                                                                                                                                // In the away team onClick:
+                                                                                                                                onClick = {
+                                                                                                                                        selectedAwayTeam =
+                                                                                                                                                team
+                                                                                                                                        expandedAwayTeam =
+                                                                                                                                                false
                                                                                                                                 }
-                                                                                                                        },
-                                                                                                                        // In the away team onClick:
-                                                                                                                        onClick = {
-                                                                                                                                selectedAwayTeam =
-                                                                                                                                        team
-                                                                                                                                expandedAwayTeam =
-                                                                                                                                        false
-                                                                                                                        }
-                                                                                                                )
-                                                                                                        }
+                                                                                                                        )
+                                                                                                                }
+                                                                                                }
                                                                                         }
                                                                                 }
                                                                         }
-                                                                }
 
-                                                                // --- Preview of selected match ---
-                                                                if (selectedHomeTeam != null &&
-                                                                                selectedAwayTeam !=
-                                                                                        null
-                                                                ) {
-                                                                        Spacer(
-                                                                                modifier =
-                                                                                        Modifier.height(
-                                                                                        16.dp
+                                                                        // --- Preview of selected
+                                                                        // match ---
+                                                                        if (selectedHomeTeam !=
+                                                                                        null &&
+                                                                                        selectedAwayTeam !=
+                                                                                                null
+                                                                        ) {
+                                                                                Spacer(
+                                                                                        modifier =
+                                                                                                Modifier.height(
+                                                                                                        16.dp
+                                                                                                )
                                                                                 )
-                                                                        )
-                                                                        TeamVsTeamDisplay(
-                                                                                homeTeamName =
-                                                                                        selectedHomeTeam!!
-                                                                                                .name,
-                                                                                awayTeamName =
-                                                                                        selectedAwayTeam!!
-                                                                                                .name
-                                                                        )
+                                                                                TeamVsTeamDisplay(
+                                                                                        homeTeamName =
+                                                                                                selectedHomeTeam!!
+                                                                                                        .name,
+                                                                                        awayTeamName =
+                                                                                                selectedAwayTeam!!
+                                                                                                        .name
+                                                                                )
+                                                                        }
                                                                 }
                                                         }
+                                                } // End AFL Match Selection
+                                        } // End AFL else block
+
+                                        // For F1, always show event info section
+                                        // For AFL, only show if not in live mode with no
+                                        // matches
+                                        val showEventInfoSection =
+                                                if (currentSelectedLeague == "F1") {
+                                                        // F1 events always show location and amenities
+                                                        true
+                                                } else {
+                                                        // AFL events: show location and amenities for both live and custom matches
+                                                        // This ensures the form sections are always visible for AFL
+                                                        true
                                                 }
 
-                                                val showEventInfoSection =
-                                                        (!isLiveMatchMode) ||
-                                                                (isLiveMatchMode &&
-                                                                        uiState.availableMatches
-                                                                                .isNotEmpty())
-
-                                                if (showEventInfoSection) {
-                                                        // Location
-                                                        EventFormSection(title = "Location") {
+                                        if (showEventInfoSection) {
+                                                // Location
+                                                EventFormSection(title = "Location") {
                                                                 OutlinedTextField(
                                                                         value =
                                                                                 formData.locationName,
                                                                         onValueChange = {
                                                                                 eventViewModel
                                                                                         .updateFormData(
-                                                                                        formData.copy(
+                                                                                                formData.copy(
                                                                                                         locationName =
                                                                                                                 it
                                                                                                 )
@@ -1385,7 +1802,7 @@ fun EventFormDialog(
                                                                         onValueChange = {
                                                                                 eventViewModel
                                                                                         .updateFormData(
-                                                                                        formData.copy(
+                                                                                                formData.copy(
                                                                                                         locationAddress =
                                                                                                                 it
                                                                                                 )
@@ -1410,11 +1827,11 @@ fun EventFormDialog(
                                                                         colors =
                                                                                 ButtonDefaults
                                                                                         .buttonColors(
-                                                                                        containerColor =
-                                                                                                MaterialTheme
-                                                                                                        .colorScheme
-                                                                                                        .primary
-                                                                                )
+                                                                                                containerColor =
+                                                                                                        MaterialTheme
+                                                                                                                .colorScheme
+                                                                                                                .primary
+                                                                                        )
                                                                 ) {
                                                                         Icon(
                                                                                 painter =
@@ -1433,8 +1850,8 @@ fun EventFormDialog(
                                                                         Spacer(
                                                                                 modifier =
                                                                                         Modifier.width(
-                                                                                        8.dp
-                                                                                )
+                                                                                                8.dp
+                                                                                        )
                                                                         )
                                                                         Text("Select Map Location")
                                                                 }
@@ -1450,11 +1867,11 @@ fun EventFormDialog(
                                                                                 colors =
                                                                                         CardDefaults
                                                                                                 .cardColors(
-                                                                                                containerColor =
-                                                                                                        MaterialTheme
-                                                                                                                .colorScheme
-                                                                                                                .surfaceVariant
-                                                                                        )
+                                                                                                        containerColor =
+                                                                                                                MaterialTheme
+                                                                                                                        .colorScheme
+                                                                                                                        .surfaceVariant
+                                                                                                )
                                                                         ) {
                                                                                 Column(
                                                                                         modifier =
@@ -1528,11 +1945,11 @@ fun EventFormDialog(
                                                                                                         ?: 0
                                                                                         eventViewModel
                                                                                                 .updateFormData(
-                                                                                                formData.copy(
+                                                                                                        formData.copy(
                                                                                                                 capacity =
                                                                                                                         capacityInt
+                                                                                                        )
                                                                                                 )
-                                                                                        )
                                                                                 }
                                                                         },
                                                                         label = {
@@ -1545,7 +1962,7 @@ fun EventFormDialog(
                                                                                         keyboardType =
                                                                                                 KeyboardType
                                                                                                         .Number
-                                                                        )
+                                                                                )
                                                                 )
 
                                                                 OutlinedTextField(
@@ -1554,11 +1971,11 @@ fun EventFormDialog(
                                                                         onValueChange = {
                                                                                 eventViewModel
                                                                                         .updateFormData(
-                                                                                        formData.copy(
+                                                                                                formData.copy(
                                                                                                         contactNumber =
                                                                                                                 it
+                                                                                                )
                                                                                         )
-                                                                                )
                                                                         },
                                                                         label = {
                                                                                 Text(
@@ -1595,15 +2012,15 @@ fun EventFormDialog(
                                                                         onCheckedChange = {
                                                                                 eventViewModel
                                                                                         .updateFormData(
-                                                                                        formData.copy(
-                                                                                                amenities =
-                                                                                                        formData.amenities
-                                                                                                                .copy(
-                                                                                                                        isIndoor =
-                                                                                                                                it
-                                                                                                                )
+                                                                                                formData.copy(
+                                                                                                        amenities =
+                                                                                                                formData.amenities
+                                                                                                                        .copy(
+                                                                                                                                isIndoor =
+                                                                                                                                        it
+                                                                                                                        )
+                                                                                                )
                                                                                         )
-                                                                                )
                                                                         },
                                                                         text = "Indoor"
                                                                 )
@@ -1615,15 +2032,15 @@ fun EventFormDialog(
                                                                         onCheckedChange = {
                                                                                 eventViewModel
                                                                                         .updateFormData(
-                                                                                        formData.copy(
-                                                                                                amenities =
-                                                                                                        formData.amenities
-                                                                                                                .copy(
-                                                                                                                        isOutdoor =
-                                                                                                                                it
-                                                                                                                )
+                                                                                                formData.copy(
+                                                                                                        amenities =
+                                                                                                                formData.amenities
+                                                                                                                        .copy(
+                                                                                                                                isOutdoor =
+                                                                                                                                        it
+                                                                                                                        )
+                                                                                                )
                                                                                         )
-                                                                                )
                                                                         },
                                                                         text = "Outdoor"
                                                                 )
@@ -1635,15 +2052,15 @@ fun EventFormDialog(
                                                                         onCheckedChange = {
                                                                                 eventViewModel
                                                                                         .updateFormData(
-                                                                                        formData.copy(
-                                                                                                amenities =
-                                                                                                        formData.amenities
-                                                                                                                .copy(
-                                                                                                                        isChildFriendly =
-                                                                                                                                it
-                                                                                                                )
+                                                                                                formData.copy(
+                                                                                                        amenities =
+                                                                                                                formData.amenities
+                                                                                                                        .copy(
+                                                                                                                                isChildFriendly =
+                                                                                                                                        it
+                                                                                                                        )
+                                                                                                )
                                                                                         )
-                                                                                )
                                                                         },
                                                                         text = "Child Friendly"
                                                                 )
@@ -1655,15 +2072,15 @@ fun EventFormDialog(
                                                                         onCheckedChange = {
                                                                                 eventViewModel
                                                                                         .updateFormData(
-                                                                                        formData.copy(
-                                                                                                amenities =
-                                                                                                        formData.amenities
-                                                                                                                .copy(
-                                                                                                                        isPetFriendly =
-                                                                                                                                it
-                                                                                                                )
+                                                                                                formData.copy(
+                                                                                                        amenities =
+                                                                                                                formData.amenities
+                                                                                                                        .copy(
+                                                                                                                                isPetFriendly =
+                                                                                                                                        it
+                                                                                                                        )
+                                                                                                )
                                                                                         )
-                                                                                )
                                                                         },
                                                                         text = "Pet Friendly"
                                                                 )
@@ -1675,15 +2092,15 @@ fun EventFormDialog(
                                                                         onCheckedChange = {
                                                                                 eventViewModel
                                                                                         .updateFormData(
-                                                                                        formData.copy(
-                                                                                                amenities =
-                                                                                                        formData.amenities
-                                                                                                                .copy(
-                                                                                                                        hasParking =
-                                                                                                                                it
-                                                                                                                )
+                                                                                                formData.copy(
+                                                                                                        amenities =
+                                                                                                                formData.amenities
+                                                                                                                        .copy(
+                                                                                                                                hasParking =
+                                                                                                                                        it
+                                                                                                                        )
+                                                                                                )
                                                                                         )
-                                                                                )
                                                                         },
                                                                         text = "Parking"
                                                                 )
@@ -1695,15 +2112,15 @@ fun EventFormDialog(
                                                                         onCheckedChange = {
                                                                                 eventViewModel
                                                                                         .updateFormData(
-                                                                                        formData.copy(
-                                                                                                amenities =
-                                                                                                        formData.amenities
-                                                                                                                .copy(
-                                                                                                                        hasFood =
-                                                                                                                                it
-                                                                                                                )
+                                                                                                formData.copy(
+                                                                                                        amenities =
+                                                                                                                formData.amenities
+                                                                                                                        .copy(
+                                                                                                                                hasFood =
+                                                                                                                                        it
+                                                                                                                        )
+                                                                                                )
                                                                                         )
-                                                                                )
                                                                         },
                                                                         text = "Food"
                                                                 )
@@ -1715,15 +2132,15 @@ fun EventFormDialog(
                                                                         onCheckedChange = {
                                                                                 eventViewModel
                                                                                         .updateFormData(
-                                                                                        formData.copy(
-                                                                                                amenities =
-                                                                                                        formData.amenities
-                                                                                                                .copy(
-                                                                                                                        hasToilet =
-                                                                                                                                it
-                                                                                                                )
+                                                                                                formData.copy(
+                                                                                                        amenities =
+                                                                                                                formData.amenities
+                                                                                                                        .copy(
+                                                                                                                                hasToilet =
+                                                                                                                                        it
+                                                                                                                        )
+                                                                                                )
                                                                                         )
-                                                                                )
                                                                         },
                                                                         text = "Toilet"
                                                                 )
@@ -1735,15 +2152,15 @@ fun EventFormDialog(
                                                                         onCheckedChange = {
                                                                                 eventViewModel
                                                                                         .updateFormData(
-                                                                                        formData.copy(
-                                                                                                amenities =
-                                                                                                        formData.amenities
-                                                                                                                .copy(
-                                                                                                                        hasWifi =
-                                                                                                                                it
-                                                                                                                )
+                                                                                                formData.copy(
+                                                                                                        amenities =
+                                                                                                                formData.amenities
+                                                                                                                        .copy(
+                                                                                                                                hasWifi =
+                                                                                                                                        it
+                                                                                                                        )
+                                                                                                )
                                                                                         )
-                                                                                )
                                                                         },
                                                                         text = "WiFi"
                                                                 )
@@ -1769,15 +2186,15 @@ fun EventFormDialog(
                                                                         onCheckedChange = {
                                                                                 eventViewModel
                                                                                         .updateFormData(
-                                                                                        formData.copy(
+                                                                                                formData.copy(
                                                                                                         accessibility =
                                                                                                                 formData.accessibility
                                                                                                                         .copy(
                                                                                                                                 isWheelchairAccessible =
                                                                                                                                         it
+                                                                                                                        )
                                                                                                 )
                                                                                         )
-                                                                                )
                                                                         },
                                                                         text =
                                                                                 "Wheelchair Accessible"
@@ -1790,99 +2207,100 @@ fun EventFormDialog(
                                                                         onCheckedChange = {
                                                                                 eventViewModel
                                                                                         .updateFormData(
-                                                                                        formData.copy(
-                                                                                                accessibility =
-                                                                                                        formData.accessibility
-                                                                                                                .copy(
-                                                                                                                        hasAccessibleToilets =
-                                                                                                                                it
-                                                                                                                )
+                                                                                                formData.copy(
+                                                                                                        accessibility =
+                                                                                                                formData.accessibility
+                                                                                                                        .copy(
+                                                                                                                                hasAccessibleToilets =
+                                                                                                                                        it
+                                                                                                                        )
+                                                                                                )
                                                                                         )
-                                                                                )
                                                                         },
                                                                         text = "Accessible Toilets"
                                                                 )
                                                         }
+                                        }
 
-                                                        // Footer buttons
-                                                        HorizontalDivider()
+                                        // Footer buttons
+                                        HorizontalDivider()
 
-                                                        Row(
-                                                                modifier =
-                                                                        Modifier.fillMaxWidth()
-                                                                        .padding(16.dp),
-                                                                horizontalArrangement =
-                                                                        Arrangement.spacedBy(8.dp)
-                                                        ) {
-                                                                OutlinedButton(
-                                                                        onClick = onDismiss,
-                                                                        modifier =
-                                                                                Modifier.weight(1f)
-                                                                ) { Text("Cancel") }
+                                        Row(
+                                                modifier =
+                                                        Modifier.fillMaxWidth()
+                                                                .padding(16.dp),
+                                                horizontalArrangement =
+                                                        Arrangement.spacedBy(8.dp)
+                                        ) {
+                                                OutlinedButton(
+                                                        onClick = onDismiss,
+                                                        modifier =
+                                                                Modifier.weight(1f)
+                                                ) { Text("Cancel") }
 
-                                                                Button(
-                                                                        onClick = {
-                                                                                if (!isLiveMatchMode &&
-                                                                                                selectedHomeTeam !=
-                                                                                                        null &&
-                                                                                                selectedAwayTeam !=
-                                                                                                        null
-                                                                                ) {
-                                                                                        eventViewModel
-                                                                                                .createCustomMatch(
-                                                                                                        selectedHomeTeam!!
-                                                                                                                .name,
-                                                                                                        selectedAwayTeam!!
-                                                                                                                .name
-                                                                                        )
-                                                                                }
-                                                                                onSave()
-                                                                        },
-                                                                        modifier =
-                                                                                Modifier.weight(1f),
-                                                                        enabled =
-                                                                                when {
-                                                                                        uiState.isLoading ->
-                                                                                                false
-                                                                                        isLiveMatchMode ->
-                                                                                                formData.selectedMatch !=
-                                                                                                        null &&
-                                                                                                        formData.locationName
-                                                                                                                .isNotBlank() &&
-                                                                                                        formData.locationAddress
-                                                                                                                .isNotBlank()
-                                                                                        else ->
-                                                                                                selectedHomeTeam !=
-                                                                                                        null &&
-                                                                                                        selectedAwayTeam !=
-                                                                                                                null && // Check local state for custom matches
-                                                                                                        formData.locationName
-                                                                                                                .isNotBlank() &&
-                                                                                                        formData.locationAddress
-                                                                                                                .isNotBlank()
-                                                                        }
+                                                Button(
+                                                        onClick = {
+                                                                // For F1, just save. For AFL, create custom match if needed
+                                                                if (currentSelectedLeague == "AFL" && 
+                                                                                isLiveMatchMode == false &&
+                                                                                selectedHomeTeam != null && 
+                                                                                selectedAwayTeam != null &&
+                                                                                formData.selectedMatch?.round != "Custom Match"
                                                                 ) {
-                                                                        if (uiState.isLoading) {
-                                                                                CircularProgressIndicator(
-                                                                                        modifier =
-                                                                                                Modifier.size(
-                                                                                                16.dp
-                                                                                        ),
-                                                                                        color =
-                                                                                                MaterialTheme
-                                                                                                        .colorScheme
-                                                                                                        .onPrimary
+                                                                        // Create custom match from selected teams
+                                                                        eventViewModel
+                                                                                .createCustomMatch(
+                                                                                        selectedHomeTeam!!.name,
+                                                                                        selectedAwayTeam!!.name
                                                                                 )
-                                                                        } else {
-                                                                                Text(
-                                                                                        if (isEditing
-                                                                                        )
-                                                                                                "Update"
-                                                                                        else
-                                                                                                "Create"
-                                                                                )
-                                                                        }
                                                                 }
+                                                                onSave()
+                                                        },
+                                                        modifier =
+                                                                Modifier.weight(1f),
+                                                        enabled =
+                                                                when {
+                                                                        uiState.isLoading ->
+                                                                                false
+                                                                        currentSelectedLeague == "F1" ->
+                                                                                formData.selectedMatch !=
+                                                                                        null &&
+                                                                                        formData.locationName
+                                                                                                .isNotBlank() &&
+                                                                                        formData.locationAddress
+                                                                                                .isNotBlank()
+                                                                        else ->
+                                                                                // AFL: check if match is selected OR teams are selected for custom match
+                                                                                (formData.selectedMatch != null || 
+                                                                                        (currentSelectedLeague == "AFL" && 
+                                                                                                isLiveMatchMode == false && 
+                                                                                                selectedHomeTeam != null && 
+                                                                                                selectedAwayTeam != null)) &&
+                                                                                        formData.locationName
+                                                                                                .isNotBlank() &&
+                                                                                        formData.locationAddress
+                                                                                                .isNotBlank()
+                                                                }
+                                                ) {
+                                                        if (uiState.isLoading) {
+                                                                CircularProgressIndicator(
+                                                                        modifier =
+                                                                                Modifier.size(
+                                                                                        16.dp
+                                                                                ),
+                                                                        color =
+                                                                                MaterialTheme
+                                                                                        .colorScheme
+                                                                                        .onPrimary
+                                                                )
+                                                        } else {
+                                                                Text(
+                                                                        if (isEditing
+                                                                        )
+                                                                                "Update"
+                                                                        else
+                                                                                "Create"
+                                                                )
                                                         }
                                                 }
                                         }
