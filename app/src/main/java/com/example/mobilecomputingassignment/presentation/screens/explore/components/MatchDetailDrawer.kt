@@ -295,9 +295,7 @@ fun MatchDetailDrawer(
 
 @Composable
 private fun TeamsSection(event: Event) {
-    // Add null safety for match details
-    val homeTeam = event.matchDetails?.homeTeam?.takeIf { it.isNotBlank() } ?: "TBD"
-    val awayTeam = event.matchDetails?.awayTeam?.takeIf { it.isNotBlank() } ?: "TBD"
+    val isF1Event = event.matchDetails?.competition == "F1"
     
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -318,50 +316,70 @@ private fun TeamsSection(event: Event) {
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                // Home team
-                Column(horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier.weight(1f)) {
-                    TeamLogo(
-                        teamName = homeTeam,
-                        modifier = Modifier.size(64.dp)
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(
-                        text = homeTeam,
-                        style = MaterialTheme.typography.bodyMedium,
-                        fontWeight = FontWeight.Medium,
-                        modifier = Modifier.fillMaxWidth(),
-                        textAlign = TextAlign.Center
-                    )
-                }
-
-                Text(
-                    text = "VS",
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.padding(horizontal = 8.dp)
+            if (isF1Event) {
+                // F1 Event - Show F1 logo
+                androidx.compose.foundation.Image(
+                        painter = painterResource(id = R.drawable.league_f1),
+                        contentDescription = "F1",
+                        modifier = Modifier.size(80.dp)
                 )
-
-                // Away team
-                Column(horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier.weight(1f)) {
-                    TeamLogo(
-                        teamName = awayTeam,
-                        modifier = Modifier.size(64.dp)
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(
-                        text = awayTeam,
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                        text = event.matchDetails?.venue ?: "F1 Grand Prix",
                         style = MaterialTheme.typography.bodyMedium,
                         fontWeight = FontWeight.Medium,
-                        modifier = Modifier.fillMaxWidth(),
                         textAlign = TextAlign.Center
-                    )
+                )
+            } else {
+                // AFL Event - Show team vs team
+                val homeTeam = event.matchDetails?.homeTeam?.takeIf { it.isNotBlank() } ?: "TBD"
+                val awayTeam = event.matchDetails?.awayTeam?.takeIf { it.isNotBlank() } ?: "TBD"
+                
+                Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically
+                ) {
+                        // Home team
+                        Column(horizontalAlignment = Alignment.CenterHorizontally,
+                                modifier = Modifier.weight(1f)) {
+                                TeamLogo(
+                                        teamName = homeTeam,
+                                        modifier = Modifier.size(64.dp)
+                                )
+                                Spacer(modifier = Modifier.height(8.dp))
+                                Text(
+                                        text = homeTeam,
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        fontWeight = FontWeight.Medium,
+                                        modifier = Modifier.fillMaxWidth(),
+                                        textAlign = TextAlign.Center
+                                )
+                        }
+
+                        Text(
+                                text = "VS",
+                                style = MaterialTheme.typography.titleLarge,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.padding(horizontal = 8.dp)
+                        )
+
+                        // Away team
+                        Column(horizontalAlignment = Alignment.CenterHorizontally,
+                                modifier = Modifier.weight(1f)) {
+                                TeamLogo(
+                                        teamName = awayTeam,
+                                        modifier = Modifier.size(64.dp)
+                                )
+                                Spacer(modifier = Modifier.height(8.dp))
+                                Text(
+                                        text = awayTeam,
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        fontWeight = FontWeight.Medium,
+                                        modifier = Modifier.fillMaxWidth(),
+                                        textAlign = TextAlign.Center
+                                )
+                        }
                 }
             }
         }
