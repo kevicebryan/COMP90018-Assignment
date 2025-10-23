@@ -559,8 +559,8 @@ private fun AmenitiesSection(event: Event) {
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                LazyColumn(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                    items(amenities) { (amenity, _) ->
+                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    amenities.forEach { (amenity, _) ->
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Icon(
                                 imageVector = Icons.Default.Favorite,
@@ -612,8 +612,8 @@ private fun AccessibilitySection(event: Event) {
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                LazyColumn(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                    items(accessibility) { (feature, _) ->
+                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    accessibility.forEach { (feature, _) ->
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Icon(
                                 painter = painterResource(id = R.drawable.ic_accessible),
